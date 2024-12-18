@@ -1,0 +1,449 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi", "prismaSchemaFolder"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// USER //
+enum UserRole {
+  CLIENT
+  AGENCY
+  ADMIN
+}
+
+enum UserLanguage {
+  EN
+  MK
+  AL
+}
+
+model User {
+  id             String         @id @default(cuid())
+  name           String
+  lastName       String?
+  email          String         @unique
+  location       String?
+  emailVerified  DateTime?
+  image          String?
+  hashedPassword String?
+  phone          String?
+  createdAt      DateTime?      @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime?      @updatedAt @db.Timestamptz(3)
+  accessToken    String?
+  refreshToken   String?
+  language       UserLanguage?  @default(MK)
+  role           UserRole       @default(CLIENT)
+  account        Account?
+  clientId       String?
+  client         Client?
+  notifications  Notification[]
+  agencyId       String?
+  agency         Agency?        @relation(fields: [agencyId], references: [id])
+  adminId        String?
+  admin          Admin?
+  ipAddress      String?
+
+  @@index([agencyId])
+  @@index([clientId])
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PasswordResetToken {
+  id      String   @id @default(cuid())
+  email   String   @unique
+  userId  String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+enum NotificationStatus {
+  READ
+  UNREAD
+}
+
+model Notification {
+  id          String             @id @default(cuid())
+  title       String
+  description String
+  status      NotificationStatus @default(UNREAD)
+  recipientId String
+  recipient   User               @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  createdAt   DateTime           @default(now())
+  readAt      DateTime?
+  metadata    Json?
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @unique
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model VerificationToken {
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+// ! END USER //
+
+// ! CLIENT //
+model Client {
+  id                  String                       @id @default(cuid())
+  clientSubscription  ClientPropertySubscription[]
+  favorites           PropertyFavorite[]
+  propertyViews       PropertyView[]
+  clientSearches      ClientSearch[]
+  reviews             AgencyReview[]
+  receiveCompanyEmail Boolean?                     @default(false)
+  receiveCompanySMS   Boolean?                     @default(false)
+  receiveAgentEmail   Boolean?                     @default(false)
+  receiveAgentSMS     Boolean?                     @default(false)
+  userId              String                       @unique
+  user                User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt           DateTime                     @default(now())
+  updatedAt           DateTime                     @updatedAt @db.Timestamptz(3)
+  AgencyView          AgencyView[]
+  PropertyEngagement  PropertyEngagement[]
+
+  @@index([userId])
+}
+
+model ClientSearch {
+  id                         String                      @id @default(cuid())
+  createdAt                  DateTime                    @default(now())
+  updatedAt                  DateTime                    @updatedAt @db.Timestamptz(3)
+  clientId                   String
+  client                     Client                      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title                      Json
+  link                       String
+  filters                    Json
+  clientPropertySubscription ClientPropertySubscription?
+  receiveOffers              Boolean                     @default(false)
+  agencyIds                  String[]
+}
+
+model ClientPropertySubscription {
+  id             String               @id @default(cuid())
+  minSize        Int?
+  maxSize        Int?
+  minPrice       Int?
+  maxPrice       Int?
+  location       String?
+  listingType    PropertyListingType?
+  propertyType   PropertyType?
+  createdAt      DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime             @updatedAt @db.Timestamptz(3)
+  clientId       String?
+  client         Client?              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientSearchId String?              @unique()
+  clientSearch   ClientSearch?        @relation(fields: [clientSearchId], references: [id], onDelete: Cascade)
+}
+
+// ! END CLIENT //
+
+// ! AGENCY //
+enum AgencyPlan {
+  BASIC
+  PREMIUM
+}
+
+enum AgencyApprovalStatus {
+  DECLINED
+  PENDING
+  APPROVED
+}
+
+model Agency {
+  id                     String                  @id @default(cuid())
+  approved               Boolean                 @default(false)
+  status                 AgencyApprovalStatus    @default(PENDING)
+  imotkoApproved         Boolean                 @default(false)
+  plan                   AgencyPlan              @default(BASIC)
+  planUntil              DateTime?
+  email                  String?
+  taxNumber              String?
+  name                   String
+  description            Json?
+  slug                   String?
+  address                String
+  phone                  String?
+  location               String?
+  social                 Json?
+  logo                   Json?
+  credits                Int                     @default(0)
+  owner                  String
+  users                  User[]
+  ratings                AgencyReview[]
+  properties             Property[]
+  propertySale           PropertySale[]
+  agencyView             AgencyView[]
+  AgencySubmissionReview AgencySubmissionReview?
+  createdAt              DateTime                @default(now()) @db.Timestamptz(3)
+  updatedAt              DateTime                @updatedAt @db.Timestamptz(3)
+
+  @@index([location])
+  @@index([name])
+}
+
+model AgencySubmissionReview {
+  id          String   @id @default(cuid())
+  agencyId    String   @unique
+  agency      Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  title       Json
+  description Json
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+}
+
+model AgencyView {
+  id        String   @id @default(cuid())
+  viewDate  DateTime @default(now()) @db.Timestamptz(3)
+  agencyId  String
+  agency    Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([agencyId])
+  @@index([clientId])
+}
+
+model AgencyReview {
+  id         String   @id @default(cuid())
+  approved   Boolean  @default(false)
+  rating     Float
+  comment    String?
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  attributes Json?
+  agencyId   String
+  agency     Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  clientId   String
+  client     Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+// ! END AGENCY //
+
+// ! PROPERTY //
+enum PropertyType {
+  PropertyTyp
+  FLAT
+  HOUSE
+  LAND
+  HOLIDAY_HOME
+  GARAGE
+  COMMERCIAL
+}
+
+enum PropertyStatus {
+  DRAFT
+  PENDING
+  DECLINED
+  PUBLISHED
+  UNPUBLISHED
+  DELETED
+}
+
+enum PropertyListingType {
+  FOR_RENT
+  FOR_SALE
+}
+
+enum PropertyOrientation {
+  NORTH
+  SOUTH
+  EAST
+  WEST
+  NORTHEAST
+  SOUTHEAST
+  NORTHWEST
+  SOUTHWEST
+}
+
+enum PropertyReviewStatus {
+  PENDING
+  DECLINED
+  APPROVED
+}
+
+model Property {
+  id                  String                     @id @default(cuid())
+  name                Json
+  latitude            Float
+  address             String
+  longitude           Float
+  agencyId            String
+  status              PropertyStatus             @default(PENDING)
+  price               Int
+  hasApproximatePrice Boolean?                   @default(false)
+  approximatePrice    Int?
+  estimationPrice     Int?
+  size                Int
+  description         Json
+  slug                String?
+  photos              Json?
+  video               String?
+  createdAt           DateTime                   @default(now()) @db.Timestamptz(3)
+  createdBy           String
+  updatedAt           DateTime                   @updatedAt @db.Timestamptz(3)
+  attributes          Json?
+  yearBuilt           DateTime?
+  remarks             String?
+  builder             String?
+  propertyDeed        String?
+  inDevelopment       Boolean?                   @default(false)
+  inDevelopmentUntil  DateTime?                  @db.Timestamptz(3)
+  propertyPlan        Json?
+  poi                 Json?
+  featured            Boolean                    @default(false)
+  featuredUntil       DateTime?
+  orientation         PropertyOrientation?
+  views               PropertyView[]
+  type                PropertyType
+  listingType         PropertyListingType
+  agency              Agency?                    @relation(fields: [agencyId], references: [id])
+  PropertyFavorite    PropertyFavorite[]
+  PropertySale        PropertySale?
+  PropertyEngagement  PropertyEngagement[]
+  propertyReview      PropertySubmissionReview[]
+  propertyLocation    PropertyLocation?          @relation(fields: [propertyLocationId], references: [id])
+  propertyLocationId  String?
+
+  categoryId    String?
+  category      PropertyCategory?    @relation(fields: [categoryId], references: [id])
+  subcategoryId String?
+  subcategory   PropertySubcategory? @relation(fields: [subcategoryId], references: [id])
+
+  @@index([propertyLocationId, listingType])
+  @@index([propertyLocationId])
+  @@index([agencyId])
+}
+
+model PropertyCategory {
+  id            String                @id
+  value         String
+  properties    Property[]
+  subcategories PropertySubcategory[]
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+}
+
+model PropertySubcategory {
+  id         String           @id
+  value      String
+  categoryId String
+  category   PropertyCategory @relation(fields: [categoryId], references: [id])
+  properties Property[]
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([value, categoryId])
+}
+
+model PropertyLocation {
+  id         String             @id @default(cuid())
+  name       String             @unique
+  parentId   String?
+  parent     PropertyLocation?  @relation("ParentChild", fields: [parentId], references: [id])
+  children   PropertyLocation[] @relation("ParentChild")
+  properties Property[]
+}
+
+model PropertySubmissionReview {
+  id          String   @id @default(cuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  title       Json
+  description Json
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+}
+
+model PropertySale {
+  id           String   @id @default(cuid())
+  propertyId   String   @unique
+  property     Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  agencyId     String
+  propertyDeed String
+  agency       Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  soldAt       DateTime @default(now()) @db.Timestamptz(3)
+  soldFor      Int
+  visibility   Boolean  @default(true)
+}
+
+model PropertyView {
+  id             String   @id @default(cuid())
+  viewDate       DateTime @default(now()) @db.Timestamptz(3)
+  propertyId     String
+  clientId       String?
+  property       Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  client         Client?  @relation(fields: [clientId], references: [id])
+  additionalInfo Json?
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([propertyId])
+  @@index([clientId])
+}
+
+model PropertyFavorite {
+  id           String    @id @default(cuid())
+  favoriteDate DateTime  @db.Timestamptz(3)
+  propertyId   String?
+  property     Property? @relation(fields: [propertyId], references: [id])
+  clientId     String?
+  client       Client?   @relation(fields: [clientId], references: [id])
+
+  @@index([propertyId])
+  @@index([clientId])
+}
+
+enum EngagementType {
+  SHARE
+  SUBSCRIBE
+  FAVORITE
+}
+
+model PropertyEngagement {
+  id             String         @id @default(cuid())
+  propertyId     String
+  property       Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  type           EngagementType
+  clientId       String?
+  client         Client?        @relation(fields: [clientId], references: [id])
+  createdAt      DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime       @updatedAt @db.Timestamptz(3)
+  additionalInfo Json?
+}
+
+// ! END PROPERTY //

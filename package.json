@@ -1,0 +1,46 @@
+{
+  "name": "express-auth",
+  "version": "1.0.0",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "start:dev": "nodemon app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@prisma/client": "^6.0.1",
+    "bcryptjs": "^2.4.3",
+    "chalk": "^5.3.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.4.1",
+    "express-validator": "^7.2.0",
+    "helmet": "^8.0.0",
+    "http-errors": "^2.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "module-alias": "^2.2.3",
+    "morgan": "^1.10.0",
+    "prisma": "^6.0.1",
+    "uuid": "^11.0.3",
+    "xss-clean": "^0.1.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9",
+    "prettier": "^3.4.2"
+  },
+  "imports": {
+    "#root/*.js": "./*.js",
+    "#routes/*.js": "./routes/*.js",
+    "#middlewares/*.js": "./middlewares/*.js",
+    "#services/*.js": "./services/*.js",
+    "#controllers/*.js": "./controllers/*.js",
+    "#prisma/*.js": "./prisma/*.js",
+    "#utils/*.js": "./utils/*.js"
+  }
+}

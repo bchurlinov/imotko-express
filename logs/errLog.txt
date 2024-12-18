@@ -1,0 +1,204 @@
+20241215	12:58:30	d2475b8f-27a2-4b3a-a4db-dfc3efb2c210	UnauthorizedError: Invalid credentials
+20241215	12:59:07	7239ee10-89a7-401f-a8de-6f72f37fd5ad	UnauthorizedError: Invalid credentials
+20241215	13:00:51	a63aa4ac-ccf1-43ec-b348-4f19421a663d	TypeError: prisma.user.findUnsique is not a function
+20241215	13:02:21	38686263-2881-4f3d-85c9-808cf232fb23	UnauthorizedError: Invalid credentials
+20241215	13:08:39	e9695358-53b2-4f34-80f5-57d36b0e1e27	UnauthorizedError: Invalid credentials
+20241215	13:12:07	bd30b119-b697-4612-82c8-5b50b1f03f51	ForbiddenError: Unauthorized
+20241215	14:41:32	95e6faf5-d38f-434f-96a4-e0041629215a	Error: Illegal arguments: string, undefined
+20241215	14:42:10	2eb0e3a9-8317-4d55-89f7-4f01499711a6	Error: Illegal arguments: string, undefined
+20241215	14:42:34	227f28ee-6b95-483d-994b-3078c80e67bd	Error: Illegal arguments: string, undefined
+20241217	11:30:17	f9703a08-97fd-409b-803c-b273804e644a	TypeError: Cannot destructure property 'email' of 'body' as it is undefined.
+20241217	11:31:17	d7d2863c-dd0d-42ef-a040-fcfd5544435d	ReferenceError: cookies is not defined
+20241217	11:31:36	26ab4afe-c225-46fb-bb3c-46cd1f029b2f	TypeError: request.headers.get is not a function
+20241217	11:32:09	d971b5a0-e23f-46b8-8676-09ccd7e356a7	TypeError: request.headers.get is not a function
+20241217	11:33:07	28c5ef4d-ca1e-4852-a493-6f8e2193d20d	PrismaClientValidationError: 
+Invalid `prisma.user.create()` invocation:
+
+{
+  data: {
+    email: "bojan@test123.com",
+    name: "Bojan",
+    hashedPassword: "$2a$10$E5HXXCTgDtSBgpNdvVn8T.9/gkUnoB0W4bBEjStmJklkeZmSlMTau",
+    image: "undefined/user_avatar.svg",
+    language: "mk",
+              ~~~~
+    location: "ohrid",
+    role: "CLIENT",
+    ipAddress: "::1"
+  }
+}
+
+Invalid value for argument `language`. Expected UserLanguage.
+20241217	11:34:06	c757b59b-c452-453a-a936-ef40bc843e70	ConflictError: userEmailExist
+20241217	11:34:48	66814531-fdd4-4f3b-a151-70a870181778	ConflictError: userEmailExist
+20241217	11:36:51	956678a5-4efc-4a0b-aa7a-d2059372f3eb	ConflictError: userEmailExist
+20241217	11:37:39	8f30e110-22c3-4dd5-9aa2-180d5fdf7dbf	ConflictError: userEmailExist
+20241217	11:39:58	a689cd79-22e7-4898-a88a-1b37286de4f6	ConflictError: userEmailExist
+20241217	11:40:52	099d4e48-c914-4d95-b329-1bf4354087ac	ConflictError: userEmailExist
+20241217	11:41:12	0212f4c2-7faf-419f-9869-313932c2b9bc	ConflictError: userEmailExist
+20241217	11:41:30	f0ec7a06-507f-4cc6-b53c-20bae6afebb2	ConflictError: userEmailExist
+20241217	11:42:06	31dea7c4-7cc6-43c5-9a85-c53b1a123eb0	ConflictError: userEmailExist
+20241217	11:44:47	2b7c4197-ce7b-4299-9bc2-897aaf624c2f	ConflictError: userEmailExist
+20241217	11:45:16	69510a35-0754-4d1f-aff6-7b4c7ed30938	ConflictError: userEmailExist
+20241217	11:46:15	28019722-b844-4b8f-aff0-e60cc4e2b438	ConflictError: userEmailExist
+20241217	11:46:48	b59fd9fa-cba3-4504-b95d-13c734454630	TypeError: next is not a function
+20241217	11:47:12	f7671300-d542-4c04-8092-f6e8a516aa83	Error: Illegal arguments: string, undefined
+20241217	11:47:42	e5ae852c-3ebe-4112-bbdf-3275a7ef8475	Error: Illegal arguments: string, undefined
+20241217	11:48:14	50fe8711-f207-435c-91e7-de2100d7c1f9	Error: Illegal arguments: string, undefined
+20241217	11:50:24	49e375a7-6034-4c49-b457-c137d130d045	UnauthorizedError: Invalid credentials
+20241217	11:50:56	813eed4c-881d-4292-ad84-009f708d4742	UnauthorizedError: Invalid credentials
+20241217	11:53:12	17aed7de-2fd3-4587-abb5-fb8d03df6a32	UnauthorizedError: Invalid credentials
+20241217	11:54:44	4b82bcd9-53dd-46cb-ad26-391485339ff8	UnauthorizedError: Unauthorized
+20241217	11:57:57	d818a9d0-87dc-4505-bdc1-eb078972587e	UnauthorizedError: Invalid credentials
+20241217	11:58:26	5dc34773-4224-49fd-8b6a-1f98c38dcbcb	UnauthorizedError: Invalid credentials
+20241217	11:58:45	e22a9efb-d7d5-410e-8ef0-dea25a9b910b	UnauthorizedError: Invalid credentials
+20241217	12:11:07	e4636c11-11c6-4899-b83e-a4e447112db7	ForbiddenError: Unauthorized
+20241217	12:12:02	ce6a542e-04ff-465e-b8f7-b22a9d055394	ForbiddenError: Unauthorized
+20241217	12:13:12	f9070033-94f8-47a2-ad10-5028d8d013a9	ForbiddenError: Unauthorized
+20241217	12:13:21	ca930040-538f-4fb9-bd47-347688c1afd8	UnauthorizedError: Unauthorized
+20241217	12:13:36	78f53abb-fdeb-4ed7-98ed-75a1040a7c42	UnauthorizedError: Unauthorized
+20241217	12:13:54	fc64a4bc-a760-4d61-bbb3-ad06009befaf	UnauthorizedError: Unauthorized
+20241217	12:26:24	490ecba8-95a3-4c3f-8961-c4b29e8a20d2	UnauthorizedError: Unauthorized
+20241217	12:26:41	adde6140-10ed-4d66-a4c0-2fe56f515d49	InternalServerError: Internal Server Error
+20241217	12:26:42	10084a7e-ea65-4bef-8ac2-e0cec20ca38e	InternalServerError: Internal Server Error
+20241217	12:26:54	a28c6fc4-fabe-4d84-8c3f-ed834f79f5a8	InternalServerError: Internal Server Error
+20241217	12:27:30	6e3c8373-0f93-4f78-a569-814523cdeae7	UnauthorizedError: Unauthorized
+20241217	14:06:13	39e44ab9-b198-48ce-b2dd-ac38cb850459	ForbiddenError: Forbidden
+20241217	14:06:15	be55d897-18ed-43cb-a8c8-88c5bd65206a	ForbiddenError: Forbidden
+20241217	14:06:16	16af42e6-b2f7-4901-bd23-71b056e3e3b9	ForbiddenError: Forbidden
+20241217	14:06:16	b4f585e4-7376-42a4-8bf7-3b6792148c55	ForbiddenError: Forbidden
+20241217	14:06:16	c88d018c-a46d-418c-96d5-779e1ae079b3	ForbiddenError: Forbidden
+20241217	14:06:18	cabea2e2-a802-4563-bcf4-01df867f1045	ForbiddenError: Forbidden
+20241217	14:06:18	80d19353-2528-446c-91a9-9c44174abceb	ForbiddenError: Forbidden
+20241217	14:06:19	06d4ced7-828d-4437-82c6-0289753427e6	ForbiddenError: Forbidden
+20241217	14:06:50	d9fdf58e-140a-4539-aff2-cca1bc684197	ForbiddenError: Forbidden
+20241217	14:06:51	e89b91a7-5572-423f-8928-96367db1dcc8	ForbiddenError: Forbidden
+20241218	11:44:52	4d34b52d-4df6-4881-b105-926139d47507	ConflictError: userEmailExist
+20241218	11:51:39	3d728c3b-6f25-4aaa-be91-7eff20e6a842	ConflictError: userEmailExist
+20241218	11:53:58	8240429c-a0af-4a34-8266-d862ea3f3a97	ForbiddenError: Unauthorized
+20241218	11:56:01	050f7755-8ffa-40c1-91ad-67994aed2e87	ForbiddenError: Unauthorized
+20241218	11:56:40	ca8b4cd0-abca-4fab-853d-56576280c0e1	UnauthorizedError: Unauthorized
+20241218	11:57:28	32851795-0e0a-4cb7-9011-e9a56823e713	UnauthorizedError: Unauthorized
+20241218	11:57:48	6b6c9e6c-8fc6-4815-95f4-40edbea5b454	ForbiddenError: Forbidden
+20241218	11:58:02	655a293e-01ad-46dc-b157-35b077d8371f	ForbiddenError: Forbidden
+20241218	11:58:15	b5799fb3-cbfa-40e3-be50-6dc6fbbc2d78	ForbiddenError: Forbidden
+20241218	11:59:02	aa8a8639-59a6-40cd-ae7c-b16ebe370177	ForbiddenError: Unauthorized
+20241218	12:00:21	7d2a1f9c-84e3-4d58-9bc8-44de672553f9	UnauthorizedError: Unauthorized
+20241218	12:00:55	f5f5a3c0-b036-403b-a411-aa97f1389713	UnauthorizedError: Unauthorized
+20241218	12:01:02	5c617db3-2e49-40ea-907e-18442bf424d3	UnauthorizedError: Unauthorized
+20241218	12:01:17	a2d21e2c-2344-4044-bd36-0f977790578a	ForbiddenError: Unauthorized
+20241218	12:01:19	d62f6a46-5f84-4624-a84f-c413851e3482	UnauthorizedError: Unauthorized
+20241218	12:01:28	5b478d1f-e70b-4b86-944b-84bd101a5d9e	UnauthorizedError: Unauthorized
+20241218	12:01:55	7ceb6a14-28d2-4149-a0df-31cffef2e215	UnauthorizedError: Unauthorized
+20241218	12:02:56	5d6fdafe-b992-4f6e-8a46-953b88f2c53c	ForbiddenError: Unauthorized
+20241218	12:03:50	fb7993f8-b489-4c69-8c62-c36c686b43f4	UnauthorizedError: Unauthorized
+20241218	12:05:38	0df2931e-6f96-46e0-9f65-d64470fcc267	ForbiddenError: Forbidden
+20241218	12:05:39	a6b3b851-8819-4df0-8059-488559652f03	ForbiddenError: Forbidden
+20241218	12:07:18	d34859e7-cc38-4e36-83d3-b829d4006aae	ForbiddenError: Forbidden
+20241218	12:07:53	b06069ce-4611-45f1-97bf-0a6a5f4b3a9b	UnauthorizedError: Unauthenticated
+20241218	12:07:56	eca7884e-5560-4d08-a367-a7b7cac45a64	UnauthorizedError: Unauthenticated
+20241218	12:08:00	dac5f003-383b-4693-916b-03714364fa33	UnauthorizedError: Unauthenticated
+20241218	12:08:15	afdeb907-7ff8-45dd-b85e-32b50305e495	UnauthorizedError: Unauthenticated
+20241218	12:08:17	37fa5864-e457-48e7-ad5e-5f41c0260942	UnauthorizedError: Unauthenticated
+20241218	12:09:30	e86ba235-b9cd-4d93-a830-ac831a89e741	ForbiddenError: Unauthorized
+20241218	15:04:27	1856c8c5-c1b8-43d7-92d5-47014ae1ba72	UnauthorizedError: Unauthenticated
+20241218	15:16:01	32c9cae7-5051-47cd-84f3-0811e02b9cc4	Error: Cannot set headers after they are sent to the client
+20241218	15:16:57	9f86042f-8de5-4422-b623-ec8c5f7963fa	UnauthorizedError: Unauthenticated
+20241218	15:18:18	c1cc6145-cbcd-4fef-ab34-9b6c098ada53	UnauthorizedError: Unauthenticated
+20241218	15:18:33	ecb68135-8b71-4950-bbef-27b15376faeb	UnauthorizedError: Unauthenticated
+20241218	15:18:34	edbd54e4-0354-4b09-ad03-f96f8e8a04fd	UnauthorizedError: Unauthenticated
+20241218	16:10:30	1d36539d-d035-4462-af7d-4c8128441173	ConflictError: userEmailExist
+20241218	17:32:33	6ab585ee-ad92-4b18-8a95-e6e516830ae4	UnauthorizedError: Unauthenticated
+20241218	17:41:16	8e05e038-f557-4e0d-a8ca-f33beaa7cb68	TypeError: prisma.user.updatee is not a function
+20241218	17:49:22	4dc069c8-037b-4b77-94fe-8904c4edad1e	UnauthorizedError: Unauthenticated
+20241218	17:53:03	9c47c23a-9f5b-4173-ad63-008b8fa17764	ConflictError: userEmailExist
+20241218	17:53:31	7659d444-9073-4ece-bbec-c77388b43b4c	PrismaClientValidationError: 
+Invalid `prisma.user.create()` invocation:
+
+{
+  data: {
+    email: "bojan@test123411111.com",
+    name: "Bojan",
+    hashedPassword: "$2a$10$4ctytRc/VSJAKrDmSxaWRuirvrrJSLW8.HeU21mI1BYS2XHIw/J5y",
+    image: "undefined/user_avatar.svg",
+    language: "SW",
+              ~~~~
+    location: "ohrid",
+    ipAddress: "::1",
+    role: "CLIENT"
+  }
+}
+
+Invalid value for argument `language`. Expected UserLanguage.
+20241218	17:54:05	7108eb39-37c7-4c28-a7fc-d33988ec2fb3	PrismaClientValidationError: 
+Invalid `prisma.user.create()` invocation:
+
+{
+  data: {
+    email: "bojan@test123411111.com",
+    name: "Bojan",
+    hashedPassword: "$2a$10$Ds1o639hFgsgSd9OzlG5k.dpI5cjqZOHZQfp6Q/YFe/wnJuTlafwK",
+    image: "undefined/user_avatar.svg",
+    language: "SW",
+              ~~~~
+    location: "ohrid",
+    ipAddress: "::1",
+    role: "CLIENT"
+  }
+}
+
+Invalid value for argument `language`. Expected UserLanguage.
+20241218	17:54:24	97dfd1ac-a412-4767-beea-db974950e84c	PrismaClientValidationError: 
+Invalid `prisma.user.create()` invocation:
+
+{
+  data: {
+    email: "bojan@test123411111.com",
+    name: "Bojan",
+    hashedPassword: "$2a$10$kgFbgO0Lb7DzjY59VEC9n.eASgkhmyaMI9RUkKtPRzD5v6OpXvGAi",
+    image: "undefined/user_avatar.svg",
+    language: "SW",
+              ~~~~
+    location: "ohrid",
+    ipAddress: "::1",
+    role: "CLIENT"
+  }
+}
+
+Invalid value for argument `language`. Expected UserLanguage.
+20241218	17:54:26	6cee5e53-57f2-49f0-8f34-0fa7445c78cc	PrismaClientValidationError: 
+Invalid `prisma.user.create()` invocation:
+
+{
+  data: {
+    email: "bojan@test123411111.com",
+    name: "Bojan",
+    hashedPassword: "$2a$10$nPlHiDUawJ2I9W1KisGxJuzaOzggz9gwUab3kQ1yqm0DdZ6EHOUIu",
+    image: "undefined/user_avatar.svg",
+    language: "SW",
+              ~~~~
+    location: "ohrid",
+    ipAddress: "::1",
+    role: "CLIENT"
+  }
+}
+
+Invalid value for argument `language`. Expected UserLanguage.
+20241218	17:54:40	936a8074-867e-46bd-9fab-9bd81db4924c	PrismaClientValidationError: 
+Invalid `prisma.user.create()` invocation:
+
+{
+  data: {
+    email: "asd",
+    name: "Bojan",
+    hashedPassword: "$2a$10$MQui6sWBC8zgBl1NF2kth.zOhpi1cYScGhRaUs.wakphLerrCXHY6",
+    image: "undefined/user_avatar.svg",
+    language: "SW",
+              ~~~~
+    location: "ohrid",
+    ipAddress: "::1",
+    role: "CLIENT"
+  }
+}
+
+Invalid value for argument `language`. Expected UserLanguage.
