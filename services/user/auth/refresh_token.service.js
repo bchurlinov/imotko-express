@@ -20,7 +20,6 @@ export const refreshTokenService = async (currentRefreshToken, currentAccessToke
                 data: { refreshToken: null },
             })
         }
-
         throw createError(403, "Unauthorized")
     }
 

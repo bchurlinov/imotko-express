@@ -202,3 +202,16 @@ Invalid `prisma.user.create()` invocation:
 }
 
 Invalid value for argument `language`. Expected UserLanguage.
+20241218	18:01:39	300a5352-fa00-43cc-94fb-262d79512d5d	UnauthorizedError: Invalid credentials
+20241218	18:01:46	0b3bb663-763a-4180-bc91-63998f2372e9	ForbiddenError: Unauthorized
+20241218	18:01:46	926f3dea-11b7-4596-9048-a82a72b5468f	ForbiddenError: Unauthorized
+20241218	18:01:47	2be8942b-abf6-4402-9255-39acba568a29	ForbiddenError: Unauthorized
+20241218	18:01:48	b18d0b2e-9bb9-4b6c-b3fc-d8631fbe74bd	ForbiddenError: Unauthorized
+20241218	18:01:49	54b3ff26-4bbe-455b-a073-fc6a948467b5	ForbiddenError: Unauthorized
+20241218	18:01:54	f28d2313-cf01-4394-b1bd-e329200b6332	ForbiddenError: Unauthorized
+20241218	18:01:55	eb3bb9a6-f632-4049-9bd5-bd400f17665a	ForbiddenError: Unauthorized
+20241218	18:02:01	738b62e0-5a89-4700-bb03-e1bb865a65c6	UnauthorizedError: Unauthenticated
+20241218	18:02:02	5daceab3-937d-4036-89fe-f678dc479de6	UnauthorizedError: Unauthenticated
+20241218	18:04:26	5510f80b-8a05-4b6e-8693-50329e08226e	UnauthorizedError: Unauthenticated
+20241218	18:04:29	992057b9-f7c7-4958-8b60-a06e6383d1bc	ForbiddenError: Unauthorized
+20241218	18:04:30	d5dad0e0-1fec-4af3-8c24-d643a949a54d	ForbiddenError: Unauthorized
