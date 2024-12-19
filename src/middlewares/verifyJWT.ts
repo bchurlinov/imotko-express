@@ -1,22 +1,25 @@
+import { Request, Response, NextFunction } from "express"
 import jwt from "jsonwebtoken"
 import createError from "http-errors"
 
-export const verifyJWT = (req, res, next) => {
+export const verifyJWT = (req: Request, res: Response, next: NextFunction): void => {
     try {
-        // Check if the accessToken exists in cookies
-        const authHeader = req.headers.authorization || req.headers.Authorization
-        if (!authHeader?.startsWith("Bearer ")) return next(createError(401, "Unauthorized")) // No token in cookies
+        const authHeader = Array.isArray(req.headers.authorization)
+            ? req.headers.authorization[0]
+            : req.headers.authorization
+
+        if (!authHeader?.startsWith("Bearer ")) return next(createError(401, "Unauthorized"))
+
         const token = authHeader.split(" ")[1]
 
-        // Verify the token
-        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET || "", (err, decoded) => {
             if (err) {
                 console.error("JWT Verification Error:", err.message)
                 return next(createError(401, "Unauthenticated"))
             }
 
             // Attach the decoded user information to the request
-            req.user = decoded.email
+            req.user = { email: (decoded as { email: string }).email }
             next()
         })
     } catch (err) {

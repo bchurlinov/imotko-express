@@ -1,10 +1,9 @@
+import { Request, Response, NextFunction } from "express"
 import dotenv from "dotenv"
 import express from "express"
 import cookieParser from "cookie-parser"
 import rateLimit from "express-rate-limit"
 import helmet from "helmet"
-// @ts-ignore
-import xss from "xss-clean"
 import cors from "cors"
 import morgan from "morgan"
 
@@ -12,21 +11,21 @@ import morgan from "morgan"
 import initializeRoutes from "./routes"
 
 // Middlewares
-import { errorMiddleware } from "./middlewares/errorMiddleware"
-import { credentials } from "./middlewares/credentials"
-import { verifyJWT } from "./middlewares/verifyJWT"
+import { errorMiddleware } from "#middlewares/errorMiddleware"
+import { credentials } from "#middlewares/credentials"
+import { verifyJWT } from "#middlewares/verifyJWT"
 
 // Route imports
 // import { authRouter } from "./routes/index.js"
 
 dotenv.config()
-const index = express()
+const app = express()
 
 // Log middleware
-index.use(morgan("dev"))
+app.use(morgan("dev"))
 
 // credentials middleware
-index.use(credentials)
+app.use(credentials)
 
 // custom middleware logger
 // app.use(logger)
@@ -38,29 +37,27 @@ const limiter = rateLimit({
     legacyHeaders: false,
 })
 
-index.set("trust proxy", false)
-index.use(limiter)
-index.use(helmet())
-index.use(cors())
-index.use(xss())
+app.set("trust proxy", false)
+app.use(limiter)
+app.use(helmet())
+app.use(cors())
 
-index.use(express.json())
-index.use(cookieParser(process.env.JWT_SECRET))
+app.use(express.json())
+app.use(cookieParser(process.env.JWT_SECRET))
 
 // Initialize Routes
-initializeRoutes(index)
+initializeRoutes(app)
 
-index.get("/api/users", verifyJWT, (req: any, res: any, next: any) => {
-    return res.status(200).send([1, 2, 3])
+app.get("/api/users", verifyJWT, (req: Request, res: Response, next: NextFunction): void => {
+    res.status(200).send([1, 2, 3])
 })
-
 // Error handling middleware
-index.use(errorMiddleware)
+app.use(errorMiddleware)
 
 const port = process.env.PORT || 5050
 const start = () => {
     try {
-        index.listen(port, () => console.log(`Server is listening on port ${port}...`))
+        app.listen(port, () => console.log(`Server is listening on port ${port}...`))
     } catch (error) {
         console.log(error)
     }

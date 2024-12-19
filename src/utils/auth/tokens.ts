@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken"
-import prisma from "#prisma/prisma"
+import prisma from "../../../prisma/prisma"
 
 const generateTokens = (email: string) => {
     const accessToken = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET as any, { expiresIn: "15m" })
