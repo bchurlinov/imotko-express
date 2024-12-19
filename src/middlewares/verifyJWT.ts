@@ -9,8 +9,7 @@ export const verifyJWT = (req: Request, res: Response, next: NextFunction): void
             : req.headers.authorization
 
         if (!authHeader?.startsWith("Bearer ")) return next(createError(401, "Unauthorized"))
-
-        const token = authHeader.split(" ")[1]
+        const token: string = authHeader.split(" ")[1]
 
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET || "", (err, decoded) => {
             if (err) {

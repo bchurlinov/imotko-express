@@ -8,7 +8,7 @@ const fsPromises = fs.promises
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-export const logEvents = async (message, logName) => {
+export const logEvents = async (message: string, logName: string): Promise<void> => {
     const dateTime = `${format(new Date(), "yyyyMMdd\tHH:mm:ss")}`
     const logItem = `${dateTime}\t${uuid()}\t${message}\n`
 
@@ -22,8 +22,8 @@ export const logEvents = async (message, logName) => {
     }
 }
 
-export const logger = (req, res, next) => {
-    logEvents(`${req.method}\t${req.headers.origin || "localhost"}\t${req.url}`, "reqLog.txt")
-    console.log(`${req.method} ${req.path}`)
-    next()
-}
+// export const logger = (req, res, next) => {
+//     logEvents(`${req.method}\t${req.headers.origin || "localhost"}\t${req.url}`, "reqLog.txt")
+//     console.log(`${req.method} ${req.path}`)
+//     next()
+// }

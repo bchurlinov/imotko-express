@@ -8,15 +8,12 @@ import cors from "cors"
 import morgan from "morgan"
 
 // Routes
-import initializeRoutes from "./routes"
+import initializeRoutes from "#routes/index"
 
 // Middlewares
 import { errorMiddleware } from "#middlewares/errorMiddleware"
 import { credentials } from "#middlewares/credentials"
 import { verifyJWT } from "#middlewares/verifyJWT"
-
-// Route imports
-// import { authRouter } from "./routes/index.js"
 
 dotenv.config()
 const app = express()
@@ -26,9 +23,6 @@ app.use(morgan("dev"))
 
 // credentials middleware
 app.use(credentials)
-
-// custom middleware logger
-// app.use(logger)
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,

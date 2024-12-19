@@ -1,12 +1,25 @@
+import { Request, Response, NextFunction, ErrorRequestHandler } from "express"
 import { logEvents } from "./logger"
 import morgan from "morgan"
 import chalk from "chalk"
 
+interface CustomError extends Error {
+    statusCode?: number
+    message: string
+    status: number
+    errors: any
+}
+
 // Define a custom Morgan format for errors
-morgan.token("errorMessage", (req, res: any) => res.locals.errorMessage || "No Error Message")
+morgan.token("errorMessage", (req: Request, res: Response): string => res.locals.errorMessage || "No Error Message")
 
 // Error middleware
-export const errorMiddleware = async (error, req, res, next) => {
+export const errorMiddleware: ErrorRequestHandler = async (
+    error: CustomError,
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> => {
     const status = error.status || 500 // Default to 500 if no status provided
     const message = error.message || "Something went wrong" // Default error message
     const errors = error.errors || null // Details for validation or specific errors
@@ -38,7 +51,7 @@ export const errorMiddleware = async (error, req, res, next) => {
     })(req, res, () => {})
 
     // Return the standardized error response
-    return res.status(status).json({
+    res.status(status).json({
         status,
         message,
         ...(errors && { errors }), // Include detailed errors if available
