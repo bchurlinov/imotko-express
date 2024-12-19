@@ -1,15 +1,15 @@
-import { generateTokens } from "#utils/auth/tokens.js"
+import { generateTokens } from "#utils/auth/tokens"
 import createError from "http-errors"
-import prisma from "#prisma/prisma.js"
+import prisma from "#prisma/prisma"
 import bcrypt from "bcryptjs"
 
-export const loginUserService = async body => {
+export const loginUserService = async (body: any) => {
     const { email, password } = body
 
     if (!email || !password) throw createError(401, "Invalid credentials")
 
     // Find user
-    const user = await prisma.user.findUnique({ where: { email } })
+    const user: any = await prisma.user.findUnique({ where: { email } })
     if (!user) throw createError(401, "Invalid credentials")
 
     // Verify password

@@ -1,17 +1,20 @@
 {
   "name": "express-auth",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "start": "node app.js",
-    "start:dev": "nodemon app.js"
+    "build": "npx tsc",
+    "start": "npx tsc && node dist/index.js",
+    "start:dev": "nodemon"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
     "@prisma/client": "^6.0.1",
+    "@types/cors": "^2.8.17",
+    "@types/morgan": "^1.9.9",
     "bcryptjs": "^2.4.3",
     "chalk": "^5.3.0",
     "cookie-parser": "^1.4.7",
@@ -24,23 +27,23 @@
     "helmet": "^8.0.0",
     "http-errors": "^2.0.0",
     "jsonwebtoken": "^9.0.2",
-    "module-alias": "^2.2.3",
     "morgan": "^1.10.0",
     "prisma": "^6.0.1",
     "uuid": "^11.0.3",
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/dotenv": "^8.2.3",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.10.2",
+    "concurrently": "^9.1.0",
     "nodemon": "^3.1.9",
-    "prettier": "^3.4.2"
-  },
-  "imports": {
-    "#root/*.js": "./*.js",
-    "#routes/*.js": "./routes/*.js",
-    "#middlewares/*.js": "./middlewares/*.js",
-    "#services/*.js": "./services/*.js",
-    "#controllers/*.js": "./controllers/*.js",
-    "#prisma/*.js": "./prisma/*.js",
-    "#utils/*.js": "./utils/*.js"
+    "prettier": "^3.4.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
   }
 }

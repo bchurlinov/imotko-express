@@ -1,9 +1,9 @@
-import { generateTokens } from "#utils/auth/tokens.js"
+import { tokens } from "#utils/auth"
 import createError from "http-errors"
-import prisma from "#prisma/prisma.js"
+import prisma from "#prisma/prisma"
 import jwt from "jsonwebtoken"
 
-export const refreshTokenService = async (currentRefreshToken, currentAccessToken) => {
+export const refreshTokenService = async (currentRefreshToken: any, currentAccessToken: any) => {
     if (!currentRefreshToken || !currentAccessToken) throw createError(403, "Unauthorized")
 
     // Find user with the refresh token
@@ -11,7 +11,7 @@ export const refreshTokenService = async (currentRefreshToken, currentAccessToke
 
     if (!existingUser) {
         // Verify the token to determine if it's tampered with
-        const decoded = jwt.verify(currentRefreshToken, process.env.REFRESH_TOKEN_SECRET)
+        const decoded: any = jwt.verify(currentRefreshToken, process.env.REFRESH_TOKEN_SECRET as any)
 
         // If token verification passes but no user is found, clear the refresh token in DB
         if (decoded) {
@@ -23,9 +23,9 @@ export const refreshTokenService = async (currentRefreshToken, currentAccessToke
         throw createError(403, "Unauthorized")
     }
 
-    let decoded
+    let decoded: any
     try {
-        decoded = jwt.verify(currentRefreshToken, process.env.REFRESH_TOKEN_SECRET)
+        decoded = jwt.verify(currentRefreshToken, process.env.REFRESH_TOKEN_SECRET as any)
     } catch (err) {
         await prisma.user.update({
             where: { email: existingUser.email },
@@ -35,7 +35,7 @@ export const refreshTokenService = async (currentRefreshToken, currentAccessToke
     }
 
     if (existingUser.email !== decoded.email) throw createError(403, "Unauthorized")
-    const { accessToken, refreshToken } = generateTokens(existingUser.email)
+    const { accessToken, refreshToken } = tokens.generateTokens(existingUser.email)
 
     await prisma.user.update({
         where: { email: existingUser.email },

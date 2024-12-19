@@ -1,17 +1,17 @@
 import jwt from "jsonwebtoken"
-import prisma from "#prisma/prisma.js"
+import prisma from "#prisma/prisma"
 
-const generateTokens = email => {
-    const accessToken = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15m" })
-    const refreshToken = jwt.sign({ email }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "60m" })
+const generateTokens = (email: string) => {
+    const accessToken = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET as any, { expiresIn: "15m" })
+    const refreshToken = jwt.sign({ email }, process.env.REFRESH_TOKEN_SECRET as any, { expiresIn: "60m" })
     return { accessToken, refreshToken }
 }
 
-const invalidateRefreshToken = async email => {
+const invalidateRefreshToken = async (email: any) => {
     return prisma.user.update({ where: { email }, data: { refreshToken: null } })
 }
 
-const clearRefreshTokenCookie = res => {
+const clearRefreshTokenCookie = (res: any) => {
     res.clearCookie("refreshToken", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -19,7 +19,7 @@ const clearRefreshTokenCookie = res => {
     })
 }
 
-const createRefreshTokenCookie = (res, refreshToken) => {
+const createRefreshTokenCookie = (res: any, refreshToken: string): void => {
     res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",

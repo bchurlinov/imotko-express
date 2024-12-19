@@ -5,7 +5,7 @@ const allowedOrigins = [
     "http://localhost:3000",
 ]
 
-export const credentials = (req, res, next) => {
+export const credentials = (req: any, res: any, next: any) => {
     const origin = req.headers.origin
     if (allowedOrigins.includes(origin)) res.header("Access-Control-Allow-Credentials", true)
     next()

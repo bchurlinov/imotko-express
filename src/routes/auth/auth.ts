@@ -4,7 +4,7 @@ import {
     registerUserController,
     logoutUserController,
     refreshTokenController,
-} from "#controllers/user/auth/auth.controller.js"
+} from "#controllers/user/auth/auth.controller"
 import { check } from "express-validator"
 
 const router = express.Router()

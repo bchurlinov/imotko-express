@@ -1,9 +1,9 @@
-import { logEvents } from "./logger.js"
+import { logEvents } from "./logger"
 import morgan from "morgan"
 import chalk from "chalk"
 
 // Define a custom Morgan format for errors
-morgan.token("errorMessage", (req, res) => res.locals.errorMessage || "No Error Message")
+morgan.token("errorMessage", (req, res: any) => res.locals.errorMessage || "No Error Message")
 
 // Error middleware
 export const errorMiddleware = async (error, req, res, next) => {
@@ -26,7 +26,7 @@ export const errorMiddleware = async (error, req, res, next) => {
     )
 
     // Use Morgan to log the request and error details
-    morgan((tokens, req, res) => {
+    morgan((tokens, req, res: any) => {
         return [
             chalk.red("ERROR >>>"),
             chalk.yellow(tokens.method(req, res)),

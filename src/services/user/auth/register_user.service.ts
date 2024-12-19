@@ -1,10 +1,10 @@
 import { UserRole } from "@prisma/client"
 import createError from "http-errors"
-import prisma from "#prisma/prisma.js"
+import prisma from "#prisma/prisma"
 import bcrypt from "bcryptjs"
 
 // TODO Add S3 URL when creating a new account
-export const registerUserService = async body => {
+export const registerUserService = async (body: any) => {
     const { email, password, name, language, location, ipAddress } = body
     if (!name || !password || !email) throw createError(401, "Name, email and password are required.")
 

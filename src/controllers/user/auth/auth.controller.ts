@@ -1,29 +1,29 @@
-import { loginUserService } from "#services/user/auth/login_user.service.js"
-import { registerUserService } from "#services/user/auth/register_user.service.js"
-import { logoutUserService } from "#services/user/auth/logout_user.service.js"
-import { ip, tokens } from "#utils/auth/index.js"
-import { refreshTokenService } from "#services/user/auth/refresh_token.service.js"
+import { loginUserService } from "#services/user/auth/login_user.service"
+import { registerUserService } from "#services/user/auth/register_user.service"
+import { logoutUserService } from "#services/user/auth/logout_user.service"
+import { ip, tokens } from "#utils/auth/"
+import { refreshTokenService } from "#services/user/auth/refresh_token.service"
 import { validationResult } from "express-validator"
 import jwt from "jsonwebtoken"
 
-export const loginUserController = async (req, res, next) => {
+export const loginUserController = async (req: any, res: any, next: any) => {
     try {
         const errors = validationResult(req)
         if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() })
         const currentRefreshToken = req.cookies.refreshToken
 
-        const { accessToken, refreshToken, user } = await loginUserService({ ...req.body })
+        const { accessToken, refreshToken, user }: any = await loginUserService({ ...req.body })
 
         if (currentRefreshToken) {
             try {
-                const decoded = jwt.verify(currentRefreshToken, process.env.REFRESH_TOKEN_SECRET)
+                const decoded: any = jwt.verify(currentRefreshToken, process.env.REFRESH_TOKEN_SECRET as any)
                 if (decoded.email === req.body.email && user.refreshToken !== currentRefreshToken) {
                     await tokens.invalidateRefreshToken(user.email)
                     tokens.clearRefreshTokenCookie(res)
                     return res.status(403).json({ message: "Suspicious activity detected. Please log in again." })
                 }
             } catch (err) {
-                console.log("Invalid token in cookies:", err.message)
+                console.error(err)
                 next(err)
             }
         }
@@ -36,7 +36,7 @@ export const loginUserController = async (req, res, next) => {
     }
 }
 
-export const registerUserController = async (req, res, next) => {
+export const registerUserController = async (req: any, res: any, next: any) => {
     try {
         const errors = validationResult(req)
         if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() })
@@ -54,7 +54,7 @@ export const registerUserController = async (req, res, next) => {
     }
 }
 
-export const logoutUserController = async (req, res, next) => {
+export const logoutUserController = async (req: any, res: any, next: any) => {
     try {
         const { refreshToken } = req.cookies
         if (!refreshToken) {
@@ -73,7 +73,7 @@ export const logoutUserController = async (req, res, next) => {
     }
 }
 
-export const refreshTokenController = async (req, res, next) => {
+export const refreshTokenController = async (req: any, res: any, next: any) => {
     try {
         const cookies = req.cookies
         const authHeader = req.headers.authorization || req.headers.Authorization
