@@ -221,3 +221,4 @@ Invalid value for argument `language`. Expected UserLanguage.
 20241219	14:58:23	8bd25140-bd44-4493-905a-3ef328de4b37	Error: Cannot set headers after they are sent to the client
 20241219	14:58:45	41e7b6c7-f3c6-4882-9cbf-9f9c070648df	Error: Cannot set headers after they are sent to the client
 20241220	10:23:25	730c639e-c14c-4c3e-8c12-4d10dfdc68d5	TokenExpiredError: jwt expired
+20241220	15:46:41	5035a098-7d80-48be-a667-1e5e422a11b7	TokenExpiredError: jwt expired

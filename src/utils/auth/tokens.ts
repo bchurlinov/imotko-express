@@ -1,5 +1,7 @@
 import { Response } from "express"
 import { User } from "@prisma/client"
+import { v4 as uuidv4 } from "uuid"
+import { VerificationToken } from "@prisma/client"
 import jwt from "jsonwebtoken"
 import prisma from "#prisma/prisma"
 
@@ -30,4 +32,35 @@ const createRefreshTokenCookie = (res: Response, refreshToken: string): void => 
     })
 }
 
-export { generateTokens, invalidateRefreshToken, clearRefreshTokenCookie, createRefreshTokenCookie }
+const generateVerificationToken = async (email: string): Promise<VerificationToken> => {
+    const token = uuidv4()
+    const expires = new Date(new Date().getTime() + 3600 * 1000)
+
+    const existingVerificationToken = await prisma.verificationToken.findFirst({
+        where: { email },
+    })
+
+    if (existingVerificationToken) {
+        await prisma.verificationToken.delete({
+            where: {
+                id: existingVerificationToken.id,
+            },
+        })
+    }
+
+    return prisma.verificationToken.create({
+        data: {
+            email,
+            token,
+            expires,
+        },
+    })
+}
+
+export {
+    generateTokens,
+    invalidateRefreshToken,
+    clearRefreshTokenCookie,
+    createRefreshTokenCookie,
+    generateVerificationToken,
+}

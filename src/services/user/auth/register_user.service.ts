@@ -1,4 +1,5 @@
 import { UserRole } from "@prisma/client"
+import { tokens } from "#utils/auth/"
 import createError from "http-errors"
 import prisma from "#prisma/prisma"
 import bcrypt from "bcryptjs"
@@ -15,7 +16,7 @@ export const registerUserService = async (body: any) => {
     if (existingUser) throw createError(409, "userEmailExist")
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    return prisma.$transaction(async tx => {
+    const newUser = await prisma.$transaction(async tx => {
         const user = await tx.user.create({
             data: {
                 email,
@@ -54,4 +55,7 @@ export const registerUserService = async (body: any) => {
         })
         return user
     })
+
+    const verificationToken = await tokens.generateVerificationToken(newUser.email)
+    return newUser
 }
