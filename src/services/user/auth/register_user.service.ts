@@ -1,5 +1,6 @@
 import { UserRole } from "@prisma/client"
 import { tokens } from "#utils/auth/"
+import { EmailTransporter } from "../../../modules/email_transporter/email_transporter"
 import createError from "http-errors"
 import prisma from "#prisma/prisma"
 import bcrypt from "bcryptjs"
@@ -56,6 +57,11 @@ export const registerUserService = async (body: any) => {
         return user
     })
 
+    // TODO => Check the "redirect"
+    // TODO => Add error scenario for the "result"
     const verificationToken = await tokens.generateVerificationToken(newUser.email)
+    const emailTransporter = await EmailTransporter("mk")
+    const result = await emailTransporter.sendVerificationEmail(verificationToken.email, verificationToken.token, "/")
+
     return newUser
 }
