@@ -53,3 +53,5 @@ const start = () => {
 }
 
 start()
+
+//kill -9 $(lsof -ti:5050)

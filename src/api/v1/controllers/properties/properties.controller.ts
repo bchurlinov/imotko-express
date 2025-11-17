@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express"
+import  { Request, Response, NextFunction } from "express"
 import { getProperties } from "@services/properties/properties.service.js"
 
 export const getPropertiesController = async (
@@ -7,6 +7,7 @@ export const getPropertiesController = async (
     next: NextFunction
 ): Promise<Response | void> => {
     try {
+        console.log(req)
         const properties = await getProperties(req.query)
         return res.status(200).json(properties)
     } catch (error) {
