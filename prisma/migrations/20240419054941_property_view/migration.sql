@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "PropertyView" ALTER COLUMN "viewDate" SET DEFAULT CURRENT_TIMESTAMP;

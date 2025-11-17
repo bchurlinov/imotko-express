@@ -1,15 +1,22 @@
 import path from "path"
 import fs from "fs"
 
-function readTranslationFile(locale: string): string {
+type TranslationMap = Record<string, unknown>
+
+function readTranslationFile(locale: string): TranslationMap {
     const filePath = path.join(process.cwd(), "src/messages", `${locale}.json`)
     const fileContents = fs.readFileSync(filePath, "utf8")
-    return JSON.parse(fileContents)
+    return JSON.parse(fileContents) as TranslationMap
 }
 
 // Function to get nested property from an object using a string path
-function getNestedProperty(obj: string, path: string): string {
-    return path.split(".").reduce((current, key) => current && current[key], obj)
+function getNestedProperty(obj: TranslationMap, targetPath: string): string | undefined {
+    return targetPath.split(".").reduce<TranslationMap | string | undefined>((current, key) => {
+        if (current && typeof current === "object" && key in current) {
+            return (current as TranslationMap)[key] as TranslationMap | string | undefined
+        }
+        return undefined
+    }, obj) as string | undefined
 }
 
 // Main translation function

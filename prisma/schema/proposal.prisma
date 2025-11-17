@@ -1,0 +1,56 @@
+enum ProposalStatus {
+  published
+  unpublished
+  deleted
+}
+
+model Proposal {
+  id          String              @id @default(cuid())
+  title       String
+  description String
+  location    String
+  size        Int?
+  category    PropertyType
+  listingType PropertyListingType
+  status      ProposalStatus      @default(published)
+  photos      Json?
+  clientId    String
+  client      Client              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  offers      ProposalOffer[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt @db.Timestamptz(3)
+}
+
+model ProposalOffer {
+  id                    String                 @id @default(cuid())
+  title                 String
+  price                 Int
+  description           String
+  saleTimeline          DateTime
+  proposalId            String
+  proposal              Proposal               @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  agencyId              String
+  agency                Agency                 @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  proposalCollaboration ProposalCollaboration?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt @db.Timestamptz(3)
+
+  @@index([proposalId])
+}
+
+model ProposalCollaboration {
+  id              String         @id @default(cuid())
+  clientId        String
+  client          Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title           String
+  description     String
+  email           String
+  phone           String?
+  agencyId        String
+  proposalOfferId String         @unique
+  proposalOffer   ProposalOffer? @relation(fields: [proposalOfferId], references: [id], onDelete: Cascade)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt @db.Timestamptz(3)
+
+  @@index([proposalOfferId])
+}

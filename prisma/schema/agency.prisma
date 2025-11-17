@@ -1,0 +1,250 @@
+enum AgencyPlan {
+  BASIC
+  PREMIUM
+}
+
+enum AgencyApprovalStatus {
+  DECLINED
+  PENDING
+  APPROVED
+  DELETED
+}
+
+enum AgencyInvitationStatus {
+  pending
+  accepted
+  declined
+  expired
+}
+
+enum AgencyRole {
+  OWNER
+  ADMIN
+  AGENT
+  MEMBER
+}
+
+model Agency {
+  id                     String                  @id @default(cuid())
+  status                 AgencyApprovalStatus    @default(PENDING)
+  imotkoApproved         Boolean                 @default(false)
+  plan                   AgencyPlan              @default(BASIC)
+  planUntil              DateTime?
+  email                  String?
+  taxNumber              String?
+  name                   String
+  description            Json?
+  slug                   String?
+  address                String
+  phone                  String?
+  location               String?
+  social                 Json?
+  logo                   Json?
+  credits                Int                     @default(0)
+  owner                  String
+  users                  User[]
+  ratings                AgencyReview[]
+  properties             Property[]
+  propertySale           PropertySale[]
+  agencyView             AgencyView[]
+  proposalOffer          ProposalOffer[]
+  AgencySubmissionReview AgencySubmissionReview?
+  //
+  ownerId                String?                 @unique
+  agencyOwner            User?                   @relation("AgencyOwner", fields: [ownerId], references: [id])
+  agencyMembers          AgencyMember[]
+  agencyInvitation       AgencyInvitation[]
+  agencyClient           AgencyClient[]          @relation("AgencyClient")
+  //
+  createdAt              DateTime                @default(now()) @db.Timestamptz(3)
+  updatedAt              DateTime                @updatedAt @db.Timestamptz(3)
+
+  @@index([location])
+  @@index([name])
+}
+
+model AgencyClientNotes {
+  id              String       @id @default(cuid())
+  title           String
+  description     String
+  agencyClientId  String
+  agencyClient    AgencyClient @relation(fields: [agencyClientId], references: [id], onDelete: Cascade)
+  createdById     String
+  createdByMember AgencyMember @relation(fields: [createdById], references: [id])
+  createdAt       DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime     @updatedAt @db.Timestamptz(3)
+}
+
+enum AgencyClientStatus {
+  active
+  inactive
+}
+
+model AgencyClient {
+  id               String                   @id @default(cuid())
+  name             String
+  lastName         String?
+  email            String?
+  phone            String?
+  status           AgencyClientStatus?      @default(active)
+  memberNotes      AgencyClientNotes[]
+  location         String?
+  agencyId         String
+  agency           Agency                   @relation("AgencyClient", fields: [agencyId], references: [id], onDelete: Cascade)
+  createdById      String?
+  createdBy        AgencyMember?            @relation("ClientCreatedBy", fields: [createdById], references: [id])
+  preferences      AgencyClientPreference[]
+  ownedProperties  Property[]               @relation("PropertyOwner")
+  rentedProperties Property[]               @relation("PropertyRenter")
+  createdAt        DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime                 @updatedAt @db.Timestamptz(3)
+}
+
+enum AgencyClientPreferenceStatus {
+  active
+  sent
+  interested
+  not_interested
+  inactive
+  expired
+}
+
+model AgencyClientPreference {
+  id                 String                       @id @default(cuid())
+  propertyType       PropertyType?
+  listingType        PropertyListingType?
+  minPrice           Int?
+  maxPrice           Int?
+  minSize            Int?
+  maxSize            Int?
+  categoryId         String?
+  subcategoryId      String?
+  locationId         String?
+  location           String?
+  //
+  createdById        String?
+  createdBy          AgencyMember?                @relation("ClientPreferenceCreatedBy", fields: [createdById], references: [id])
+  //
+  agencyClientId     String?
+  agencyClient       AgencyClient?                @relation(fields: [agencyClientId], references: [id], onDelete: Cascade)
+  offeredPropertyIds String[]                     @default([])
+  createdAt          DateTime                     @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime                     @updatedAt @db.Timestamptz(3)
+  //
+  status             AgencyClientPreferenceStatus @default(active)
+  lastOfferSentAt    DateTime?
+
+  @@index([agencyClientId])
+  @@index([minPrice, maxPrice, propertyType])
+}
+
+enum AgencyMemberStatus {
+  active
+  suspended
+  inactive
+  deleted
+}
+
+enum AgencyMemberRole {
+  viewer
+  collaborator
+  agent
+  manager
+  admin
+}
+
+model AgencyMember {
+  id                     String                   @id @default(cuid())
+  userId                 String                   @unique
+  user                   User                     @relation("AgencyMember", fields: [userId], references: [id], onDelete: Cascade)
+  agencyId               String?
+  agency                 Agency?                  @relation(fields: [agencyId], references: [id])
+  status                 AgencyMemberStatus?      @default(active)
+  role                   AgencyMemberRole         @default(viewer)
+  createdProperties      Property[]
+  agencyClientNotes      AgencyClientNotes[]
+  agencyClient           AgencyClient[]           @relation("ClientCreatedBy")
+  AgencyClientPreference AgencyClientPreference[] @relation("ClientPreferenceCreatedBy")
+  reminders              AgentReminder[]
+  createdAt              DateTime?                @default(now()) @db.Timestamptz(3)
+  updatedAt              DateTime?                @updatedAt @db.Timestamptz(3)
+}
+
+model AgencyInvitation {
+  id        String                 @id @default(cuid())
+  token     String                 @unique
+  agencyId  String
+  agency    Agency                 @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  email     String
+  senderId  String
+  sender    User                   @relation("InvitingSender", fields: [senderId], references: [id], onDelete: Cascade)
+  status    AgencyInvitationStatus @default(pending)
+  expiresAt DateTime
+  createdAt DateTime               @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime               @updatedAt @db.Timestamptz(3)
+}
+
+model AgencySubmissionReview {
+  id          String   @id @default(cuid())
+  agencyId    String   @unique
+  agency      Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  title       Json
+  description Json
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+}
+
+model AgencyView {
+  id             String   @id @default(cuid())
+  agencyId       String
+  agency         Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  clientId       String?
+  client         Client?  @relation(fields: [clientId], references: [id])
+  additionalInfo Json?
+  viewDate       DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([agencyId])
+  @@index([clientId])
+}
+
+model AgencyReview {
+  id         String   @id @default(cuid())
+  approved   Boolean  @default(false)
+  rating     Float
+  comment    String?
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  attributes Json?
+  agencyId   String
+  agency     Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  clientId   String
+  client     Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+enum ReminderStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  EXPIRED
+}
+
+model AgentReminder {
+  id             String         @id @default(cuid())
+  title          String
+  description    String
+  status         ReminderStatus @default(ACTIVE)
+  agencyMemberId String
+  agencyMember   AgencyMember   @relation(fields: [agencyMemberId], references: [id], onDelete: Cascade)
+  // Scheduling fields (NEW)
+  startDate      DateTime       @db.Timestamptz(3) // When to start sending
+  isRecurring    Boolean        @default(false) // Daily or one-time
+  endDate        DateTime?      @db.Timestamptz(3) // When to stop (optional)
+  // Tracking field (NEW)
+  lastSentAt     DateTime?      @db.Timestamptz(3) // Track last notification sent
+  //
+  createdAt      DateTime?      @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime?      @updatedAt @db.Timestamptz(3)
+
+  @@index([agencyMemberId])
+  @@index([status])
+}

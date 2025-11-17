@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "ClientPropertySubscription" ALTER COLUMN "minSize" DROP NOT NULL,
+ALTER COLUMN "maxSize" DROP NOT NULL,
+ALTER COLUMN "minPrice" DROP NOT NULL,
+ALTER COLUMN "maxPrice" DROP NOT NULL,
+ALTER COLUMN "location" DROP NOT NULL;

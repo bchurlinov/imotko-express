@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "Admin" ALTER COLUMN "updatedAt" SET DATA TYPE TIMESTAMPTZ(3);
+
+-- AlterTable
+ALTER TABLE "Client" ALTER COLUMN "updatedAt" SET DATA TYPE TIMESTAMPTZ(3);
+
+-- AlterTable
+ALTER TABLE "ClientSearch" ALTER COLUMN "updatedAt" SET DATA TYPE TIMESTAMPTZ(3);

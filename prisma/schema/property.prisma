@@ -1,0 +1,204 @@
+enum PropertyType {
+  flat
+  house
+  land
+  holiday_home
+  garage
+  commercial
+}
+
+enum PropertyListingType {
+  for_rent
+  for_sale
+}
+
+enum PropertyOrientation {
+  north
+  south
+  east
+  west
+  northeast
+  southeast
+  northwest
+  southwest
+}
+
+enum PropertyReviewStatus {
+  PENDING
+  DECLINED
+  APPROVED
+}
+
+enum PropertyStatus {
+  DRAFT
+  PENDING
+  DECLINED
+  PUBLISHED
+  UNPUBLISHED
+  DELETED
+}
+
+enum EngagementType {
+  SHARE
+  SUBSCRIBE
+  FAVORITE
+}
+
+model Property {
+  id                            String                     @id @default(cuid())
+  name                          Json
+  latitude                      Float
+  address                       String
+  longitude                     Float
+  agencyId                      String?
+  status                        PropertyStatus             @default(PENDING)
+  price                         Int
+  hasApproximatePrice           Boolean?                   @default(false)
+  approximatePrice              Int?
+  estimationPrice               Int?
+  size                          Int
+  description                   Json
+  slug                          String?
+  photos                        Json?
+  video                         String?
+  createdAt                     DateTime                   @default(now()) @db.Timestamptz(3)
+  createdBy                     String
+  createdByMemberId             String?
+  createdByMember               AgencyMember?              @relation(fields: [createdByMemberId], references: [id])
+  updatedAt                     DateTime                   @default(now()) @db.Timestamptz(3)
+  attributes                    Json?
+  yearBuilt                     DateTime?
+  remarks                       String?
+  builder                       String?
+  propertyCadastralMunicipality String?
+  propertyDeed                  String?
+  inDevelopment                 Boolean?                   @default(false)
+  inDevelopmentUntil            DateTime?                  @db.Timestamptz(3)
+  propertyPlan                  Json?
+  poi                           Json?
+  featured                      Boolean                    @default(false)
+  featuredUntil                 DateTime?
+  orientation                   PropertyOrientation?
+  views                         PropertyView[]
+  type                          PropertyType
+  listingType                   PropertyListingType
+  agency                        Agency?                    @relation(fields: [agencyId], references: [id])
+  PropertyFavorite              PropertyFavorite[]
+  PropertySale                  PropertySale?
+  PropertyEngagement            PropertyEngagement[]
+  propertyReview                PropertySubmissionReview[]
+  propertyLocation              PropertyLocation?          @relation(fields: [propertyLocationId], references: [id])
+  propertyLocationId            String?
+  modifications                 Json?
+  categoryId                    String?
+  category                      PropertyCategory?          @relation(fields: [categoryId], references: [id])
+  subcategoryId                 String?
+  subcategory                   PropertySubcategory?       @relation(fields: [subcategoryId], references: [id])
+  ownerId                       String?
+  owner                         AgencyClient?              @relation("PropertyOwner", fields: [ownerId], references: [id])
+  renterId                      String?
+  renter                        AgencyClient?              @relation("PropertyRenter", fields: [renterId], references: [id])
+  externalId                    String?
+  //
+  autoRenewEnabled              Boolean                    @default(false)
+  autoRenewStartDate            DateTime?
+  autoRenewEndDate              DateTime?
+  lastAutoRenewedAt             DateTime?
+  bumpedAt                      DateTime?                  @db.Timestamptz(3)
+
+  @@index([propertyLocationId, listingType])
+  @@index([propertyLocationId])
+  @@index([agencyId])
+  @@index([bumpedAt])
+}
+
+model PropertyCategory {
+  id            String                @id
+  value         String
+  properties    Property[]
+  subcategories PropertySubcategory[]
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+}
+
+model PropertySubcategory {
+  id         String           @id
+  value      String
+  categoryId String
+  category   PropertyCategory @relation(fields: [categoryId], references: [id])
+  properties Property[]
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@unique([value, categoryId])
+}
+
+model PropertyLocation {
+  id         String             @id @default(cuid())
+  name       String             @unique
+  parentId   String?
+  parent     PropertyLocation?  @relation("ParentChild", fields: [parentId], references: [id])
+  children   PropertyLocation[] @relation("ParentChild")
+  properties Property[]
+}
+
+model PropertySubmissionReview {
+  id          String   @id @default(cuid())
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  title       Json
+  description Json
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+}
+
+model PropertySale {
+  id           String   @id @default(cuid())
+  propertyId   String   @unique
+  property     Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  agencyId     String
+  propertyDeed String
+  agency       Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  soldAt       DateTime @default(now()) @db.Timestamptz(3)
+  soldFor      Int
+  visibility   Boolean  @default(true)
+}
+
+model PropertyView {
+  id             String   @id @default(cuid())
+  viewDate       DateTime @default(now()) @db.Timestamptz(3)
+  propertyId     String
+  clientId       String?
+  property       Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  client         Client?  @relation(fields: [clientId], references: [id])
+  additionalInfo Json?
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([propertyId])
+  @@index([clientId])
+}
+
+model PropertyFavorite {
+  id           String    @id @default(cuid())
+  favoriteDate DateTime  @db.Timestamptz(3)
+  propertyId   String?
+  property     Property? @relation(fields: [propertyId], references: [id])
+  clientId     String?
+  client       Client?   @relation(fields: [clientId], references: [id])
+
+  @@index([propertyId])
+  @@index([clientId])
+}
+
+model PropertyEngagement {
+  id             String         @id @default(cuid())
+  propertyId     String
+  property       Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  type           EngagementType
+  clientId       String?
+  client         Client?        @relation(fields: [clientId], references: [id])
+  createdAt      DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime       @updatedAt @db.Timestamptz(3)
+  additionalInfo Json?
+}

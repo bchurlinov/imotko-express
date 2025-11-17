@@ -1,0 +1,55 @@
+model Client {
+  id                    String                       @id @default(cuid())
+  clientSubscription    ClientPropertySubscription[]
+  favorites             PropertyFavorite[]
+  propertyViews         PropertyView[]
+  clientSearches        ClientSearch[]
+  reviews               AgencyReview[]
+  receiveCompanyEmail   Boolean?                     @default(false)
+  receiveCompanySMS     Boolean?                     @default(false)
+  receiveAgentEmail     Boolean?                     @default(false)
+  receiveAgentSMS       Boolean?                     @default(false)
+  userId                String                       @unique
+  user                  User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt             DateTime                     @default(now())
+  updatedAt             DateTime                     @updatedAt @db.Timestamptz(3)
+  AgencyView            AgencyView[]
+  PropertyEngagement    PropertyEngagement[]
+  Proposal              Proposal[]
+  ProposalCollaboration ProposalCollaboration[]
+  preferences           Json?
+
+  @@index([userId])
+}
+
+model ClientSearch {
+  id                         String                      @id @default(cuid())
+  createdAt                  DateTime                    @default(now())
+  updatedAt                  DateTime                    @updatedAt @db.Timestamptz(3)
+  clientId                   String
+  client                     Client                      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title                      Json
+  link                       String
+  filters                    Json
+  clientPropertySubscription ClientPropertySubscription?
+  receiveOffers              Boolean                     @default(false)
+  agencyIdsJson              Json?
+}
+
+model ClientPropertySubscription {
+  id             String               @id @default(cuid())
+  minSize        Int?
+  maxSize        Int?
+  minPrice       Int?
+  maxPrice       Int?
+  location       String?
+  listingType    PropertyListingType?
+  category       String
+  subCategory    String?
+  createdAt      DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime             @updatedAt @db.Timestamptz(3)
+  clientId       String?
+  client         Client?              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientSearchId String?              @unique()
+  clientSearch   ClientSearch?        @relation(fields: [clientSearchId], references: [id], onDelete: Cascade)
+}

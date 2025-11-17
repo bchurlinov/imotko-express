@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "@/*": ["src/*"],
+            "@controllers/*": ["src/api/v1/controllers/*"],
+            "@middlewares/*": ["src/api/v1/middlewares/*"],
+            "@routes/*": ["src/api/v1/routes/*"],
+            "@services/*": ["src/api/v1/services/*"],
+            "@generated/prisma": ["src/generated/prisma/index.js"]
+        },
+        "target": "ES2021",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "outDir": "dist",
+        "strict": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true
+    },
+    "include": ["src", "prisma/generated"],
+    "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,48 @@
+model SearchQuery {
+  id          String              @id @default(cuid())
+  location    String
+  listingType PropertyListingType
+  category    String
+  subCategory String?
+  priceFrom   Int?
+  priceTo     Int?
+  sizeFrom    Int?
+  sizeTo      Int?
+  clientId    String?
+  createdAt   DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime            @updatedAt @db.Timestamptz(3)
+
+  @@index([location, listingType, category])
+}
+
+enum ExternalListingCategory {
+  FOR_SALE
+  FOR_RENT
+  TO_BUY
+  TO_RENT
+}
+
+model ExternalListing {
+  id          String                  @id @default(cuid())
+  category    ExternalListingCategory
+  fullName    String
+  type        String
+  title       String
+  description String
+  price       String
+  attributes  String?
+  location    String
+  phoneNumber String?
+  email       String?
+  sourceId    String
+  sourceName  String
+  url         String
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt @db.Timestamptz(3)
+
+  @@index([category])
+  @@index([location])
+  @@index([sourceName])
+  @@index([createdAt])
+  @@map("listings")
+}

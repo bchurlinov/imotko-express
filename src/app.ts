@@ -1,4 +1,3 @@
-import { Request, Response, NextFunction } from "express"
 import dotenv from "dotenv"
 import express from "express"
 import cookieParser from "cookie-parser"
@@ -8,12 +7,11 @@ import cors from "cors"
 import morgan from "morgan"
 
 // Routes
-import initializeRoutes from "#routes/index"
+import initializeRoutes from "./api/v1/routes/index.js"
 
 // Middlewares
-import { errorMiddleware } from "#middlewares/errorMiddleware"
-import { credentials } from "#middlewares/credentials"
-import { verifyJWT } from "#middlewares/verifyJWT"
+import { errorMiddleware } from "./api/v1/middlewares/errorMiddleware.js"
+import { credentials } from "./api/v1/middlewares/credentials.js"
 
 dotenv.config()
 const app = express()
@@ -42,9 +40,6 @@ app.use(cookieParser(process.env.JWT_SECRET))
 // Initialize Routes
 initializeRoutes(app)
 
-app.get("/api/users", verifyJWT, (req: Request, res: Response, next: NextFunction): void => {
-    res.status(200).send([1, 2, 3])
-})
 // Error handling middleware
 app.use(errorMiddleware)
 

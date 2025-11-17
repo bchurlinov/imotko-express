@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Agency" ALTER COLUMN "planUntil" DROP DEFAULT,
+ALTER COLUMN "planUntil" SET DATA TYPE TIMESTAMP(3);

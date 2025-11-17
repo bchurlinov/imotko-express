@@ -1,0 +1,25 @@
+//! Run Migration -> npx prisma migrate dev
+//! Generate Migraitons -> npx prisma generate
+//! RESET DB -> npx prisma db push --force-reset
+//! Prisma Studio -> npx prisma studio 
+//! Create migration but don't apply it -> npx migrate dev --create-only
+//! Create migration after saving it -> npx prisma migrate up
+// npx prisma migrate status
+// Create migration without applying it -> npx prisma migrate dev --create-only --name update_user_language
+// Delete failed migration in Supabase SQL client => DELETE FROM _prisma_migrations WHERE migration_name = '20240825095759_user_language_change';
+// npx prisma migrate resolve --applied "20250109191434_proposal_offer_title"
+
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["fullTextSearchPostgres", "relationJoins"]
+  moduleFormat    = "esm"
+  binaryTargets   = ["native", "linux-arm64-openssl-3.0.x", "rhel-openssl-3.0.x"]
+  engineType      = "library"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
