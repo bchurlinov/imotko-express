@@ -1,8 +1,8 @@
 import createError from "http-errors"
 import prisma from "@/database/client.js"
 import { createSupabaseClient } from "@/utils/supabaseClient.js"
-import type { Prisma } from "@generated/prisma"
-import { UserLanguage, UserRole } from "@/generated/prisma/index.js"
+import type { Prisma } from "@prisma/client"
+import { UserLanguage, UserRole } from "@prisma/client"
 
 export interface LoginUserInput {
     email: string

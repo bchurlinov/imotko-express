@@ -7,7 +7,6 @@
             "@middlewares/*": ["src/api/v1/middlewares/*"],
             "@routes/*": ["src/api/v1/routes/*"],
             "@services/*": ["src/api/v1/services/*"],
-            "@generated/prisma": ["src/generated/prisma/index.js"]
         },
         "target": "ES2021",
         "module": "NodeNext",

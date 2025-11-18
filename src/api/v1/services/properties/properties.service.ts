@@ -1,12 +1,12 @@
 import prisma from "@/database/client.js"
 import type { Prisma } from "@generated/prisma"
-import { PropertyStatus } from "@/generated/prisma/index.js"
+import { PropertyStatus } from "@prisma/client"
 import { ApiResponse } from "@/types/api.js"
 
 // type Property = Prisma.PropertyGetPayload<{}>
 
 type PropertyWithRelations = Prisma.PropertyGetPayload<{
-    include: { agency: true; }
+    include: { agency: true }
 }>
 
 const PAGE_SIZE = 15
@@ -22,11 +22,7 @@ const ORDER_BY_MAP: Record<PropertySort, Prisma.PropertyOrderByWithRelationInput
     dateDesc: [{ createdAt: "desc" }],
 }
 
-const DEFAULT_ORDER_BY = [
-    { bumpedAt: { sort: "desc", nulls: "last" } },
-    { createdAt: "desc" },
-    { updatedAt: "desc" },
-]
+const DEFAULT_ORDER_BY = [{ bumpedAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }, { updatedAt: "desc" }]
 
 const propertySelect = {
     id: true,
@@ -52,7 +48,7 @@ const propertySelect = {
     //         logo: true,
     //     },
     // },
-    propertyLocation: true
+    propertyLocation: true,
 } satisfies Prisma.PropertySelect
 
 type PrimitiveParam = string | number | boolean | string[] | undefined
@@ -81,7 +77,9 @@ export interface PropertyQueryParams {
     locale?: PrimitiveParam
 }
 
-export const getProperties = async (params: PropertyQueryParams = {}): Promise<ApiResponse<PropertyWithRelations[]>> => {
+export const getProperties = async (
+    params: PropertyQueryParams = {}
+): Promise<ApiResponse<PropertyWithRelations[]>> => {
     try {
         const locale = stringValue(params.locale) ?? DEFAULT_LOCALE
         const filters: Prisma.PropertyWhereInput = {
@@ -219,12 +217,12 @@ const stringValue = (value: PrimitiveParam): string | undefined => {
 }
 
 const stringValues = (value: PrimitiveParam): string[] => {
-    if (Array.isArray(value)) return value.flatMap((entry) => stringValues(entry))
+    if (Array.isArray(value)) return value.flatMap(entry => stringValues(entry))
     const single = stringValue(value)
     if (!single) return []
     return single
         .split(",")
-        .map((token) => token.trim())
+        .map(token => token.trim())
         .filter(Boolean)
 }
 
@@ -358,7 +356,7 @@ const resolveLocationIds = async (locationParam: PrimitiveParam): Promise<string
 
     if (!baseLocations.length) return []
 
-    const discovered = new Set<string>(baseLocations.map((location) => location.id))
+    const discovered = new Set<string>(baseLocations.map(location => location.id))
     let frontier: string[] = [...discovered]
 
     while (frontier.length) {
@@ -369,9 +367,9 @@ const resolveLocationIds = async (locationParam: PrimitiveParam): Promise<string
             select: { id: true },
         })) as LocationRow[]
 
-        const newIds = children.map((child) => child.id).filter((id) => !discovered.has(id))
+        const newIds = children.map(child => child.id).filter(id => !discovered.has(id))
         if (!newIds.length) break
-        newIds.forEach((id) => discovered.add(id))
+        newIds.forEach(id => discovered.add(id))
         frontier = newIds
     }
 
