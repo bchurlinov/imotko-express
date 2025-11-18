@@ -1,7 +1,8 @@
 import { Router } from "express"
 import { body } from "express-validator"
-import { createUserController } from "@controllers/users/users.controller.js"
+import { createUserController, loginUserController } from "@controllers/users/users.controller.js"
 import { validateRequest } from "@middlewares/validate_request.js"
+import { asyncHandler } from "@/utils/helpers/async_handler.js"
 
 const router = Router()
 
@@ -9,10 +10,34 @@ const ALLOWED_LANGUAGES = ["EN", "MK", "AL", "SQ"]
 const ALLOWED_ROLES = ["CLIENT", "AGENCY", "ADMIN"]
 
 router.post(
-    "/",
+    "/login",
     [
-        body("email").notEmpty().withMessage("Email is required").isEmail().withMessage("Invalid email").normalizeEmail(),
-        body("password").notEmpty().withMessage("Password is required").isLength({ min: 8 }).withMessage("Password must be at least 8 characters long"),
+        body("email")
+            .notEmpty()
+            .withMessage("Email is required")
+            .isEmail()
+            .withMessage("Invalid email")
+            .normalizeEmail(),
+        body("password").notEmpty().withMessage("Password is required"),
+    ],
+    validateRequest,
+    asyncHandler(loginUserController)
+)
+
+router.post(
+    "/register",
+    [
+        body("email")
+            .notEmpty()
+            .withMessage("Email is required")
+            .isEmail()
+            .withMessage("Invalid email")
+            .normalizeEmail(),
+        body("password")
+            .notEmpty()
+            .withMessage("Password is required")
+            .isLength({ min: 8 })
+            .withMessage("Password must be at least 8 characters long"),
         body("name").notEmpty().withMessage("Name is required").isString().withMessage("Invalid name"),
         body("lastName").optional().isString().withMessage("Invalid last name"),
         body("phone").optional().isString().withMessage("Invalid phone"),
@@ -34,7 +59,7 @@ router.post(
         body("metadata").optional().isObject().withMessage("Metadata must be an object"),
     ],
     validateRequest,
-    createUserController
+    asyncHandler(createUserController)
 )
 
 export default router

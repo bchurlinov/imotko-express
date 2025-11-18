@@ -5,7 +5,9 @@ import {
     logoutUserController,
     refreshTokenController,
 } from "@controllers/user/auth/auth.controller.js"
+import { supabaseAuthWebhookController } from "@controllers/auth/supabaseWebhook.controller.js"
 import { check } from "express-validator"
+import { asyncHandler } from "@/utils/helpers/async_handler.js"
 
 const router = express.Router()
 
@@ -36,5 +38,6 @@ router.post(
 )
 router.get("/logout", logoutUserController)
 router.get("/refresh", refreshTokenController)
+router.post("/supabase/hooks/auth", asyncHandler(supabaseAuthWebhookController))
 
 export default router

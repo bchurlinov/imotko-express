@@ -4,9 +4,9 @@
     "main": "src/app.ts",
     "type": "module",
     "scripts": {
-        "build": "npx tsc",
-        "start": "npx tsc && node dist/app.js",
-        "dev": "nodemon"
+      "build": "tsc",
+      "start": "node dist/app.js",
+      "dev": "nodemon"
     },
     "author": "",
     "license": "ISC",
