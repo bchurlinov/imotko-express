@@ -1,0 +1,5 @@
+20251118	07:19:09	5044363e-ab3b-4e37-aba9-fcade1069b71	BadRequestError: Email, password, and name are required
+20251118	07:55:25	e63a3d2c-0548-453f-8bb4-e5bb596e6f7d	PrismaClientInitializationError: Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+20251118	07:55:45	01e4418f-bf34-4a85-bde8-26563667ffc4	BadRequestError: Invalid login credentials
