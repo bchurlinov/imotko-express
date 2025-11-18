@@ -4,9 +4,10 @@
     "main": "src/app.ts",
     "type": "module",
     "scripts": {
-      "build": "tsc",
+      "build": "prisma generate && prisma migrate deploy && tsc",
       "start": "node dist/app.js",
-      "dev": "nodemon"
+      "dev": "nodemon",
+      "postinstall": "prisma generate"
     },
     "author": "",
     "license": "ISC",
