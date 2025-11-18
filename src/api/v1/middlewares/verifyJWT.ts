@@ -18,7 +18,7 @@ export const verifyJWT = (req: Request, res: Response, next: NextFunction): void
             }
 
             // Attach the decoded user information to the request
-            req.user = { email: (decoded as { email: string }).email }
+            // req.user = { email: (decoded as { email: string }).email }
             next()
         })
     } catch (err) {

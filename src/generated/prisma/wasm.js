@@ -1041,8 +1041,8 @@ const config = {
       "fromEnvVar": null
     },
     "config": {
-      "moduleFormat": "esm",
-      "engineType": "library"
+      "engineType": "library",
+      "moduleFormat": "esm"
     },
     "binaryTargets": [
       {
