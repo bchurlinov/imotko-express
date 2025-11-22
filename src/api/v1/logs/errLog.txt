@@ -1,0 +1,28 @@
+20251117	18:37:35	c4693169-0f9a-41c1-ae06-27eaac4b2799	Error: Failed to fetch properties
+20251117	19:40:31	f2208a1f-4205-4ee9-b3d3-e62115bc61a3	UnauthorizedError: Missing Supabase Bearer token
+20251117	20:01:25	c5755e4e-1ade-472c-9efa-3944274afd41	UnauthorizedError: Invalid or expired Supabase token
+20251117	20:01:27	88da4b5a-eccd-455a-bec0-fb215c6f292e	UnauthorizedError: Invalid or expired Supabase token
+20251117	20:02:37	2b35a398-d39d-4cb5-bef8-727fb8402846	UnauthorizedError: Invalid or expired Supabase token
+20251117	20:02:38	d4fa069f-9eb7-468a-bd86-2bc7bf115422	UnauthorizedError: Invalid or expired Supabase token
+20251117	20:05:52	e2587269-70a7-45fc-8786-de1b4b083e6d	UnauthorizedError: Invalid or expired Supabase token
+20251117	20:05:53	e4be10bb-974d-4d1b-8421-787057dd9f22	UnauthorizedError: Invalid or expired Supabase token
+20251117	20:06:02	ceca2be1-8fda-44fc-a971-f1cdde4b9a33	UnauthorizedError: Invalid or expired Supabase token
+20251117	20:07:27	f7af9ac9-913b-49ad-8cea-555e0e008491	UnauthorizedError: Invalid or expired Supabase token
+20251117	20:09:34	2271a603-bbf2-4c35-9b98-d55602270d3d	UnauthorizedError: Invalid or expired Supabase token
+20251117	20:16:40	07eec4be-faff-4df7-8798-aab449f3abc6	UnauthorizedError: Invalid or expired Supabase token
+20251117	20:16:42	295a2b9d-a932-4d80-81dc-7000b54813ee	UnauthorizedError: Invalid or expired Supabase token
+20251117	20:17:35	f044b2d9-4bfa-466f-9ea6-302d1b21e43b	UnauthorizedError: Invalid or expired Supabase token
+20251117	20:20:33	5e52ba51-3530-4802-9d8c-adc3c8c439ac	UnauthorizedError: Missing Supabase Bearer token
+20251117	20:20:43	464ee2e5-00ad-49bd-84bb-67565d936ca2	UnauthorizedError: Invalid or expired Supabase token
+20251117	20:20:44	78d86cb8-1665-411f-a2b1-7492bc755ab8	UnauthorizedError: Invalid or expired Supabase token
+20251117	20:39:32	ebba7eab-9959-4e42-b8be-c516abac46f9	SyntaxError: Expected ',' or '}' after property value in JSON at position 65 (line 4 column 5)
+20251117	20:40:00	2e9ed03a-937a-4d2f-8278-9430c0462636	ConflictError: User with this email already exists
+20251122	16:50:44	4ea69e62-214f-4d09-bf88-89ba58fc5b62	PrismaClientInitializationError: 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+20251122	16:50:57	e1871f11-8140-4c16-8b17-48c6b985d2a3	ConflictError: User with this email already exists
+20251122	16:59:50	8018094b-f07a-4afb-a8cd-9e0ecc68dc3f	ConflictError: User with this email already exists
