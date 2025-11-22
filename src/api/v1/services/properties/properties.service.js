@@ -1,5 +1,5 @@
 import prisma from "#database/client.js"
-import { PropertyStatus } from "#generated/prisma"
+import { PropertyStatus } from "@prisma/client"
 
 /**
  * @typedef {import('@/types/api.js').ApiResponse} ApiResponse
