@@ -46,6 +46,7 @@
         "#services/*": "./src/api/v1/services/*",
         "#utils/*": "./src/utils/*",
         "#database/*": "./src/database/*",
-        "#generated/prisma": "./src/generated/prisma/index.js"
+        "#generated/prisma": "./src/generated/prisma/index.js",
+        "#supabase": "./src/config/supabase.js"
     }
 }

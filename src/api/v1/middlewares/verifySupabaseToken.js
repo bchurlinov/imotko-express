@@ -1,5 +1,5 @@
-import { createRemoteJWKSet, jwtVerify } from "jose"
-import { getSupabaseJwksUrl, getSupabaseJwtSecret, getSupabaseUrl } from "../../../config/supabase.js"
+import { jwtVerify } from "jose"
+import { getSupabaseJwtSecret, getSupabaseUrl } from "#supabase"
 import createError from "http-errors"
 
 const BEARER_PREFIX = "Bearer "
@@ -11,7 +11,6 @@ const BEARER_PREFIX = "Bearer "
  */
 const normalizeBaseUrl = url => url.replace(/\/$/, "")
 
-const jwks = createRemoteJWKSet(new URL(getSupabaseJwksUrl()))
 const hmacSecret = new TextEncoder().encode(getSupabaseJwtSecret())
 const supabaseIssuer = `${normalizeBaseUrl(getSupabaseUrl())}/auth/v1`
 
@@ -41,22 +40,11 @@ const ensureRole = payload => {
 }
 
 /**
- * Verify JWT token using JWKS or HS256 fallback
+ * Verify JWT token using HS256
  * @param {string} token - JWT token to verify
  * @returns {Promise<object>} Verification result
  */
-const verifyJwt = async token => {
-    try {
-        return await jwtVerify(token, jwks, { issuer: supabaseIssuer })
-    } catch (error) {
-        console.warn(
-            "[Supabase] JWKS verification failed, attempting HS256 fallback:",
-            error instanceof Error ? error.message : error
-        )
-
-        return jwtVerify(token, hmacSecret, { issuer: supabaseIssuer })
-    }
-}
+const verifyJwt = async token => jwtVerify(token, hmacSecret, { issuer: supabaseIssuer })
 
 /**
  * Middleware to verify Supabase JWT token
@@ -77,9 +65,7 @@ export const verifySupabaseToken = async (req, res, next) => {
 
         const token = rawAuthHeader.slice(BEARER_PREFIX.length).trim()
 
-        if (!token) {
-            return next(createError(401, "Missing Supabase Bearer token"))
-        }
+        if (!token) return next(createError(401, "Missing Supabase Bearer token"))
 
         const { payload } = await verifyJwt(token)
 

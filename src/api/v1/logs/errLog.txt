@@ -40,3 +40,20 @@ Please make sure your database server is running at `localhost:5432`.
 20251125	11:54:05	6c2db8b5-5276-4b75-9f7f-20641be4a7d8	BadRequestError: Validation errors
 20251125	11:54:58	30f2ac5f-0ea9-40bc-b5f8-b487a13f2b99	BadRequestError: Validation errors
 20251125	11:55:54	88c589c7-7810-4d96-8584-142f85dd8d10	BadRequestError: Invalid Supabase user data
+20251125	12:12:23	70697ab0-d69b-4735-a670-9c41cbd351f5	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:12:24	2b85d411-25f2-40a6-a893-495dd30b65d1	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:12:26	7fcd9592-0e19-4307-9721-468062cef4c1	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:12:27	346b4a78-fb74-411d-bfc0-6ccb08b58698	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:13:07	9dc2fed0-bccb-4af5-9df0-eb38c062634d	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:13:08	3da05908-5ef0-42f5-a098-c75170d117b1	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:13:49	edbd0e93-1d9f-4eb7-a994-216fd732c4a3	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:13:50	2ec51dc1-f0df-46e5-ad26-4a3297dcc821	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:14:56	d9083b25-9978-41b0-a11d-e4e51b394563	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:14:57	c1383f16-d9c0-4fe8-bfbc-dd334f5fd1dc	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:15:10	350c8f4d-05f6-4090-aed4-495f90cc4de1	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:15:11	f9a174ed-ac17-4664-b0d6-d639e24ed93c	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:16:35	65f2e671-0359-4cb3-be0e-b827a12c83f7	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:22:59	3efa7d3d-a201-4341-8f45-f2416f415a90	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:23:00	a0f05ac7-7829-46af-b9e4-138b1c048483	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:24:11	231620ca-d170-4edf-8e2c-8a41171ebc67	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:24:12	970bc13a-c3f0-45ad-bbee-c7b062b569fd	UnauthorizedError: Invalid or expired Supabase token
