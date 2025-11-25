@@ -1,10 +1,4 @@
-import type { Request, Response, NextFunction } from "express"
-
-export const supabaseAuthWebhookController = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-): Promise<void> => {
+export const supabaseAuthWebhookController = async (req, res, next) => {
     try {
         console.log("[Supabase Auth Hook]", {
             headers: req.headers,

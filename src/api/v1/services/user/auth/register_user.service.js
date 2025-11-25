@@ -14,7 +14,6 @@ import bcrypt from "bcryptjs"
  * @param {string} body.ipAddress - User IP address
  * @returns {Promise<object>} The newly created user
  */
-// TODO Add S3 URL when creating a new account
 export const registerUserService = async body => {
     const { email, password, name, language, location, ipAddress } = body
     if (!name || !password || !email) throw createError(401, "Name, email and password are required.")

@@ -44,12 +44,80 @@ const removeUndefined = input =>
     }, {})
 
 /**
- * Build default avatar URL
- * @returns {string | undefined}
+ * @typedef {Object} SupabaseUserData
+ * @property {string} id - Supabase user ID
+ * @property {string} email - User email
+ * @property {string} [email_confirmed_at] - Email confirmation timestamp
+ * @property {Object} user_metadata - User metadata from Supabase
+ * @property {string} [user_metadata.full_name] - Full name
+ * @property {string} [user_metadata.name] - First name
+ * @property {string} [user_metadata.avatar_url] - Avatar URL
+ * @property {string} [user_metadata.picture] - Picture URL (Google)
+ * @property {Object} [app_metadata] - App metadata
+ * @property {string} [app_metadata.provider] - Auth provider
  */
-const buildDefaultAvatar = () => {
-    if (!process.env.AWS_S3_URL) return undefined
-    return `${process.env.AWS_S3_URL}/user_avatar.svg`
+
+/**
+ * Find existing user or create new user from Supabase authentication data
+ * @param {SupabaseUserData} supabaseUser - Supabase user object from auth response
+ * @returns {Promise<{user: object}>}
+ */
+export const findOrCreateUserService = async supabaseUser => {
+    if (!supabaseUser?.email) throw createError(400, "Invalid Supabase user data")
+    const normalizedEmail = supabaseUser.email.toLowerCase()
+
+    let existingUser = await prisma.user.findFirst({
+        where: {
+            OR: [{ email: normalizedEmail }, { id: supabaseUser.id }],
+        },
+        include: {
+            client: true,
+            agency: true,
+            admin: true,
+        },
+    })
+
+    if (existingUser) return { user: existingUser }
+
+    const name = supabaseUser.fullName || ""
+    const avatarUrl = supabaseUser.avatarUrl || ""
+
+    const role = UserRole.CLIENT
+
+    try {
+        const user = await prisma.$transaction(async tx => {
+            const userData = {
+                email: normalizedEmail,
+                name,
+                role,
+            }
+
+            if (avatarUrl) userData.image = avatarUrl
+            if (supabaseUser.email_confirmed_at) userData.emailVerified = new Date()
+
+            const createdUser = await tx.user.create({ data: userData })
+
+            const client = await tx.client.create({
+                data: {
+                    user: {
+                        connect: { id: createdUser.id },
+                    },
+                },
+            })
+            return tx.user.update({
+                where: { id: createdUser.id },
+                data: { clientId: client.id },
+                include: {
+                    client: true,
+                },
+            })
+        })
+
+        return { user }
+    } catch (dbError) {
+        console.error("[Prisma] Failed to create user:", dbError)
+        throw createError(500, "Failed to create user in database")
+    }
 }
 
 /**

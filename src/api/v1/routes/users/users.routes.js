@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { body } from "express-validator"
-import { createUserController } from "#controllers/users/users.controller.js"
+import { createUserController, findOrCreateUserController } from "#controllers/users/users.controller.js"
 import { validateRequest } from "#middlewares/validate_request.js"
 
 const router = Router()
@@ -8,6 +8,27 @@ const router = Router()
 const ALLOWED_LANGUAGES = ["EN", "MK", "AL", "SQ"]
 const ALLOWED_ROLES = ["CLIENT", "AGENCY", "ADMIN"]
 
+router.post(
+    "/create-user",
+    [
+        body("fullName")
+            .notEmpty()
+            .withMessage("User name is required")
+            .isString()
+            .withMessage("User ID must be a string"),
+        body("email")
+            .notEmpty()
+            .withMessage("User email is required")
+            .isEmail()
+            .withMessage("Invalid email")
+            .normalizeEmail(),
+        body("avatarUrl").isString().optional().isURL().withMessage("Avatar URL must be a valid URL"),
+    ],
+    validateRequest,
+    findOrCreateUserController
+)
+
+// POST /api/v1/users - Create a new user manually
 router.post(
     "/",
     [

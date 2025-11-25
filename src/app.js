@@ -16,7 +16,12 @@ import { credentials } from "./api/v1/middlewares/credentials.js"
 dotenv.config()
 const app = express()
 
-// Log middleware
+// Handle Chrome DevTools inspector requests (must be before rate limiter)
+app.get(["/json/version", "/json/list", "/json"], (req, res) => {
+    res.status(404).end()
+})
+
+// Log middleware - filter out Chrome DevTools inspector requests
 app.use(morgan("dev"))
 
 // credentials middleware
