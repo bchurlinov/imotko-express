@@ -1,4 +1,5 @@
-import { getProperties } from "#services/properties/properties.service.js"
+import { asyncHandler } from "#utils/helpers/async_handler.js"
+import { getProperties, getProperty } from "#services/properties/properties.service.js"
 
 /**
  * Controller to get properties
@@ -7,12 +8,19 @@ import { getProperties } from "#services/properties/properties.service.js"
  * @param {import('express').NextFunction} next - Express next function
  * @returns {Promise<void>}
  */
-export const getPropertiesController = async (req, res, next) => {
-    try {
-        const properties = await getProperties(req.query)
-        return res.status(200).json(properties)
-    } catch (error) {
-        console.error("Error fetching properties:", error)
-        next(error)
-    }
+export const getPropertiesController = asyncHandler(async (req, res) => {
+    const properties = await getProperties(req.query)
+    return res.status(200).json(properties)
+})
+
+/**
+ * Controller to get property by ID
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {import('express').NextFunction} next - Express next function
+ * @returns {Promise<void>}
+ */
+export const getPropertyByIdController = async (req, res) => {
+    const property = await getProperty(req.params.id)
+    return res.status(200).json(property)
 }

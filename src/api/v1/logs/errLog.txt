@@ -57,3 +57,10 @@ Please make sure your database server is running at `localhost:5432`.
 20251125	12:23:00	a0f05ac7-7829-46af-b9e4-138b1c048483	UnauthorizedError: Invalid or expired Supabase token
 20251125	12:24:11	231620ca-d170-4edf-8e2c-8a41171ebc67	UnauthorizedError: Invalid or expired Supabase token
 20251125	12:24:12	970bc13a-c3f0-45ad-bbee-c7b062b569fd	UnauthorizedError: Invalid or expired Supabase token
+20251125	12:39:21	6622a525-66c8-408a-b675-6e6485164a19	Error: Failed to fetch properties
+20251125	12:39:23	7141bd14-b436-49ac-82a9-7fdf031fb178	Error: Failed to fetch properties
+20251125	12:42:49	1a8f46ae-c5ca-49f5-a71f-808b250dd512	Error: Failed to fetch properties
+20251125	12:42:50	a02df5ab-f031-4331-a202-fa40a73fcfc5	Error: Failed to fetch properties
+20251125	13:22:56	7055b2d7-39ab-40e9-b761-950c812414ac	UnauthorizedError: Invalid or expired Supabase token
+20251125	13:24:03	3f85124b-091e-4813-a1f5-f0eb133cdcb9	BadRequestError: Validation errors
+20251126	08:30:11	f2002c3e-5b34-401d-b191-d1156f5c2ebc	BadRequestError: Validation errors

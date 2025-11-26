@@ -47,6 +47,7 @@
         "#utils/*": "./src/utils/*",
         "#database/*": "./src/database/*",
         "#generated/prisma": "./src/generated/prisma/index.js",
-        "#supabase": "./src/config/supabase.js"
+        "#supabase": "./src/config/supabase.js",
+        "#types/*": "./src/types/*"
     }
 }
