@@ -1,4 +1,10 @@
-import { createUserService, findOrCreateUserService } from "#services/users/users.service.js"
+import { createUserService, findOrCreateUserService, getUserService } from "#services/users/users.service.js"
+import { asyncHandler } from "#utils/helpers/async_handler.js"
+import { getUserNotificationsService } from "#services/users/users_notifications.service.js"
+import {
+    patchNotificationStatusService,
+    deleteNotificationsService,
+} from "#services/users/users_notifications.service.js"
 import createError from "http-errors"
 
 /**
@@ -10,9 +16,7 @@ import createError from "http-errors"
  */
 export const findOrCreateUserController = async (req, res, next) => {
     try {
-        // Expecting the Supabase user object from req.body.user
         const email = req.body.email
-
         if (!email) throw createError(400, "Supabase user data is required")
         const { user } = await findOrCreateUserService(req.body)
 
@@ -24,6 +28,19 @@ export const findOrCreateUserController = async (req, res, next) => {
         next(error)
     }
 }
+
+/**
+ * Controller to find or create user from Supabase auth data
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {import('express').NextFunction} next - Express next function
+ * @returns {Promise<void>}
+ */
+export const getUserController = asyncHandler(async (req, res) => {
+    const { email } = req.user
+    const { data, message } = await getUserService(email)
+    return res.status(200).json({ data, message })
+})
 
 /**
  * Controller to create a new user
@@ -56,3 +73,43 @@ export const createUserController = async (req, res, next) => {
         next(error)
     }
 }
+
+/**
+ * Controller to find or create user from Supabase auth data
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {import('express').NextFunction} next - Express next function
+ * @returns {Promise<void>}
+ */
+export const getUserNotificationsController = asyncHandler(async (req, res) => {
+    const notifications = await getUserNotificationsService(req.params.id)
+    return res.status(200).json(notifications)
+})
+
+/**
+ * Controller to find or create user from Supabase auth data
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {import('express').NextFunction} next - Express next function
+ * @returns {Promise<void>}
+ */
+export const patchNotificationStatusController = asyncHandler(async (req, res) => {
+    const { notificationId } = req.params
+    const { status } = req.body
+    const result = await patchNotificationStatusService(notificationId, status)
+    return res.status(200).json(result)
+})
+
+/**
+ * Controller to find or create user from Supabase auth data
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {import('express').NextFunction} next - Express next function
+ * @returns {Promise<void>}
+ */
+export const deleteNotificationController = asyncHandler(async (req, res) => {
+    const { notificationId } = req.params
+    console.log
+    const result = await deleteNotificationsService(notificationId)
+    return res.status(200).json(result)
+})

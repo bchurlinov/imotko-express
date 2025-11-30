@@ -17,9 +17,9 @@ dotenv.config()
 const app = express()
 
 // Handle Chrome DevTools inspector requests (must be before rate limiter)
-app.get(["/json/version", "/json/list", "/json"], (req, res) => {
-    res.status(404).end()
-})
+// app.get(["/json/version", "/json/list", "/json"], (req, res) => {
+//     res.status(404).end()
+// })
 
 // Log middleware - filter out Chrome DevTools inspector requests
 app.use(morgan("dev"))

@@ -1,7 +1,7 @@
-import createError from "http-errors"
-import prisma from "#database/client.js"
 import { supabaseAdmin } from "#utils/supabaseClient.js"
 import { UserLanguage, UserRole } from "@prisma/client"
+import createError from "http-errors"
+import prisma from "#database/client.js"
 
 /**
  * @typedef {Object} CreateUserInput
@@ -77,7 +77,7 @@ export const findOrCreateUserService = async supabaseUser => {
         },
     })
 
-    if (existingUser) return { user: existingUser }
+    if (existingUser) return { data: existingUser, message: "User loaded successfully." }
 
     const name = supabaseUser.fullName || ""
     const avatarUrl = supabaseUser.avatarUrl || ""
@@ -117,6 +117,22 @@ export const findOrCreateUserService = async supabaseUser => {
     } catch (dbError) {
         console.error("[Prisma] Failed to create user:", dbError)
         throw createError(500, "Failed to create user in database")
+    }
+}
+
+/**
+ * @param {string} userEmail - User email
+ * @returns {Promise<{data: import('@prisma/client').User, message: string}>}
+ */
+export const getUserService = async userEmail => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: { email: userEmail },
+        })
+        if (!user) throw createError(404, "User not found")
+        return { data: user, message: "User loaded successfully." }
+    } catch (err) {
+        throw err
     }
 }
 

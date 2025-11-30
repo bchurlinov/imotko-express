@@ -1,4 +1,3 @@
-import authRouter from "./auth/auth.routes.js"
 import propertiesRouter from "./properties/properties.routes.js"
 import usersRouter from "./users/users.routes.js"
 
@@ -7,8 +6,7 @@ import usersRouter from "./users/users.routes.js"
  * @param {import('express').Application} app - Express application
  * @returns {void}
  */
-export default (app) => {
-    app.use("/api/v1/auth", authRouter)
+export default app => {
     app.use("/api/v1/properties", propertiesRouter)
     app.use("/api/v1/users", usersRouter)
 }

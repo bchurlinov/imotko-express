@@ -64,3 +64,295 @@ Please make sure your database server is running at `localhost:5432`.
 20251125	13:22:56	7055b2d7-39ab-40e9-b761-950c812414ac	UnauthorizedError: Invalid or expired Supabase token
 20251125	13:24:03	3f85124b-091e-4813-a1f5-f0eb133cdcb9	BadRequestError: Validation errors
 20251126	08:30:11	f2002c3e-5b34-401d-b191-d1156f5c2ebc	BadRequestError: Validation errors
+20251128	08:27:00	8fd44dc1-3764-4170-9ebb-39e2abda0eee	BadRequestError: Validation errors
+20251130	12:58:21	7d34a053-7923-4978-b857-8fee88a2cf5c	ReferenceError: getUserNotificationsService is not defined
+20251130	12:58:43	2d33916a-d8fb-4338-85a6-0d34eebff5ad	TypeError: Cannot read properties of undefined (reading 'id')
+20251130	12:59:02	46fff901-12bd-4970-aab6-28fa75f9ce39	TypeError: Cannot read properties of undefined (reading 'id')
+20251130	12:59:31	b5c19ae6-523d-4518-a10b-fda80182b95b	PrismaClientValidationError: 
+Invalid `prisma.notification.findMany()` invocation:
+
+{
+  where: {
+    userId: "cmiei46bb0000sbeku3bazhs1",
+    ~~~~~~
+?   AND?: NotificationWhereInput | NotificationWhereInput[],
+?   OR?: NotificationWhereInput[],
+?   NOT?: NotificationWhereInput | NotificationWhereInput[],
+?   id?: StringFilter | String,
+?   title?: StringFilter | String,
+?   description?: StringFilter | String,
+?   status?: EnumNotificationStatusFilter | NotificationStatus,
+?   recipientId?: StringFilter | String,
+?   createdAt?: DateTimeFilter | DateTime,
+?   readAt?: DateTimeNullableFilter | DateTime | Null,
+?   metadata?: JsonNullableFilter,
+?   recipient?: UserScalarRelationFilter | UserWhereInput
+  },
+  orderBy: {
+    createdAt: "desc"
+  }
+}
+
+Unknown argument `userId`. Available options are marked with ?.
+20251130	12:59:43	7d772163-acf5-4a26-abe2-5e4c5d640feb	PrismaClientValidationError: 
+Invalid `prisma.notification.findMany()` invocation:
+
+{
+  where: {
+    userId: "cmiei46bb0000sbeku3bazhs1",
+    ~~~~~~
+?   AND?: NotificationWhereInput | NotificationWhereInput[],
+?   OR?: NotificationWhereInput[],
+?   NOT?: NotificationWhereInput | NotificationWhereInput[],
+?   id?: StringFilter | String,
+?   title?: StringFilter | String,
+?   description?: StringFilter | String,
+?   status?: EnumNotificationStatusFilter | NotificationStatus,
+?   recipientId?: StringFilter | String,
+?   createdAt?: DateTimeFilter | DateTime,
+?   readAt?: DateTimeNullableFilter | DateTime | Null,
+?   metadata?: JsonNullableFilter,
+?   recipient?: UserScalarRelationFilter | UserWhereInput
+  },
+  orderBy: {
+    createdAt: "desc"
+  }
+}
+
+Unknown argument `userId`. Available options are marked with ?.
+20251130	13:00:14	fa9874bc-6990-4235-95b8-658b85e6567b	PrismaClientValidationError: 
+Invalid `prisma.notification.findMany()` invocation:
+
+{
+  where: {
+    userId: "cmiei46bb0000sbeku3bazhs1",
+    ~~~~~~
+?   AND?: NotificationWhereInput | NotificationWhereInput[],
+?   OR?: NotificationWhereInput[],
+?   NOT?: NotificationWhereInput | NotificationWhereInput[],
+?   id?: StringFilter | String,
+?   title?: StringFilter | String,
+?   description?: StringFilter | String,
+?   status?: EnumNotificationStatusFilter | NotificationStatus,
+?   recipientId?: StringFilter | String,
+?   createdAt?: DateTimeFilter | DateTime,
+?   readAt?: DateTimeNullableFilter | DateTime | Null,
+?   metadata?: JsonNullableFilter,
+?   recipient?: UserScalarRelationFilter | UserWhereInput
+  },
+  orderBy: {
+    createdAt: "desc"
+  }
+}
+
+Unknown argument `userId`. Available options are marked with ?.
+20251130	13:24:51	aba9c262-19ad-45d9-b89c-3ebad34226ba	PrismaClientValidationError: 
+Invalid `prisma.user.findUnique()` invocation:
+
+{
+  where: {
+    email: {}
+           ~~
+  }
+}
+
+Argument `email`: Invalid value provided. Expected String, provided Object.
+20251130	13:25:14	65093410-5727-4e00-bdb4-786b52399ad6	PrismaClientValidationError: 
+Invalid `prisma.user.findUnique()` invocation:
+
+{
+  where: {
+    email: {}
+           ~~
+  }
+}
+
+Argument `email`: Invalid value provided. Expected String, provided Object.
+20251130	13:25:46	d179195a-2275-429d-bf31-bfb16938573a	PrismaClientValidationError: 
+Invalid `prisma.user.findUnique()` invocation:
+
+{
+  where: {
+    email: undefined,
+?   id?: String,
+?   AND?: UserWhereInput | UserWhereInput[],
+?   OR?: UserWhereInput[],
+?   NOT?: UserWhereInput | UserWhereInput[],
+?   name?: StringFilter | String,
+?   lastName?: StringNullableFilter | String | Null,
+?   location?: StringNullableFilter | String | Null,
+?   emailVerified?: DateTimeNullableFilter | DateTime | Null,
+?   image?: StringNullableFilter | String | Null,
+?   hashedPassword?: StringNullableFilter | String | Null,
+?   phone?: StringNullableFilter | String | Null,
+?   accessToken?: StringNullableFilter | String | Null,
+?   refreshToken?: StringNullableFilter | String | Null,
+?   language?: EnumUserLanguageNullableFilter | UserLanguage | Null,
+?   role?: EnumUserRoleFilter | UserRole,
+?   clientId?: StringNullableFilter | String | Null,
+?   agencyId?: StringNullableFilter | String | Null,
+?   adminId?: StringNullableFilter | String | Null,
+?   ipAddress?: StringNullableFilter | String | Null,
+?   createdAt?: DateTimeNullableFilter | DateTime | Null,
+?   updatedAt?: DateTimeNullableFilter | DateTime | Null,
+?   account?: AccountNullableScalarRelationFilter | AccountWhereInput | Null,
+?   client?: ClientNullableScalarRelationFilter | ClientWhereInput | Null,
+?   notifications?: NotificationListRelationFilter,
+?   agency?: AgencyNullableScalarRelationFilter | AgencyWhereInput | Null,
+?   admin?: AdminNullableScalarRelationFilter | AdminWhereInput | Null,
+?   UserFeatureRequest?: UserFeatureRequestListRelationFilter,
+?   agencyMember?: AgencyMemberNullableScalarRelationFilter | AgencyMemberWhereInput | Null,
+?   ownedAgency?: AgencyNullableScalarRelationFilter | AgencyWhereInput | Null,
+?   agencyInvitationSender?: AgencyInvitationListRelationFilter
+  }
+}
+
+Argument `where` of type UserWhereUniqueInput needs at least one of `id` or `email` arguments. Available options are marked with ?.
+20251130	13:26:09	a097ab85-8eca-4faf-a427-0855b264d063	PrismaClientValidationError: 
+Invalid `prisma.user.findUnique()` invocation:
+
+{
+  where: {
+    email: undefined,
+?   id?: String,
+?   AND?: UserWhereInput | UserWhereInput[],
+?   OR?: UserWhereInput[],
+?   NOT?: UserWhereInput | UserWhereInput[],
+?   name?: StringFilter | String,
+?   lastName?: StringNullableFilter | String | Null,
+?   location?: StringNullableFilter | String | Null,
+?   emailVerified?: DateTimeNullableFilter | DateTime | Null,
+?   image?: StringNullableFilter | String | Null,
+?   hashedPassword?: StringNullableFilter | String | Null,
+?   phone?: StringNullableFilter | String | Null,
+?   accessToken?: StringNullableFilter | String | Null,
+?   refreshToken?: StringNullableFilter | String | Null,
+?   language?: EnumUserLanguageNullableFilter | UserLanguage | Null,
+?   role?: EnumUserRoleFilter | UserRole,
+?   clientId?: StringNullableFilter | String | Null,
+?   agencyId?: StringNullableFilter | String | Null,
+?   adminId?: StringNullableFilter | String | Null,
+?   ipAddress?: StringNullableFilter | String | Null,
+?   createdAt?: DateTimeNullableFilter | DateTime | Null,
+?   updatedAt?: DateTimeNullableFilter | DateTime | Null,
+?   account?: AccountNullableScalarRelationFilter | AccountWhereInput | Null,
+?   client?: ClientNullableScalarRelationFilter | ClientWhereInput | Null,
+?   notifications?: NotificationListRelationFilter,
+?   agency?: AgencyNullableScalarRelationFilter | AgencyWhereInput | Null,
+?   admin?: AdminNullableScalarRelationFilter | AdminWhereInput | Null,
+?   UserFeatureRequest?: UserFeatureRequestListRelationFilter,
+?   agencyMember?: AgencyMemberNullableScalarRelationFilter | AgencyMemberWhereInput | Null,
+?   ownedAgency?: AgencyNullableScalarRelationFilter | AgencyWhereInput | Null,
+?   agencyInvitationSender?: AgencyInvitationListRelationFilter
+  }
+}
+
+Argument `where` of type UserWhereUniqueInput needs at least one of `id` or `email` arguments. Available options are marked with ?.
+20251130	13:48:37	6b5a8c74-7dc2-4a93-a1d5-658b5ad985e0	UnauthorizedError: Missing Supabase Bearer token
+20251130	13:55:04	fcdbc990-c21b-454b-aa5c-a181337118df	PrismaClientValidationError: 
+Invalid `prisma.user.findUnique()` invocation:
+
+{
+  where: {
+    email: undefined,
+?   id?: String,
+?   AND?: UserWhereInput | UserWhereInput[],
+?   OR?: UserWhereInput[],
+?   NOT?: UserWhereInput | UserWhereInput[],
+?   name?: StringFilter | String,
+?   lastName?: StringNullableFilter | String | Null,
+?   location?: StringNullableFilter | String | Null,
+?   emailVerified?: DateTimeNullableFilter | DateTime | Null,
+?   image?: StringNullableFilter | String | Null,
+?   hashedPassword?: StringNullableFilter | String | Null,
+?   phone?: StringNullableFilter | String | Null,
+?   accessToken?: StringNullableFilter | String | Null,
+?   refreshToken?: StringNullableFilter | String | Null,
+?   language?: EnumUserLanguageNullableFilter | UserLanguage | Null,
+?   role?: EnumUserRoleFilter | UserRole,
+?   clientId?: StringNullableFilter | String | Null,
+?   agencyId?: StringNullableFilter | String | Null,
+?   adminId?: StringNullableFilter | String | Null,
+?   ipAddress?: StringNullableFilter | String | Null,
+?   createdAt?: DateTimeNullableFilter | DateTime | Null,
+?   updatedAt?: DateTimeNullableFilter | DateTime | Null,
+?   account?: AccountNullableScalarRelationFilter | AccountWhereInput | Null,
+?   client?: ClientNullableScalarRelationFilter | ClientWhereInput | Null,
+?   notifications?: NotificationListRelationFilter,
+?   agency?: AgencyNullableScalarRelationFilter | AgencyWhereInput | Null,
+?   admin?: AdminNullableScalarRelationFilter | AdminWhereInput | Null,
+?   UserFeatureRequest?: UserFeatureRequestListRelationFilter,
+?   agencyMember?: AgencyMemberNullableScalarRelationFilter | AgencyMemberWhereInput | Null,
+?   ownedAgency?: AgencyNullableScalarRelationFilter | AgencyWhereInput | Null,
+?   agencyInvitationSender?: AgencyInvitationListRelationFilter
+  }
+}
+
+Argument `where` of type UserWhereUniqueInput needs at least one of `id` or `email` arguments. Available options are marked with ?.
+20251130	13:55:39	013245b0-e426-432a-8207-00b3f64cb1b9	NotFoundError: User not found
+20251130	14:07:53	a532ac08-e469-4256-94cf-76f8f221da88	PrismaClientValidationError: 
+Invalid `prisma.user.findUnique()` invocation:
+
+{
+  where: {
+    id: undefined,
+?   email?: String,
+?   AND?: UserWhereInput | UserWhereInput[],
+?   OR?: UserWhereInput[],
+?   NOT?: UserWhereInput | UserWhereInput[],
+?   name?: StringFilter | String,
+?   lastName?: StringNullableFilter | String | Null,
+?   location?: StringNullableFilter | String | Null,
+?   emailVerified?: DateTimeNullableFilter | DateTime | Null,
+?   image?: StringNullableFilter | String | Null,
+?   hashedPassword?: StringNullableFilter | String | Null,
+?   phone?: StringNullableFilter | String | Null,
+?   accessToken?: StringNullableFilter | String | Null,
+?   refreshToken?: StringNullableFilter | String | Null,
+?   language?: EnumUserLanguageNullableFilter | UserLanguage | Null,
+?   role?: EnumUserRoleFilter | UserRole,
+?   clientId?: StringNullableFilter | String | Null,
+?   agencyId?: StringNullableFilter | String | Null,
+?   adminId?: StringNullableFilter | String | Null,
+?   ipAddress?: StringNullableFilter | String | Null,
+?   createdAt?: DateTimeNullableFilter | DateTime | Null,
+?   updatedAt?: DateTimeNullableFilter | DateTime | Null,
+?   account?: AccountNullableScalarRelationFilter | AccountWhereInput | Null,
+?   client?: ClientNullableScalarRelationFilter | ClientWhereInput | Null,
+?   notifications?: NotificationListRelationFilter,
+?   agency?: AgencyNullableScalarRelationFilter | AgencyWhereInput | Null,
+?   admin?: AdminNullableScalarRelationFilter | AdminWhereInput | Null,
+?   UserFeatureRequest?: UserFeatureRequestListRelationFilter,
+?   agencyMember?: AgencyMemberNullableScalarRelationFilter | AgencyMemberWhereInput | Null,
+?   ownedAgency?: AgencyNullableScalarRelationFilter | AgencyWhereInput | Null,
+?   agencyInvitationSender?: AgencyInvitationListRelationFilter
+  }
+}
+
+Argument `where` of type UserWhereUniqueInput needs at least one of `id` or `email` arguments. Available options are marked with ?.
+20251130	14:13:11	59f44c87-1a68-44a2-83dc-626a064f173b	NotFoundError: User not found
+20251130	14:13:40	bbb4db2a-4bff-48a5-9f95-229c610fb15f	UnauthorizedError: Missing Supabase Bearer token
+20251130	15:37:26	5c189e14-7050-4bf2-aa72-75199307072f	ReferenceError: patchNotificationStatusService is not defined
+20251130	15:38:01	3b47f5e6-4315-4ec9-8612-2811f0d89f5b	ReferenceError: patchNotificationStatusService is not defined
+20251130	15:38:50	a6d0d66a-3da9-4ef6-93fc-7dc816cbe08f	ReferenceError: patchNotificationStatusService is not defined
+20251130	15:40:52	8634bd5a-03e4-40db-a70c-dfa2c34e970d	ReferenceError: patchNotificationStatusService is not defined
+20251130	15:40:54	637eebf3-d28e-48d9-a763-df80f7ca1c4b	ReferenceError: patchNotificationStatusService is not defined
+20251130	15:40:57	340170e3-94be-4c44-8847-17852491eb0b	ReferenceError: patchNotificationStatusService is not defined
+20251130	15:40:58	bf6d0372-2592-4b83-bc13-c5f9b0607c8b	ReferenceError: patchNotificationStatusService is not defined
+20251130	15:43:58	f124737d-1c40-4bb8-afc5-022894abf636	ReferenceError: patchNotificationStatusService is not defined
+20251130	15:45:20	43b4af80-c518-47a7-bea4-9e50dab22a2f	ReferenceError: patchNotificationStatusService is not defined
+20251130	16:11:39	9e8f0710-e46b-41b8-a674-c5f33b2bbadc	PrismaClientKnownRequestError: 
+Invalid `prisma.notification.delete()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a delete.
+20251130	16:11:40	22fbac83-8b1e-431c-acfd-8935611b7cb0	PrismaClientKnownRequestError: 
+Invalid `prisma.notification.delete()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a delete.
+20251130	16:12:07	256e49d6-25aa-4473-b024-3250aa3775f6	PrismaClientKnownRequestError: 
+Invalid `prisma.notification.delete()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for a delete.

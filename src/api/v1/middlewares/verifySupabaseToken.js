@@ -31,9 +31,7 @@ const ensureRole = payload => {
 
     if (isRecord(payload.app_metadata)) {
         const metadataRole = payload.app_metadata.role
-        if (typeof metadataRole === "string") {
-            return metadataRole
-        }
+        if (typeof metadataRole === "string") return metadataRole
     }
 
     return undefined
@@ -64,7 +62,6 @@ export const verifySupabaseToken = async (req, res, next) => {
         }
 
         const token = rawAuthHeader.slice(BEARER_PREFIX.length).trim()
-
         if (!token) return next(createError(401, "Missing Supabase Bearer token"))
 
         const { payload } = await verifyJwt(token)

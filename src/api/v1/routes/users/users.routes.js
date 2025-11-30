@@ -1,12 +1,22 @@
 import { Router } from "express"
 import { body } from "express-validator"
-import { createUserController, findOrCreateUserController } from "#controllers/users/users.controller.js"
+import {
+    createUserController,
+    findOrCreateUserController,
+    getUserNotificationsController,
+    getUserController,
+    patchNotificationStatusController,
+    deleteNotificationController,
+} from "#controllers/users/users.controller.js"
 import { validateRequest } from "#middlewares/validate_request.js"
+import { verifySupabaseToken } from "#middlewares/verifySupabaseToken.js"
 
 const router = Router()
 
 const ALLOWED_LANGUAGES = ["EN", "MK", "AL", "SQ"]
 const ALLOWED_ROLES = ["CLIENT", "AGENCY", "ADMIN"]
+
+router.get("/", verifySupabaseToken, validateRequest, getUserController)
 
 router.post(
     "/create-user",
@@ -28,7 +38,6 @@ router.post(
     findOrCreateUserController
 )
 
-// POST /api/v1/users - Create a new user manually
 router.post(
     "/",
     [
@@ -67,4 +76,9 @@ router.post(
     createUserController
 )
 
+router.get("/:id/notifications", verifySupabaseToken, getUserNotificationsController)
+
+router.patch("/:id/notifications/:notificationId/status", verifySupabaseToken, patchNotificationStatusController)
+
+router.delete("/:id/notifications/:notificationId", verifySupabaseToken, deleteNotificationController)
 export default router
