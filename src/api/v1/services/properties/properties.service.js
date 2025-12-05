@@ -198,12 +198,14 @@ export const getPropertiesService = async (params = {}) => {
 
 /**
  * Get single property by property ID
+ * @param {string} propertyId - Property ID
  * @returns {Promise<ApiResponse<PropertyWithRelations[]>>}
  */
 export const getPropertyService = async propertyId => {
     try {
         const property = await prisma.property.findUnique({
             where: { id: propertyId },
+            include: { agency: true },
         })
         return {
             data: property,

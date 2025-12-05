@@ -1,5 +1,6 @@
 import propertiesRouter from "./properties/properties.routes.js"
 import usersRouter from "./users/users.routes.js"
+import agencyRouter from "./agencies/agencies.routes.js"
 
 /**
  * Initialize API routes
@@ -9,4 +10,5 @@ import usersRouter from "./users/users.routes.js"
 export default app => {
     app.use("/api/v1/properties", propertiesRouter)
     app.use("/api/v1/users", usersRouter)
+    app.use("/api/v1/agencies", agencyRouter)
 }
