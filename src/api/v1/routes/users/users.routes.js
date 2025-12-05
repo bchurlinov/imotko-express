@@ -7,6 +7,9 @@ import {
     getUserController,
     patchNotificationStatusController,
     deleteNotificationController,
+    propertyFavoriteController,
+    propertyUnfavoriteController,
+    getPropertiesFavoritesController,
 } from "#controllers/users/users.controller.js"
 import { validateRequest } from "#middlewares/validate_request.js"
 import { verifySupabaseToken } from "#middlewares/verifySupabaseToken.js"
@@ -81,4 +84,11 @@ router.get("/:id/notifications", verifySupabaseToken, getUserNotificationsContro
 router.patch("/:id/notifications/:notificationId/status", verifySupabaseToken, patchNotificationStatusController)
 
 router.delete("/:id/notifications/:notificationId", verifySupabaseToken, deleteNotificationController)
+
+router.post("/:id/favorites/:propertyId", verifySupabaseToken, propertyFavoriteController)
+
+router.delete("/:id/favorites/:propertyId", verifySupabaseToken, propertyUnfavoriteController)
+
+router.get("/:id/favorites", verifySupabaseToken, getPropertiesFavoritesController)
+
 export default router

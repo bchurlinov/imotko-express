@@ -1,4 +1,5 @@
 import { numberValue, parseRangeValue } from "./paramConverters.js"
+import { isValidPropertyFeature } from "./propertyFeatures.js"
 
 /**
  * @typedef {import('@generated/prisma').Prisma.IntFilter} IntFilter
@@ -84,4 +85,37 @@ export const buildAttributeFilter = (attributeKey, fromValue, toValue) => {
     return {
         attributes: jsonFilter,
     }
+}
+
+/**
+ * Build property features filter conditions from an array of feature names
+ * Creates AND conditions that check if each feature is set to true in the attributes JSON field
+ * @param {string[] | string | undefined} propertyFeatures - Array of feature names or comma-separated string
+ * @returns {PropertyWhereInput[]} - Array of AND conditions for Prisma query
+ */
+export const buildPropertyFeaturesFilter = propertyFeatures => {
+    if (!propertyFeatures) return []
+
+    // Convert to array if it's a string (handle comma-separated values)
+    let featuresArray = []
+    if (typeof propertyFeatures === "string") {
+        featuresArray = propertyFeatures.split(",").map(f => f.trim())
+    } else if (Array.isArray(propertyFeatures)) {
+        featuresArray = propertyFeatures
+    } else {
+        return []
+    }
+
+    // Filter to only valid features from the dictionary
+    const validFeatures = featuresArray.filter(featureName => isValidPropertyFeature(featureName))
+
+    // Build AND conditions for each valid feature
+    const andConditions = validFeatures.map(featureName => ({
+        attributes: {
+            path: [featureName],
+            equals: true,
+        },
+    }))
+
+    return andConditions
 }

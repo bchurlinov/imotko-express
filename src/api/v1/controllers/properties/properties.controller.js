@@ -1,5 +1,5 @@
 import { asyncHandler } from "#utils/helpers/async_handler.js"
-import { getProperties, getProperty } from "#services/properties/properties.service.js"
+import { getPropertiesService, getPropertyService } from "#services/properties/properties.service.js"
 
 /**
  * Controller to get properties
@@ -9,7 +9,7 @@ import { getProperties, getProperty } from "#services/properties/properties.serv
  * @returns {Promise<void>}
  */
 export const getPropertiesController = asyncHandler(async (req, res) => {
-    const properties = await getProperties(req.query)
+    const properties = await getPropertiesService(req.query)
     return res.status(200).json(properties)
 })
 
@@ -21,6 +21,6 @@ export const getPropertiesController = asyncHandler(async (req, res) => {
  * @returns {Promise<void>}
  */
 export const getPropertyByIdController = async (req, res) => {
-    const property = await getProperty(req.params.id)
+    const property = await getPropertyService(req.params.id)
     return res.status(200).json(property)
 }

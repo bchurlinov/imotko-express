@@ -5,6 +5,11 @@ import {
     patchNotificationStatusService,
     deleteNotificationsService,
 } from "#services/users/users_notifications.service.js"
+import {
+    usersCreatePropertiesFavoriteService,
+    usersDeletePropertiesFavoriteService,
+    getPropertiesFavoritesService,
+} from "#services/users/users_properties_favorites.service.js"
 import createError from "http-errors"
 
 /**
@@ -109,7 +114,45 @@ export const patchNotificationStatusController = asyncHandler(async (req, res) =
  */
 export const deleteNotificationController = asyncHandler(async (req, res) => {
     const { notificationId } = req.params
-    console.log
     const result = await deleteNotificationsService(notificationId)
+    return res.status(200).json(result)
+})
+
+/**
+ * Controller to add a property to user's favorites
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {import('express').NextFunction} next - Express next function
+ * @returns {Promise<void>}
+ */
+export const propertyFavoriteController = asyncHandler(async (req, res) => {
+    const { id: userId, propertyId } = req.params
+    const result = await usersCreatePropertiesFavoriteService(userId, propertyId)
+    return res.status(201).json(result)
+})
+
+/**
+ * Controller to remove a property from user's favorites
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {import('express').NextFunction} next - Express next function
+ * @returns {Promise<void>}
+ */
+export const propertyUnfavoriteController = asyncHandler(async (req, res) => {
+    const { id: userId, propertyId } = req.params
+    const result = await usersDeletePropertiesFavoriteService(userId, propertyId)
+    return res.status(200).json(result)
+})
+
+/**
+ * Controller to get users favorite propertties
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {import('express').NextFunction} next - Express next function
+ * @returns {Promise<void>}
+ */
+export const getPropertiesFavoritesController = asyncHandler(async (req, res) => {
+    const { id: userId } = req.params
+    const result = await getPropertiesFavoritesService(userId)
     return res.status(200).json(result)
 })

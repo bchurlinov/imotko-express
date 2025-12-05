@@ -2,11 +2,13 @@ import { PropertyStatus } from "@prisma/client"
 import prisma from "#database/client.js"
 import {
     stringValue,
+    stringValues,
     booleanValue,
     positiveInt,
     buildNumericFilter,
     buildPriceFilter,
     buildAttributeFilter,
+    buildPropertyFeaturesFilter,
     isPropertySort,
     resolveLocationIds,
     ORDER_BY_MAP,
@@ -26,7 +28,6 @@ import {
 
 /**
  * @typedef {Object} PropertyQueryParams
- * @property {PrimitiveParam} [agency]
  * @property {PrimitiveParam} [in_development]
  * @property {PrimitiveParam} [location]
  * @property {PrimitiveParam} [subCategory]
@@ -42,11 +43,13 @@ import {
  * @property {PrimitiveParam} [numOfBedroomsTo]
  * @property {PrimitiveParam} [numOfBathroomsFrom]
  * @property {PrimitiveParam} [numOfBathroomsTo]
+ * @property {PrimitiveParam} [propertyFeatures]
  * @property {PrimitiveParam} [sortBy]
  * @property {PrimitiveParam} [query]
  * @property {PrimitiveParam} [limit]
  * @property {PrimitiveParam} [page]
  * @property {PrimitiveParam} [locale]
+ * @property {PrimitiveParam} [ids]
  */
 
 /**
@@ -54,7 +57,7 @@ import {
  * @param {PropertyQueryParams} params - Query parameters
  * @returns {Promise<ApiResponse<PropertyWithRelations[]>>}
  */
-export const getProperties = async (params = {}) => {
+export const getPropertiesService = async (params = {}) => {
     try {
         const locale = stringValue(params.locale) ?? DEFAULT_LOCALE
 
@@ -66,6 +69,8 @@ export const getProperties = async (params = {}) => {
         const orGroups = []
 
         if (params?.featured) filters.featured = true
+        const ids = stringValues(params.ids)
+        if (ids.length) filters.id = { in: ids }
         if (params.agency) filters.agencyId = stringValue(params.agency)
 
         const inDevelopment = booleanValue(params.in_development)
@@ -111,6 +116,14 @@ export const getProperties = async (params = {}) => {
             params.numOfBathroomsTo
         )
         if (bathroomFilter) andConditions.push(bathroomFilter)
+
+        // Property features filter (e.g., ["elevator", "kitchen", "heating"])
+        if (params.propertyFeatures) {
+            const featureConditions = buildPropertyFeaturesFilter(params.propertyFeatures)
+            if (featureConditions.length > 0) {
+                andConditions.push(...featureConditions)
+            }
+        }
 
         const sortParam = stringValue(params.sortBy)
         const orderBy = sortParam && isPropertySort(sortParam) ? ORDER_BY_MAP[sortParam] : DEFAULT_ORDER_BY
@@ -187,7 +200,7 @@ export const getProperties = async (params = {}) => {
  * Get single property by property ID
  * @returns {Promise<ApiResponse<PropertyWithRelations[]>>}
  */
-export const getProperty = async propertyId => {
+export const getPropertyService = async propertyId => {
     try {
         const property = await prisma.property.findUnique({
             where: { id: propertyId },

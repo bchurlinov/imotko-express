@@ -16,7 +16,11 @@ export const ORDER_BY_MAP = {
     dateDesc: [{ createdAt: "desc" }],
 }
 
-export const DEFAULT_ORDER_BY = [{ bumpedAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }, { updatedAt: "desc" }]
+export const DEFAULT_ORDER_BY = [
+    { bumpedAt: { sort: "desc", nulls: "last" } },
+    { createdAt: "desc" },
+    { updatedAt: "desc" },
+]
 
 /**
  * Check if value is a valid property sort
