@@ -27,8 +27,8 @@ This document contains the detailed technical tasks for implementing the analyti
 **Links to:** `[plan.md: TBD]` | `[requirements.md: TBD - Analytics Service Requirements]`
 
 ### Task 1.1: Create Analytics Service Directory Structure
-- [ ] Create directory `src/api/v1/services/analytics/`
-- [ ] Verify path alias `@services/*` works correctly in jsconfig.json
+- [x] Create directory `src/api/v1/services/analytics/`
+- [x] Verify path alias `@services/*` works correctly in jsconfig.json
 
 **Files:** Directory structure
 **Estimated Complexity:** Low
@@ -36,13 +36,13 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 1.2: Implement Helper Functions
-- [ ] Create `src/api/v1/services/analytics/analytics.service.js`
-- [ ] Implement `getStartDate(range)` helper function
-  - [ ] Handle '1m' (1 month) range
-  - [ ] Handle '3m' (3 months) range
-  - [ ] Handle '6m' (6 months) range
-  - [ ] Handle '1y' (1 year) range - default
-- [ ] Add JSDoc type definitions for `TimeRange` typedef
+- [x] Create `src/api/v1/services/analytics/analytics.service.js`
+- [x] Implement `getStartDate(range)` helper function
+  - [x] Handle '1m' (1 month) range
+  - [x] Handle '3m' (3 months) range
+  - [x] Handle '6m' (6 months) range
+  - [x] Handle '1y' (1 year) range - default
+- [x] Add JSDoc type definitions for `TimeRange` typedef
 
 **Reference:** Lines 145-159
 **Files:** `src/api/v1/services/analytics/analytics.service.js`
@@ -51,19 +51,19 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 1.3: Implement Price Trends Service
-- [ ] Import Prisma client from `#database/client.js`
-- [ ] Implement `getPriceTrendsService(params)` function
-  - [ ] Accept parameters: `locationId`, `listingType`, `propertyType`, `range`
-  - [ ] Calculate start date based on range
-  - [ ] Calculate YoY start date (1 year before range start)
-  - [ ] Build dynamic WHERE clause with parameterized queries
-  - [ ] Execute raw SQL query on `mv_price_trends` materialized view
-  - [ ] Calculate YoY change percentage for each month
-  - [ ] Add trend indicators ('up', 'down', 'stable')
-  - [ ] Filter results to only include data within the selected range
-  - [ ] Return formatted response with `{ success, data?, error? }`
-- [ ] Add JSDoc type definition for `PriceTrendItem` typedef
-- [ ] Add error handling with console logging
+- [x] Import Prisma client from `#database/client.js`
+- [x] Implement `getPriceTrendsService(params)` function
+  - [x] Accept parameters: `locationId`, `listingType`, `propertyType`, `range`
+  - [x] Calculate start date based on range
+  - [x] Calculate YoY start date (1 year before range start)
+  - [x] Build dynamic WHERE clause with parameterized queries
+  - [x] Execute raw SQL query on `mv_price_trends` materialized view
+  - [x] Calculate YoY change percentage for each month
+  - [x] Add trend indicators ('up', 'down', 'stable')
+  - [x] Filter results to only include data within the selected range
+  - [x] Return formatted response with `{ success, data?, error? }`
+- [x] Add JSDoc type definition for `PriceTrendItem` typedef
+- [x] Add error handling with console logging
 
 **Reference:** Lines 170-239
 **Links to:** `[requirements.md: TBD - Price Trends Requirements]`
@@ -73,15 +73,15 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 1.4: Implement Price Per Square Meter Service
-- [ ] Implement `getPricePerSqmService(params)` function
-  - [ ] Accept parameters: `locationId`, `listingType`, `propertyType`, `groupBy`
-  - [ ] Build dynamic WHERE clause with array-based conditions
-  - [ ] Support `groupBy` parameter ('city' or 'type')
-  - [ ] Execute raw SQL query on `mv_price_per_sqm` materialized view
-  - [ ] When grouped by 'city', fetch location names from `PropertyLocation` table
-  - [ ] Map location IDs to location names
-  - [ ] Return formatted response with `{ success, data?, error? }`
-- [ ] Add error handling with console logging
+- [x] Implement `getPricePerSqmService(params)` function
+  - [x] Accept parameters: `locationId`, `listingType`, `propertyType`, `groupBy`
+  - [x] Build dynamic WHERE clause with array-based conditions
+  - [x] Support `groupBy` parameter ('city' or 'type')
+  - [x] Execute raw SQL query on `mv_price_per_sqm` materialized view
+  - [x] When grouped by 'city', fetch location names from `PropertyLocation` table
+  - [x] Map location IDs to location names
+  - [x] Return formatted response with `{ success, data?, error? }`
+- [x] Add error handling with console logging
 
 **Reference:** Lines 250-314
 **Links to:** `[requirements.md: TBD - Price Per SQM Requirements]`
@@ -91,14 +91,14 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 1.5: Implement Demand Analytics Service
-- [ ] Implement `getDemandAnalyticsService(params)` function
-  - [ ] Accept parameters: `locationId`, `listingType`, `propertyType`, `categoryId`, `range`
-  - [ ] Calculate start date based on range
-  - [ ] Build dynamic WHERE clause with all filter conditions
-  - [ ] Execute raw SQL query on `mv_property_views` materialized view
-  - [ ] Aggregate view counts and unique properties viewed by month
-  - [ ] Return formatted response with `{ success, data?, error? }`
-- [ ] Add error handling with console logging
+- [x] Implement `getDemandAnalyticsService(params)` function
+  - [x] Accept parameters: `locationId`, `listingType`, `propertyType`, `categoryId`, `range`
+  - [x] Calculate start date based on range
+  - [x] Build dynamic WHERE clause with all filter conditions
+  - [x] Execute raw SQL query on `mv_property_views` materialized view
+  - [x] Aggregate view counts and unique properties viewed by month
+  - [x] Return formatted response with `{ success, data?, error? }`
+- [x] Add error handling with console logging
 
 **Reference:** Lines 326-374
 **Links to:** `[requirements.md: TBD - Demand Analytics Requirements]`
@@ -108,14 +108,14 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 1.6: Implement Property-Specific Views Service
-- [ ] Implement `getPropertyViewsService(propertyId, range)` function
-  - [ ] Accept parameters: `propertyId` (required), `range` (optional, default '1y')
-  - [ ] Calculate start date based on range
-  - [ ] Query `mv_property_views_per_listing` for monthly view counts
-  - [ ] Query total views for the property (all time)
-  - [ ] Return formatted response with monthly breakdown and total views
-  - [ ] Return `{ success, data: { monthly, total_views } }`
-- [ ] Add error handling with console logging
+- [x] Implement `getPropertyViewsService(propertyId, range)` function
+  - [x] Accept parameters: `propertyId` (required), `range` (optional, default '1y')
+  - [x] Calculate start date based on range
+  - [x] Query `mv_property_views_per_listing` for monthly view counts
+  - [x] Query total views for the property (all time)
+  - [x] Return formatted response with monthly breakdown and total views
+  - [x] Return `{ success, data: { monthly, total_views } }`
+- [x] Add error handling with console logging
 
 **Reference:** Lines 382-412
 **Links to:** `[requirements.md: TBD - Property Views Requirements]`
@@ -125,10 +125,10 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 1.7: Implement Refresh Analytics Service
-- [ ] Implement `refreshAnalyticsViewsService()` function (admin only)
-  - [ ] Execute PostgreSQL function `refresh_analytics_views()` via raw SQL
-  - [ ] Return formatted response with `{ success, error? }`
-- [ ] Add error handling with console logging
+- [x] Implement `refreshAnalyticsViewsService()` function (admin only)
+  - [x] Execute PostgreSQL function `refresh_analytics_views()` via raw SQL
+  - [x] Return formatted response with `{ success, error? }`
+- [x] Add error handling with console logging
 
 **Reference:** Lines 418-426
 **Links to:** `[requirements.md: TBD - Admin Refresh Requirements]`
@@ -138,10 +138,10 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 1.8: Add JSDoc Documentation
-- [ ] Add comprehensive JSDoc comments for all service functions
-- [ ] Document all parameters with types and descriptions
-- [ ] Document return types with Promise wrappers
-- [ ] Add usage examples in comments where helpful
+- [x] Add comprehensive JSDoc comments for all service functions
+- [x] Document all parameters with types and descriptions
+- [x] Document return types with Promise wrappers
+- [x] Add usage examples in comments where helpful
 
 **Reference:** Lines 132-144, and throughout Step 2
 **Files:** `src/api/v1/services/analytics/analytics.service.js`
@@ -157,8 +157,8 @@ This document contains the detailed technical tasks for implementing the analyti
 **Links to:** `[plan.md: TBD]` | `[requirements.md: TBD - Controllers Requirements]`
 
 ### Task 2.1: Create Analytics Controller Directory Structure
-- [ ] Create directory `src/api/v1/controllers/analytics/`
-- [ ] Verify path alias `@controllers/*` works correctly
+- [x] Create directory `src/api/v1/controllers/analytics/`
+- [x] Verify path alias `@controllers/*` works correctly
 
 **Files:** Directory structure
 **Estimated Complexity:** Low
@@ -166,15 +166,15 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 2.2: Implement Price Trends Controller
-- [ ] Create `src/api/v1/controllers/analytics/analytics.controller.js`
-- [ ] Import all service functions from `#services/analytics/analytics.service.js`
-- [ ] Implement `getPriceTrendsController(req, res, next)` function
-  - [ ] Extract query parameters: `locationId`, `listingType`, `propertyType`, `range`
-  - [ ] Call `getPriceTrendsService()` with extracted parameters
-  - [ ] Handle error response (status 500) if service returns error
-  - [ ] Send JSON response with data on success
-  - [ ] Pass errors to Express error handler via `next(error)`
-- [ ] Add JSDoc type annotations for Express types
+- [x] Create `src/api/v1/controllers/analytics/analytics.controller.js`
+- [x] Import all service functions from `#services/analytics/analytics.service.js`
+- [x] Implement `getPriceTrendsController(req, res, next)` function
+  - [x] Extract query parameters: `locationId`, `listingType`, `propertyType`, `range`
+  - [x] Call `getPriceTrendsService()` with extracted parameters
+  - [x] Handle error response (status 500) if service returns error
+  - [x] Send JSON response with data on success
+  - [x] Pass errors to Express error handler via `next(error)`
+- [x] Add JSDoc type annotations for Express types
 
 **Reference:** Lines 447-462
 **Files:** `src/api/v1/controllers/analytics/analytics.controller.js`
@@ -183,13 +183,13 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 2.3: Implement Price Per SQM Controller
-- [ ] Implement `getPricePerSqmController(req, res, next)` function
-  - [ ] Extract query parameters: `locationId`, `listingType`, `propertyType`, `groupBy`
-  - [ ] Call `getPricePerSqmService()` with extracted parameters
-  - [ ] Handle error response (status 500) if service returns error
-  - [ ] Send JSON response with data on success
-  - [ ] Pass errors to Express error handler via `next(error)`
-- [ ] Add JSDoc type annotations
+- [x] Implement `getPricePerSqmController(req, res, next)` function
+  - [x] Extract query parameters: `locationId`, `listingType`, `propertyType`, `groupBy`
+  - [x] Call `getPricePerSqmService()` with extracted parameters
+  - [x] Handle error response (status 500) if service returns error
+  - [x] Send JSON response with data on success
+  - [x] Pass errors to Express error handler via `next(error)`
+- [x] Add JSDoc type annotations
 
 **Reference:** Lines 469-484
 **Files:** `src/api/v1/controllers/analytics/analytics.controller.js`
@@ -198,13 +198,13 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 2.4: Implement Demand Analytics Controller
-- [ ] Implement `getDemandAnalyticsController(req, res, next)` function
-  - [ ] Extract query parameters: `locationId`, `listingType`, `propertyType`, `categoryId`, `range`
-  - [ ] Call `getDemandAnalyticsService()` with extracted parameters
-  - [ ] Handle error response (status 500) if service returns error
-  - [ ] Send JSON response with data on success
-  - [ ] Pass errors to Express error handler via `next(error)`
-- [ ] Add JSDoc type annotations
+- [x] Implement `getDemandAnalyticsController(req, res, next)` function
+  - [x] Extract query parameters: `locationId`, `listingType`, `propertyType`, `categoryId`, `range`
+  - [x] Call `getDemandAnalyticsService()` with extracted parameters
+  - [x] Handle error response (status 500) if service returns error
+  - [x] Send JSON response with data on success
+  - [x] Pass errors to Express error handler via `next(error)`
+- [x] Add JSDoc type annotations
 
 **Reference:** Lines 491-506
 **Files:** `src/api/v1/controllers/analytics/analytics.controller.js`
@@ -213,14 +213,14 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 2.5: Implement Property Views Controller
-- [ ] Implement `getPropertyViewsController(req, res, next)` function
-  - [ ] Extract route parameter: `id` from `req.params`
-  - [ ] Extract query parameter: `range`
-  - [ ] Call `getPropertyViewsService(id, range)` with extracted parameters
-  - [ ] Handle error response (status 500) if service returns error
-  - [ ] Send JSON response with data on success
-  - [ ] Pass errors to Express error handler via `next(error)`
-- [ ] Add JSDoc type annotations
+- [x] Implement `getPropertyViewsController(req, res, next)` function
+  - [x] Extract route parameter: `id` from `req.params`
+  - [x] Extract query parameter: `range`
+  - [x] Call `getPropertyViewsService(id, range)` with extracted parameters
+  - [x] Handle error response (status 500) if service returns error
+  - [x] Send JSON response with data on success
+  - [x] Pass errors to Express error handler via `next(error)`
+- [x] Add JSDoc type annotations
 
 **Reference:** Lines 513-527
 **Files:** `src/api/v1/controllers/analytics/analytics.controller.js`
@@ -229,13 +229,13 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 2.6: Implement Refresh Analytics Controller (Admin Only)
-- [ ] Implement `refreshAnalyticsController(req, res, next)` function
-  - [ ] Call `refreshAnalyticsViewsService()`
-  - [ ] Handle error response (status 500) if service returns error
-  - [ ] Send success message JSON response
-  - [ ] Pass errors to Express error handler via `next(error)`
-- [ ] Add JSDoc type annotations
-- [ ] Add comment indicating this is admin-only endpoint
+- [x] Implement `refreshAnalyticsController(req, res, next)` function
+  - [x] Call `refreshAnalyticsViewsService()`
+  - [x] Handle error response (status 500) if service returns error
+  - [x] Send success message JSON response
+  - [x] Pass errors to Express error handler via `next(error)`
+- [x] Add JSDoc type annotations
+- [x] Add comment indicating this is admin-only endpoint
 
 **Reference:** Lines 535-547
 **Files:** `src/api/v1/controllers/analytics/analytics.controller.js`
@@ -251,8 +251,8 @@ This document contains the detailed technical tasks for implementing the analyti
 **Links to:** `[plan.md: TBD]` | `[requirements.md: TBD - API Endpoints Requirements]`
 
 ### Task 3.1: Create Analytics Routes Directory Structure
-- [ ] Create directory `src/api/v1/routes/analytics/`
-- [ ] Verify path alias `@routes/*` works correctly
+- [x] Create directory `src/api/v1/routes/analytics/`
+- [x] Verify path alias `@routes/*` works correctly
 
 **Files:** Directory structure
 **Estimated Complexity:** Low
@@ -260,13 +260,13 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 3.2: Set Up Route File and Imports
-- [ ] Create `src/api/v1/routes/analytics/analytics.routes.js`
-- [ ] Import `Router` from Express
-- [ ] Import `query`, `param` from `express-validator`
-- [ ] Import `validateRequest` middleware from `#middlewares/validate_request.js`
-- [ ] Import `verifySupabaseToken` middleware from `#middlewares/verifySupabaseToken.js`
-- [ ] Import all controller functions from `#controllers/analytics/analytics.controller.js`
-- [ ] Initialize Express Router
+- [x] Create `src/api/v1/routes/analytics/analytics.routes.js`
+- [x] Import `Router` from Express
+- [x] Import `query`, `param` from `express-validator`
+- [x] Import `validateRequest` middleware from `#middlewares/validate_request.js`
+- [x] Import `verifySupabaseToken` middleware from `#middlewares/verifySupabaseToken.js`
+- [x] Import all controller functions from `#controllers/analytics/analytics.controller.js`
+- [x] Initialize Express Router
 
 **Reference:** Lines 555-567
 **Files:** `src/api/v1/routes/analytics/analytics.routes.js`
@@ -275,22 +275,22 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 3.3: Define Reusable Validation Rules
-- [ ] Create `rangeValidation` - validates `range` query parameter
-  - [ ] Make optional
-  - [ ] Allow only: '1m', '3m', '6m', '1y'
-  - [ ] Add custom error message
-- [ ] Create `listingTypeValidation` - validates `listingType` query parameter
-  - [ ] Make optional
-  - [ ] Allow only: 'for_rent', 'for_sale'
-  - [ ] Add custom error message
-- [ ] Create `propertyTypeValidation` - validates `propertyType` query parameter
-  - [ ] Make optional
-  - [ ] Allow only: 'flat', 'house', 'land', 'holiday_home', 'garage', 'commercial'
-  - [ ] Add custom error message
-- [ ] Create `groupByValidation` - validates `groupBy` query parameter
-  - [ ] Make optional
-  - [ ] Allow only: 'city', 'type'
-  - [ ] Add custom error message
+- [x] Create `rangeValidation` - validates `range` query parameter
+  - [x] Make optional
+  - [x] Allow only: '1m', '3m', '6m', '1y'
+  - [x] Add custom error message
+- [x] Create `listingTypeValidation` - validates `listingType` query parameter
+  - [x] Make optional
+  - [x] Allow only: 'for_rent', 'for_sale'
+  - [x] Add custom error message
+- [x] Create `propertyTypeValidation` - validates `propertyType` query parameter
+  - [x] Make optional
+  - [x] Allow only: 'flat', 'house', 'land', 'holiday_home', 'garage', 'commercial'
+  - [x] Add custom error message
+- [x] Create `groupByValidation` - validates `groupBy` query parameter
+  - [x] Make optional
+  - [x] Allow only: 'city', 'type'
+  - [x] Add custom error message
 
 **Reference:** Lines 569-587
 **Files:** `src/api/v1/routes/analytics/analytics.routes.js`
@@ -299,15 +299,15 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 3.4: Define Price Trends Route
-- [ ] Create GET route `/price-trends`
-- [ ] Add validation middleware array:
-  - [ ] `rangeValidation`
-  - [ ] `listingTypeValidation`
-  - [ ] `propertyTypeValidation`
-  - [ ] `query('locationId').optional().isString().trim()`
-- [ ] Add `validateRequest` middleware
-- [ ] Add `getPriceTrendsController` handler
-- [ ] Route should be publicly accessible (no auth)
+- [x] Create GET route `/price-trends`
+- [x] Add validation middleware array:
+  - [x] `rangeValidation`
+  - [x] `listingTypeValidation`
+  - [x] `propertyTypeValidation`
+  - [x] `query('locationId').optional().isString().trim()`
+- [x] Add `validateRequest` middleware
+- [x] Add `getPriceTrendsController` handler
+- [x] Route should be publicly accessible (no auth)
 
 **Reference:** Lines 590-600
 **Links to:** `[requirements.md: TBD - GET /price-trends Endpoint]`
@@ -317,15 +317,15 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 3.5: Define Price Per SQM Route
-- [ ] Create GET route `/price-per-sqm`
-- [ ] Add validation middleware array:
-  - [ ] `listingTypeValidation`
-  - [ ] `propertyTypeValidation`
-  - [ ] `groupByValidation`
-  - [ ] `query('locationId').optional().isString().trim()`
-- [ ] Add `validateRequest` middleware
-- [ ] Add `getPricePerSqmController` handler
-- [ ] Route should be publicly accessible (no auth)
+- [x] Create GET route `/price-per-sqm`
+- [x] Add validation middleware array:
+  - [x] `listingTypeValidation`
+  - [x] `propertyTypeValidation`
+  - [x] `groupByValidation`
+  - [x] `query('locationId').optional().isString().trim()`
+- [x] Add `validateRequest` middleware
+- [x] Add `getPricePerSqmController` handler
+- [x] Route should be publicly accessible (no auth)
 
 **Reference:** Lines 603-613
 **Links to:** `[requirements.md: TBD - GET /price-per-sqm Endpoint]`
@@ -335,16 +335,16 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 3.6: Define Demand Analytics Route
-- [ ] Create GET route `/demand`
-- [ ] Add validation middleware array:
-  - [ ] `rangeValidation`
-  - [ ] `listingTypeValidation`
-  - [ ] `propertyTypeValidation`
-  - [ ] `query('locationId').optional().isString().trim()`
-  - [ ] `query('categoryId').optional().isString().trim()`
-- [ ] Add `validateRequest` middleware
-- [ ] Add `getDemandAnalyticsController` handler
-- [ ] Route should be publicly accessible (no auth)
+- [x] Create GET route `/demand`
+- [x] Add validation middleware array:
+  - [x] `rangeValidation`
+  - [x] `listingTypeValidation`
+  - [x] `propertyTypeValidation`
+  - [x] `query('locationId').optional().isString().trim()`
+  - [x] `query('categoryId').optional().isString().trim()`
+- [x] Add `validateRequest` middleware
+- [x] Add `getDemandAnalyticsController` handler
+- [x] Route should be publicly accessible (no auth)
 
 **Reference:** Lines 616-627
 **Links to:** `[requirements.md: TBD - GET /demand Endpoint]`
@@ -354,13 +354,13 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 3.7: Define Property-Specific Views Route
-- [ ] Create GET route `/demand/:id`
-- [ ] Add validation middleware array:
-  - [ ] `param('id').notEmpty().withMessage('Property ID is required').trim()`
-  - [ ] `rangeValidation`
-- [ ] Add `validateRequest` middleware
-- [ ] Add `getPropertyViewsController` handler
-- [ ] Route should be publicly accessible (no auth)
+- [x] Create GET route `/demand/:id`
+- [x] Add validation middleware array:
+  - [x] `param('id').notEmpty().withMessage('Property ID is required').trim()`
+  - [x] `rangeValidation`
+- [x] Add `validateRequest` middleware
+- [x] Add `getPropertyViewsController` handler
+- [x] Route should be publicly accessible (no auth)
 
 **Reference:** Lines 630-638
 **Links to:** `[requirements.md: TBD - GET /demand/:id Endpoint]`
@@ -370,11 +370,11 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 3.8: Define Admin Refresh Route
-- [ ] Create POST route `/refresh`
-- [ ] Add `verifySupabaseToken` middleware (authentication required)
-- [ ] Add `refreshAnalyticsController` handler
-- [ ] Route should require authentication (admin only)
-- [ ] **Note:** Consider adding additional admin role check middleware
+- [x] Create POST route `/refresh`
+- [x] Add `verifySupabaseToken` middleware (authentication required)
+- [x] Add `refreshAnalyticsController` handler
+- [x] Route should require authentication (admin only)
+- [x] **Note:** Consider adding additional admin role check middleware
 
 **Reference:** Lines 641-645
 **Links to:** `[requirements.md: TBD - POST /refresh Endpoint]`
@@ -384,7 +384,7 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 3.9: Export Router
-- [ ] Export the configured router as default export
+- [x] Export the configured router as default export
 
 **Reference:** Line 647
 **Files:** `src/api/v1/routes/analytics/analytics.routes.js`
@@ -400,10 +400,10 @@ This document contains the detailed technical tasks for implementing the analyti
 **Links to:** `[plan.md: TBD]` | `[requirements.md: TBD - Route Registration]`
 
 ### Task 4.1: Update Main Routes Index
-- [ ] Open `src/api/v1/routes/index.js`
-- [ ] Import analytics routes: `import analyticsRoutes from "./analytics/analytics.routes.js"`
-- [ ] Register analytics routes: `router.use("/analytics", analyticsRoutes)`
-- [ ] Verify the route prefix creates endpoints under `/api/v1/analytics`
+- [x] Open `src/api/v1/routes/index.js`
+- [x] Import analytics routes: `import analyticsRoutes from "./analytics/analytics.routes.js"`
+- [x] Register analytics routes: `router.use("/analytics", analyticsRoutes)`
+- [x] Verify the route prefix creates endpoints under `/api/v1/analytics`
 
 **Reference:** Lines 656-662
 **Files:** `src/api/v1/routes/index.js`
@@ -430,8 +430,8 @@ This document contains the detailed technical tasks for implementing the analyti
 **Links to:** `[plan.md: TBD]` | `[requirements.md: TBD - Automated Refresh Requirements]`
 
 ### Task 5.1: Install node-cron Dependency
-- [ ] Run `npm install node-cron`
-- [ ] Verify installation in `package.json`
+- [x] Run `npm install node-cron`
+- [x] Verify installation in `package.json`
 
 **Reference:** Lines 817-819
 **Files:** `package.json`
@@ -440,7 +440,7 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 5.2: Create Jobs Directory
-- [ ] Create directory `src/jobs/` (if it doesn't exist)
+- [x] Create directory `src/jobs/` (if it doesn't exist)
 
 **Files:** Directory structure
 **Estimated Complexity:** Low
@@ -448,15 +448,15 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 5.3: Implement Analytics Refresh Job
-- [ ] Create `src/jobs/refreshAnalytics.js`
-- [ ] Import `cron` from `node-cron`
-- [ ] Import Prisma client from `#database/client.js`
-- [ ] Implement `scheduleAnalyticsRefresh()` function
-  - [ ] Schedule cron job to run every 30 minutes: `*/30 * * * *`
-  - [ ] Execute `refresh_analytics_views()` PostgreSQL function
-  - [ ] Add console logging for start and success
-  - [ ] Add error handling with console logging
-- [ ] Export `scheduleAnalyticsRefresh` function
+- [x] Create `src/jobs/refreshAnalytics.js`
+- [x] Import `cron` from `node-cron`
+- [x] Import Prisma client from `#database/client.js`
+- [x] Implement `scheduleAnalyticsRefresh()` function
+  - [x] Schedule cron job to run every 30 minutes: `*/30 * * * *`
+  - [x] Execute `refresh_analytics_views()` PostgreSQL function
+  - [x] Add console logging for start and success
+  - [x] Add error handling with console logging
+- [x] Export `scheduleAnalyticsRefresh` function
 
 **Reference:** Lines 672-688
 **Files:** `src/jobs/refreshAnalytics.js`
@@ -465,10 +465,10 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 5.4: Register Job in Application
-- [ ] Open `src/app.js`
-- [ ] Import refresh job: `import { scheduleAnalyticsRefresh } from './jobs/refreshAnalytics.js'`
-- [ ] Call `scheduleAnalyticsRefresh()` after `app.listen()`
-- [ ] **Consider:** Only enable in production: `if (process.env.NODE_ENV === 'production')`
+- [x] Open `src/app.js`
+- [x] Import refresh job: `import { scheduleAnalyticsRefresh } from './jobs/refreshAnalytics.js'`
+- [x] Call `scheduleAnalyticsRefresh()` after `app.listen()`
+- [x] **Consider:** Only enable in production: `if (process.env.NODE_ENV === 'production')`
 
 **Reference:** Lines 690-701
 **Files:** `src/app.js`
@@ -477,9 +477,9 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 5.5: Document Alternative Refresh Strategies
-- [ ] Add comment in code about pg_cron option (for Supabase/PostgreSQL extension)
-- [ ] Add comment about system cron job option
-- [ ] Add comment about cloud scheduler option (for cloud deployments)
+- [x] Add comment in code about pg_cron option (for Supabase/PostgreSQL extension)
+- [x] Add comment about system cron job option
+- [x] Add comment about cloud scheduler option (for cloud deployments)
 
 **Reference:** Lines 703-709
 **Files:** `src/jobs/refreshAnalytics.js` (comments)

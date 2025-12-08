@@ -13,6 +13,9 @@ import initializeRoutes from "./api/v1/routes/index.js"
 import { errorMiddleware } from "./api/v1/middlewares/errorMiddleware.js"
 import { credentials } from "./api/v1/middlewares/credentials.js"
 
+// Jobs
+import { scheduleAnalyticsRefresh } from "./jobs/refreshAnalytics.js"
+
 dotenv.config()
 const app = express()
 
@@ -51,12 +54,14 @@ app.use(errorMiddleware)
 const port = process.env.PORT || 5050
 const start = () => {
     try {
-        app.listen(port, () => console.log(`Server is listening on port ${port}...`))
+        app.listen(port, () => {
+            console.log(`Server is listening on port ${port}...`)
+            if (process.env.NODE_ENV === "production") scheduleAnalyticsRefresh()
+            else console.log("[Analytics] Scheduled refresh job disabled in development mode")
+        })
     } catch (error) {
         console.log(error)
     }
 }
 
 start()
-
-//kill -9 $(lsof -ti:5050)

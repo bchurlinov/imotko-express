@@ -404,3 +404,10 @@ Invalid `prisma.user.findUnique()` invocation:
 
 
 Server has closed the connection.
+20251208	13:42:12	a6fd23c6-b211-48ac-977b-b92bd6327183	UnauthorizedError: Missing Supabase Bearer token
+20251208	13:42:47	f0357bd7-993a-4129-ad42-ac5497d1df76	UnauthorizedError: Invalid or expired Supabase token
+20251208	13:42:48	05d0f693-2051-4f2a-addb-1085fdc2aaa6	UnauthorizedError: Invalid or expired Supabase token
+20251208	13:53:34	56a74bbc-8c1e-47d5-9a17-f3edf7114376	BadRequestError: No client exists with this user ID
+20251208	13:53:36	8a72c07e-4554-459c-82e9-1291556dc0d0	BadRequestError: No client exists with this user ID
+20251208	13:53:59	a2de3fe0-c25c-45d9-bcd2-ce38b9b15053	BadRequestError: No client exists with this user ID
+20251208	13:54:00	ab1659dd-67ee-4dcc-a31e-715ee1662338	BadRequestError: No client exists with this user ID
