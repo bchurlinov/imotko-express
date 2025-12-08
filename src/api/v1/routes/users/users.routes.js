@@ -11,6 +11,11 @@ import {
     propertyUnfavoriteController,
     getPropertiesFavoritesController,
 } from "#controllers/users/users.controller.js"
+import {
+    createUserSearchController,
+    getUserSearchesController,
+    deleteUserSearchController,
+} from "#controllers/users/users_search.controller.js"
 import { validateRequest } from "#middlewares/validate_request.js"
 import { verifySupabaseToken } from "#middlewares/verifySupabaseToken.js"
 
@@ -90,5 +95,11 @@ router.post("/:id/favorites/:propertyId", verifySupabaseToken, propertyFavoriteC
 router.delete("/:id/favorites/:propertyId", verifySupabaseToken, propertyUnfavoriteController)
 
 router.get("/:id/favorites", verifySupabaseToken, getPropertiesFavoritesController)
+
+router.post("/:id/searches", verifySupabaseToken, createUserSearchController)
+
+router.get("/:id/searches", verifySupabaseToken, getUserSearchesController)
+
+router.delete("/:id/searches/:searchId", verifySupabaseToken, deleteUserSearchController)
 
 export default router

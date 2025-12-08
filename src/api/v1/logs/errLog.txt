@@ -370,3 +370,37 @@ An operation failed because it depends on one or more records that were required
 20251205	15:58:51	a60cf621-ef72-4c5d-bb99-7f1d3fba0163	ConflictError: Property is already in favorites
 20251205	15:58:52	7f61210f-6d2d-486c-87a1-6169184f5c25	ConflictError: Property is already in favorites
 20251205	15:59:00	f83476b4-ccab-4d28-84a1-e6f05cb871fc	ConflictError: Property is already in favorites
+20251206	13:30:10	5fa07f7e-3508-4c02-8dac-95c84b2a4628	Error: Failed to load properties
+20251206	18:17:18	d7fa7466-1218-4db4-9a63-8f7ea2f19654	ReferenceError: deleteUserSearchService is not defined
+20251206	20:42:42	bc2413f4-4ec0-4a67-8a8b-720b5e978198	PrismaClientKnownRequestError: 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+Can't reach database server at `aws-0-eu-central-1.pooler.supabase.com:6543`
+
+Please make sure your database server is running at `aws-0-eu-central-1.pooler.supabase.com:6543`.
+20251207	13:42:12	e5e74518-352a-4c94-977e-0f3cc32e23b4	PrismaClientKnownRequestError: 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 21)
+20251207	16:12:10	c2d4dbbd-59e1-49ff-bd9b-751559409b73	PrismaClientKnownRequestError: 
+Invalid `prisma.notification.findMany()` invocation:
+
+
+Can't reach database server at `aws-0-eu-central-1.pooler.supabase.com:6543`
+
+Please make sure your database server is running at `aws-0-eu-central-1.pooler.supabase.com:6543`.
+20251207	16:29:55	0c03a3d1-238e-4071-bcee-e931df3fbcd2	InternalServerError: Failed to delete user search
+20251207	16:39:21	6985eebf-31a1-45b7-a028-c42901653170	Error: Failed to load properties
+20251207	17:57:40	c4f2cca6-7518-4eba-a0ac-4b0f05fd0257	Error: Failed to load properties
+20251207	17:57:41	f2ebccb1-1acf-4f26-9163-00d1a6efab25	Error: Failed to load properties
+20251207	17:57:44	5da568c7-1467-419c-866c-cad95e294d4a	Error: Failed to load properties
+20251207	17:57:45	b56dfc20-93bf-407b-b6a8-c0485094284d	Error: Failed to load properties
+20251207	17:58:19	d1585664-1307-4de8-8a6c-4782020f9ae6	Error: Failed to load properties
+20251207	17:58:20	f10ffcb2-b17d-429d-a465-10a9863c550c	Error: Failed to load properties
+20251207	19:34:43	0307fe2a-7a59-4c3e-af39-432f2136e8d7	PrismaClientKnownRequestError: 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+Server has closed the connection.

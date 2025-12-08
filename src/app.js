@@ -29,7 +29,7 @@ app.use(credentials)
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 100,
+    limit: 10000,
     standardHeaders: "draft-7",
     legacyHeaders: false,
 })
