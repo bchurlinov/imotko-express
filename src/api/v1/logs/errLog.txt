@@ -411,3 +411,5 @@ Server has closed the connection.
 20251208	13:53:36	8a72c07e-4554-459c-82e9-1291556dc0d0	BadRequestError: No client exists with this user ID
 20251208	13:53:59	a2de3fe0-c25c-45d9-bcd2-ce38b9b15053	BadRequestError: No client exists with this user ID
 20251208	13:54:00	ab1659dd-67ee-4dcc-a31e-715ee1662338	BadRequestError: No client exists with this user ID
+20251208	18:21:34	326b728f-3782-4f2a-a1d3-97f89606c001	TypeError: Do not know how to serialize a BigInt
+20251208	18:22:03	449626c6-2548-47ea-bc74-f53458d388cd	TypeError: Do not know how to serialize a BigInt

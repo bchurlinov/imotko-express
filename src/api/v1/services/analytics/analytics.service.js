@@ -201,66 +201,47 @@ export const getPricePerSqmService = async (params = {}) => {
 }
 
 /**
- * Get demand analytics (property views)
+ * Get demand analytics by location (property views aggregated by location hierarchy)
  * @param {Object} params - Query parameters
- * @param {string} [params.locationId] - Property location ID filter
- * @param {string} [params.listingType] - Listing type filter ('for_rent' or 'for_sale')
- * @param {string} [params.propertyType] - Property type filter ('flat', 'house', etc.)
- * @param {string} [params.categoryId] - Property category ID filter
- * @param {TimeRange} [params.range='1y'] - Time range for data
+ * @param {string} [params.locationId] - Parent location ID filter (returns this location and its children)
+ * @param {number} [params.limit=20] - Maximum number of locations to return
  * @returns {Promise<{success: boolean, data?: Object[], error?: string}>}
  */
 export const getDemandAnalyticsService = async (params = {}) => {
     try {
-        const { locationId, listingType, propertyType, categoryId, range = "1y" } = params
-        const startDate = getStartDate(range)
+        const { locationId, limit = 20 } = params
 
-        let joinConditions = []
-        const queryParams = [startDate]
-        let paramIndex = 2
+        let whereConditions = []
+        const queryParams = []
+        let paramIndex = 1
 
+        // If locationId is provided, filter to show that location and its children
         if (locationId) {
-            joinConditions.push(`pv."propertyLocationId" = $${paramIndex}`)
+            whereConditions.push(`(location_id = $${paramIndex} OR parent_location_id = $${paramIndex})`)
             queryParams.push(locationId)
             paramIndex++
         }
-        if (listingType) {
-            joinConditions.push(`pv."listingType"::text = $${paramIndex}`)
-            queryParams.push(listingType)
-            paramIndex++
-        }
-        if (propertyType) {
-            joinConditions.push(`pv.property_type::text = $${paramIndex}`)
-            queryParams.push(propertyType)
-            paramIndex++
-        }
-        if (categoryId) {
-            joinConditions.push(`pv."categoryId" = $${paramIndex}`)
-            queryParams.push(categoryId)
-            paramIndex++
-        }
 
-        const additionalJoinConditions = joinConditions.length > 0 ? ` AND ${joinConditions.join(" AND ")}` : ""
+        const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(" AND ")}` : ""
 
         const results = await prisma.$queryRawUnsafe(
             `
-            WITH month_series AS (
-                SELECT DATE_TRUNC('month', generate_series(
-                    $1::timestamp,
-                    NOW(),
-                    '1 month'::interval
-                )) AS month
-            )
             SELECT
-                ms.month,
-                COALESCE(SUM(pv.view_count), 0) AS view_count,
-                COALESCE(SUM(pv.unique_properties_viewed), 0) AS unique_properties_viewed
-            FROM month_series ms
-            LEFT JOIN mv_property_views pv ON ms.month = pv.month${additionalJoinConditions}
-            GROUP BY ms.month
-            ORDER BY ms.month ASC
+                location_id,
+                location_name,
+                parent_location_id,
+                direct_views::INTEGER AS direct_views,
+                children_views::INTEGER AS children_views,
+                total_views::INTEGER AS total_views,
+                unique_properties_viewed::INTEGER AS unique_properties_viewed,
+                view_percentage
+            FROM mv_property_views_by_location
+            ${whereClause}
+            ORDER BY total_views DESC
+            LIMIT $${paramIndex}
         `,
-            ...queryParams
+            ...queryParams,
+            limit
         )
 
         return { success: true, data: results }

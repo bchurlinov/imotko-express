@@ -57,20 +57,17 @@ export const getPricePerSqmController = async (req, res, next) => {
 }
 
 /**
- * Get demand analytics (property views)
+ * Get demand analytics by location (property views aggregated by location hierarchy)
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
  * @param {import('express').NextFunction} next - Express next middleware function
  */
 export const getDemandAnalyticsController = async (req, res, next) => {
     try {
-        const { locationId, listingType, propertyType, categoryId, range } = req.query
+        const { locationId, limit } = req.query
         const result = await getDemandAnalyticsService({
             locationId,
-            listingType,
-            propertyType,
-            categoryId,
-            range,
+            limit: limit ? parseInt(limit, 10) : undefined,
         })
 
         if (!result.success) {

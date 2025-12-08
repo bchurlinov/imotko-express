@@ -92,15 +92,14 @@ This document contains the detailed technical tasks for implementing the analyti
 
 ### Task 1.5: Implement Demand Analytics Service
 - [x] Implement `getDemandAnalyticsService(params)` function
-  - [x] Accept parameters: `locationId`, `listingType`, `propertyType`, `categoryId`, `range`
-  - [x] Calculate start date based on range
-  - [x] Build dynamic WHERE clause with all filter conditions
-  - [x] Execute raw SQL query on `mv_property_views` materialized view
-  - [x] Aggregate view counts and unique properties viewed by month
+  - [x] Accept parameters: `locationId`, `limit`
+  - [x] Build dynamic WHERE clause to filter by location (includes location and its children)
+  - [x] Execute raw SQL query on `mv_property_views_by_location` materialized view
+  - [x] Return location-based analytics with direct_views, children_views, total_views, unique_properties_viewed, view_percentage
   - [x] Return formatted response with `{ success, data?, error? }`
 - [x] Add error handling with console logging
 
-**Reference:** Lines 326-374
+**Reference:** Lines 326-374 (updated to use mv_property_views_by_location)
 **Links to:** `[requirements.md: TBD - Demand Analytics Requirements]`
 **Files:** `src/api/v1/services/analytics/analytics.service.js`
 **Estimated Complexity:** Medium
@@ -199,14 +198,15 @@ This document contains the detailed technical tasks for implementing the analyti
 
 ### Task 2.4: Implement Demand Analytics Controller
 - [x] Implement `getDemandAnalyticsController(req, res, next)` function
-  - [x] Extract query parameters: `locationId`, `listingType`, `propertyType`, `categoryId`, `range`
+  - [x] Extract query parameters: `locationId`, `limit`
+  - [x] Parse `limit` as integer if provided
   - [x] Call `getDemandAnalyticsService()` with extracted parameters
   - [x] Handle error response (status 500) if service returns error
   - [x] Send JSON response with data on success
   - [x] Pass errors to Express error handler via `next(error)`
 - [x] Add JSDoc type annotations
 
-**Reference:** Lines 491-506
+**Reference:** Lines 491-506 (updated for location-based analytics)
 **Files:** `src/api/v1/controllers/analytics/analytics.controller.js`
 **Estimated Complexity:** Low
 
@@ -337,16 +337,13 @@ This document contains the detailed technical tasks for implementing the analyti
 ### Task 3.6: Define Demand Analytics Route
 - [x] Create GET route `/demand`
 - [x] Add validation middleware array:
-  - [x] `rangeValidation`
-  - [x] `listingTypeValidation`
-  - [x] `propertyTypeValidation`
   - [x] `query('locationId').optional().isString().trim()`
-  - [x] `query('categoryId').optional().isString().trim()`
+  - [x] `query('limit').optional().isInt({ min: 1, max: 100 })`
 - [x] Add `validateRequest` middleware
 - [x] Add `getDemandAnalyticsController` handler
 - [x] Route should be publicly accessible (no auth)
 
-**Reference:** Lines 616-627
+**Reference:** Lines 616-627 (updated for location-based analytics)
 **Links to:** `[requirements.md: TBD - GET /demand Endpoint]`
 **Files:** `src/api/v1/routes/analytics/analytics.routes.js`
 **Estimated Complexity:** Low
@@ -529,16 +526,14 @@ This document contains the detailed technical tasks for implementing the analyti
 ---
 
 ### Task 6.3: Test Demand Analytics Endpoint
-- [ ] Test GET `/api/v1/analytics/demand` without parameters
-- [ ] Test with `range` parameter variations
-- [ ] Test with `locationId` filter
-- [ ] Test with `listingType` filter
-- [ ] Test with `propertyType` filter
-- [ ] Test with `categoryId` filter
-- [ ] Test with multiple filters combined
-- [ ] Verify monthly aggregation is correct
-- [ ] Verify view counts and unique properties viewed
+- [ ] Test GET `/api/v1/analytics/demand` without parameters (should return all locations)
+- [ ] Test with `locationId` filter (should return location and its children)
+- [ ] Test with `limit` parameter (default 20, max 100)
+- [ ] Verify response includes: location_id, location_name, parent_location_id, direct_views, children_views, total_views, unique_properties_viewed, view_percentage
+- [ ] Verify results are ordered by total_views DESC
+- [ ] Verify hierarchical aggregation (parent views include children)
 - [ ] Test with invalid parameters and verify validation errors
+- [ ] Verify view_percentage calculations sum correctly
 
 **Estimated Complexity:** Medium
 

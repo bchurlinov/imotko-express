@@ -51,15 +51,12 @@ router.get(
     getPricePerSqmController
 )
 
-// GET /api/v1/analytics/demand
+// GET /api/v1/analytics/demand (location-based demand analytics)
 router.get(
     "/demand",
     [
-        rangeValidation,
-        listingTypeValidation,
-        propertyTypeValidation,
         query("locationId").optional().isString().trim(),
-        query("categoryId").optional().isString().trim(),
+        query("limit").optional().isInt({ min: 1, max: 100 }).withMessage("limit must be between 1 and 100"),
     ],
     validateRequest,
     getDemandAnalyticsController
