@@ -413,3 +413,39 @@ Server has closed the connection.
 20251208	13:54:00	ab1659dd-67ee-4dcc-a31e-715ee1662338	BadRequestError: No client exists with this user ID
 20251208	18:21:34	326b728f-3782-4f2a-a1d3-97f89606c001	TypeError: Do not know how to serialize a BigInt
 20251208	18:22:03	449626c6-2548-47ea-bc74-f53458d388cd	TypeError: Do not know how to serialize a BigInt
+20251210	10:49:02	5fa50256-fa52-49ad-95a8-91b7fda59592	Error: Failed to load agencies.
+20251210	10:49:03	e2791599-e189-4bef-89de-48d6ec7a5fcd	Error: Failed to load agencies.
+20251210	10:49:12	471e9235-41ee-4303-98c9-965055cee344	Error: Failed to load agencies.
+20251210	10:49:13	5949c78d-03ea-497a-bc91-2c0352f7cbec	Error: Failed to load agencies.
+20251210	10:49:30	795ab87b-c5b1-416c-862b-678bbc022820	Error: Failed to load agencies.
+20251210	10:49:30	a540ffc5-492e-4162-8d17-b7c4125e8409	Error: Failed to load agencies.
+20251210	10:49:31	a5caac85-0e0d-4d77-9880-eed27290a031	Error: Failed to load agencies.
+20251210	10:49:35	37c111bf-1d3a-41ad-8326-c7d467ae5f61	Error: Failed to load agencies.
+20251210	10:50:15	e8c2806e-65d5-4952-ad89-515f9cf2bc45	Error: Failed to load agencies.
+20251210	10:50:16	4b649f26-05c9-4fa5-a64f-9ec53bc27453	Error: Failed to load agencies.
+20251210	10:50:40	c3311e35-d00b-4a4a-a3c0-29f6d0d7d5a5	Error: Failed to load agencies.
+20251210	10:50:41	574d5e35-8715-407b-b3e4-612fe849b9d0	Error: Failed to load agencies.
+20251210	10:50:56	ab18a926-e4f5-4cad-81a1-fe124a17eea3	Error: Failed to load agencies.
+20251210	10:50:57	4e43591f-a9fa-4811-b1d0-66ca496059cb	Error: Failed to load agencies.
+20251210	11:49:45	03db086e-6e42-4c7b-a880-2d9b378c1175	PrismaClientKnownRequestError: 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+Can't reach database server at `aws-0-eu-central-1.pooler.supabase.com:6543`
+
+Please make sure your database server is running at `aws-0-eu-central-1.pooler.supabase.com:6543`.
+20251210	11:49:45	ff6bafef-b80e-46bc-afbe-e5a4bc246ade	PrismaClientKnownRequestError: 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+Can't reach database server at `aws-0-eu-central-1.pooler.supabase.com:6543`
+
+Please make sure your database server is running at `aws-0-eu-central-1.pooler.supabase.com:6543`.
+20251210	17:41:24	1ba75aa4-b12e-4307-a93c-f0a30aa425f0	InternalServerError: Failed to create user search
+20251210	17:42:14	15bfd7df-4b7e-454c-9ee4-ecbdd4becc94	InternalServerError: Failed to create user search
+20251210	17:42:44	4d32dfa9-c36f-40df-86d1-3053de6da8cf	InternalServerError: Failed to create user search
+20251210	17:43:29	848494ea-5ccf-4a59-9d82-2c3d13e2e52a	InternalServerError: Failed to create user search
+20251210	17:43:43	e8d74ddc-9c63-475e-ab05-0f0c20ea52d0	InternalServerError: Failed to create user search
+20251210	17:45:06	12b3c0c5-fdef-4bb4-b632-2b48e37d745a	InternalServerError: Failed to create user search
+20251210	17:45:36	42c188d5-8555-45ed-b9a5-034b5539a9d6	InternalServerError: Failed to create user search
+20251210	17:47:20	9244a277-2ebf-4e4d-96be-14a0520f00bd	InternalServerError: Failed to create user search

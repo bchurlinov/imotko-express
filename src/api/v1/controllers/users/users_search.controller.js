@@ -26,7 +26,6 @@ export const getUserSearchesController = asyncHandler(async (req, res) => {
  * @returns {Promise<void>}
  */
 export const createUserSearchController = asyncHandler(async (req, res) => {
-    // Pass userId from params (if exists) and full body including email
     const userId = req.params.id || null
     const result = await createUserSearchService(userId, req.body)
     return res.status(result.code).json(result)

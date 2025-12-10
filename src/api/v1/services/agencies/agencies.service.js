@@ -39,7 +39,7 @@ export const getAgencyService = async agencyId => {
  */
 export const getAgenciesService = async (params = {}) => {
     try {
-        const { limit = 6, shuffled = false } = params
+        const { limit = 50, shuffled = false } = params
 
         const queryParams = {
             where: {

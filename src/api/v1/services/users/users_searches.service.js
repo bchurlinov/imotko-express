@@ -19,7 +19,7 @@ import createError from "http-errors"
  */
 export const createUserSearchService = async (_userId, body) => {
     try {
-        const { email, filters, queryString, params } = body
+        const { email, filters, queryString, params, preferences } = body
 
         if (!email) throw createError(400, "Email is required")
 
@@ -66,14 +66,42 @@ export const createUserSearchService = async (_userId, body) => {
         }, {})
 
         const createdSearch = await prisma.$transaction(async tx => {
-            return tx.clientSearch.create({
+            const nextClientSearch = await tx.clientSearch.create({
                 data: {
                     client: { connect: { id: user.client.id } },
                     link: "",
                     title: { mk: "", en: "", sq: "" },
                     filters: prepareFilters || {},
+                    receiveOffers: preferences.agencyOffers || false,
                 },
             })
+
+            if (!preferences?.matchAlerts) return nextClientSearch
+            if (!nextClientSearch?.filters.category)
+                throw createError(400, "Category is required for property subscription")
+
+            const propertySubscription = {}
+            if (nextClientSearch?.filters.location) propertySubscription.location = nextClientSearch.filters.location
+            if (nextClientSearch?.filters.listingType)
+                propertySubscription.listingType = nextClientSearch.filters.listingType
+            if (nextClientSearch?.filters.category) propertySubscription.category = nextClientSearch.filters.category
+            if (nextClientSearch?.filters.subCategory)
+                propertySubscription.subCategory = nextClientSearch.filters.subCategory
+            if (nextClientSearch?.filters.price_from)
+                propertySubscription.minPrice = +nextClientSearch.filters.price_from
+            if (nextClientSearch?.filters.price_to) propertySubscription.maxPrice = +nextClientSearch.filters.price_to
+            if (nextClientSearch?.filters.size_from) propertySubscription.minSize = +nextClientSearch.filters.size_from
+            if (nextClientSearch?.filters.size_to) propertySubscription.maxSize = +nextClientSearch.filters.size_to
+
+            await tx.clientPropertySubscription.create({
+                data: {
+                    ...propertySubscription,
+                    client: { connect: { id: user.client.id } },
+                    clientSearch: { connect: { id: nextClientSearch.id } },
+                },
+            })
+
+            return nextClientSearch
         })
 
         return {
@@ -86,6 +114,12 @@ export const createUserSearchService = async (_userId, body) => {
         throw createError(500, "Failed to create user search")
     }
 }
+
+/**
+ * Get all searches for a user
+ * @param {string} userId - User ID
+ * @returns {Promise<ApiResponse<UserSearch[]>>}
+ */
 
 export const getUserSearchesService = async userId => {
     try {
@@ -113,6 +147,12 @@ export const getUserSearchesService = async userId => {
     }
 }
 
+/**
+ * Delete a user search
+ * @param {string} userId - User ID
+ * @param {string} searchId - Search ID
+ * @returns {Promise<ApiResponse<null>>}
+ */
 export const deleteUserSearchService = async (userId, searchId) => {
     try {
         const user = await prisma.user.findUnique({
