@@ -21,7 +21,7 @@ export const getAgencyController = asyncHandler(async (req, res) => {
  * @returns {Promise<void>}
  */
 
-export const getAgenciesController = asyncHandler(async (_, res) => {
-    const agencies = await getAgenciesService()
+export const getAgenciesController = asyncHandler(async (req, res) => {
+    const agencies = await getAgenciesService(req.query)
     return res.status(200).json(agencies)
 })
