@@ -541,3 +541,133 @@ Please make sure your database server is running at `aws-0-eu-central-1.pooler.s
 20251213	18:34:37	07b1371c-c4c7-4d3a-91d5-b0328de613c6	UnauthorizedError: Missing Supabase Bearer token
 20251213	18:35:15	86f9ed7a-6721-47a5-bda3-d9f4e6daa8fc	UnauthorizedError: Missing Supabase Bearer token
 20251213	18:35:16	de631054-ada4-4712-91bb-f69542e3c97b	UnauthorizedError: Missing Supabase Bearer token
+20251218	15:13:00	ca05ed3a-4492-446a-b1ef-4d6815440ae0	UnauthorizedError: Missing Supabase Bearer token
+20251218	15:13:51	7fca9428-4326-42a0-900d-6a6f32d3b96d	UnauthorizedError: Missing Supabase Bearer token
+20251218	15:17:52	69145776-147c-48bd-80f4-f81286a5b424	NotFoundError: User not found
+20251218	15:17:52	def2a2b6-5567-4f80-b214-843f598cced7	NotFoundError: User not found
+20251218	15:24:06	b7b9d432-88ed-48e5-b6a9-e39ed1e32249	NotFoundError: User not found
+20251218	15:24:06	6cdc0bff-930d-4d32-b99b-98677d8643ea	NotFoundError: User not found
+20251218	15:24:14	6c0a98ed-d698-44c2-9456-00a865e15d32	NotFoundError: User not found
+20251218	15:24:14	ec5d4161-4894-45f1-9451-956f6ce1b63d	NotFoundError: User not found
+20251218	15:24:26	07bd4053-42ed-4bab-b5d9-4b58c0ed7edd	NotFoundError: User not found
+20251218	15:24:26	54e47941-9e63-4984-a022-a8b215c5ea1c	NotFoundError: User not found
+20251218	15:25:50	f860e975-b9ed-414b-a40a-46f51d5478af	NotFoundError: User not found
+20251218	15:25:50	4baaac25-0e1a-42d7-b523-3eb3d4f0234a	NotFoundError: User not found
+20251218	15:26:55	60c3372c-e176-4f05-9fa8-25b7193916d6	NotFoundError: User not found
+20251218	15:26:56	e727c3d4-0150-4a95-ac27-4ee99f4e8218	NotFoundError: User not found
+20251218	15:26:56	9e6399fd-c560-44cf-b008-e84cb9b711d1	NotFoundError: User not found
+20251218	15:26:58	005dd268-fe51-4e39-b097-3707becd8a56	NotFoundError: User not found
+20251218	15:26:58	4581c75d-615f-4dd1-a000-919aaac15e49	NotFoundError: User not found
+20251218	15:26:59	59889357-b522-4efd-9ab6-ee1d49848bc6	NotFoundError: User not found
+20251218	15:27:14	510dedc0-93a7-42a8-8038-16863d4f9001	NotFoundError: User not found
+20251218	15:27:45	64b43d9d-ed6e-4817-90af-0aef21da33d4	UnauthorizedError: Missing Supabase Bearer token
+20251218	15:27:45	7be4f0c2-de60-4d94-b01c-9c6896cb8bf1	UnauthorizedError: Missing Supabase Bearer token
+20251218	15:30:15	e623317c-ba64-4cdc-8d66-267b3260e21f	UnauthorizedError: Missing Supabase Bearer token
+20251218	15:30:15	8cdbc8bd-5b4d-4ec1-ac0d-b6ebd27e9946	UnauthorizedError: Missing Supabase Bearer token
+20251218	15:30:32	5c9c0aea-f41e-4a44-a175-c36c06baa7b5	UnauthorizedError: Missing Supabase Bearer token
+20251218	15:30:33	44b4a646-e0ef-41b0-89c5-0d0300f98f19	UnauthorizedError: Missing Supabase Bearer token
+20251218	15:33:21	d3ebc687-88f0-45f2-9290-9b2bfeae1ebc	InternalServerError: Failed to delete user.
+20251218	15:33:59	463a8fd4-3e46-4ecf-995b-c4a9149c9a57	InternalServerError: Failed to delete user.
+20251218	15:33:59	6aeeca68-9a8c-4a6b-9d90-9963596d34eb	InternalServerError: Failed to delete user.
+20251218	16:24:21	d21b8a8f-6a1f-45f8-9374-744fdc73a05b	BadRequestError: No client exists with this user ID
+20251218	16:24:22	b1396c31-13fe-436a-94f4-835ce2ea4f67	BadRequestError: No client exists with this user ID
+20251218	16:28:36	98433169-7b14-4bde-8f13-9a2942c62fac	BadRequestError: No client exists with this user ID
+20251218	16:28:37	a1897a51-8742-424b-8899-3ea2206c0652	BadRequestError: No client exists with this user ID
+20251218	16:29:46	79ee7b04-46e6-415c-bc65-8a0667334395	NotFoundError: User not found
+20251218	16:29:46	7f2c27bf-a100-4381-a563-5605b0f02763	NotFoundError: User not found
+20251218	16:29:52	7ff126a7-f277-48a3-9f95-64f5fe356c30	NotFoundError: User not found
+20251218	16:29:52	3a67d1e2-61a9-462d-b20a-adb0b9b3af5a	NotFoundError: User not found
+20251218	16:30:17	622985cb-fb8a-4419-bae8-c7ae1f892f3c	NotFoundError: User not found
+20251218	16:31:43	5855a0f7-a570-4293-80a9-4929229c9a03	NotFoundError: User not found
+20251218	16:33:54	6d3d21dc-98c4-4a9e-bbcb-fae284f0169b	NotFoundError: User not found
+20251218	16:38:43	0e5bf575-e8c5-45c1-ae2e-70b6460e9581	NotFoundError: User not found
+20251218	16:41:45	adcef3a7-0239-44a5-9c03-dbdbcf106f6e	UnauthorizedError: Missing Supabase Bearer token
+20251218	16:43:05	4a93c602-1bb6-487d-ac3d-7579882941b9	NotFoundError: User not found
+20251218	16:48:20	c276ddef-17d2-467d-ac8c-6812b5ca3b61	NotFoundError: User not found
+20251218	16:49:55	9292b5a6-9838-49f7-ab3d-3f41a78e20bf	NotFoundError: User not found
+20251218	16:52:42	2ab31624-58b6-45f1-9160-81cbfed243ae	NotFoundError: User not found
+20251218	16:56:26	d154f9f1-cc43-4525-83d7-b087e69022ec	NotFoundError: User not found
+20251218	17:02:25	e31e34d4-94b6-4487-b7e0-e3d770e16ba4	NotFoundError: User not found
+20251218	17:06:51	40893611-be96-42f2-95bb-397ea9a34754	NotFoundError: User not found
+20251218	17:09:12	46300493-b4e7-418f-8953-37b13cec2adf	NotFoundError: User not found
+20251218	17:10:26	f2321bb7-8cbc-4ecf-9f20-e1431e4356f8	NotFoundError: User not found
+20251218	17:11:53	6e90a847-7da3-4285-989c-ff8490239bba	NotFoundError: User not found
+20251218	17:14:45	afadad48-57ab-46b5-9e5b-1f351e077e24	Error: Failed to load properties
+20251218	17:14:45	4ce3e4a6-c21b-46e7-a27e-9360237d21c7	Error: Failed to load properties
+20251218	17:14:45	e4510e9c-c367-4e17-ade9-afc2c2fb5094	Error: Failed to load properties
+20251218	17:14:56	d17380be-de65-4978-9d39-f950d79b6c74	Error: Failed to load properties
+20251218	17:15:20	83c0a733-7b5e-4dde-a452-b940b36a86ec	NotFoundError: User not found
+20251218	17:16:28	45d7479d-1e6a-41f6-a80f-86fd2ba68a79	NotFoundError: User not found
+20251218	17:19:00	db589d40-4894-463d-bf6e-987964de790b	NotFoundError: User not found
+20251218	17:20:35	e6f25611-ca06-42b9-b43c-b1e316937fc6	NotFoundError: User not found
+20251218	18:17:34	5e8550f8-9aa8-4cca-9319-18e9607cf81f	UnauthorizedError: Missing Supabase Bearer token
+20251218	18:17:34	0197566f-ea64-401f-9291-7352ae30e6f5	UnauthorizedError: Missing Supabase Bearer token
+20251218	18:17:34	fee94172-d093-4458-8f42-ad5f54b97cbe	UnauthorizedError: Missing Supabase Bearer token
+20251218	18:17:35	55ef3111-c03b-4b25-b1a8-942ade1e108e	UnauthorizedError: Missing Supabase Bearer token
+20251218	18:17:35	8c4ff549-e472-4784-9773-cc26d5b615fd	UnauthorizedError: Missing Supabase Bearer token
+20251218	18:17:35	a4f65301-79e8-4f6b-b034-0887f8e97f1f	UnauthorizedError: Missing Supabase Bearer token
+20251218	18:17:38	a2fd1c1d-436a-4d7c-8bbf-7dfdd76e40b4	UnauthorizedError: Missing Supabase Bearer token
+20251218	18:17:39	b0f0cce5-163b-42ed-adc9-e7650e602d05	UnauthorizedError: Missing Supabase Bearer token
+20251218	18:17:39	f47e4764-8211-477b-a9ac-62d9f1bcfe2a	UnauthorizedError: Missing Supabase Bearer token
+20251218	18:17:40	99dacc20-5d4d-49b5-8213-ff266af9d262	UnauthorizedError: Missing Supabase Bearer token
+20251218	18:17:40	f5edfeeb-e461-4f68-9187-3f8b047f9d86	UnauthorizedError: Missing Supabase Bearer token
+20251218	18:17:40	e8192264-9e37-4575-9c4e-71cf7c7d6ace	UnauthorizedError: Missing Supabase Bearer token
+20251218	18:18:11	b54f895f-456b-4a6c-84c3-1312cf61796e	UnauthorizedError: Missing Supabase Bearer token
+20251218	18:18:12	cf501a4c-5e99-4f7a-969b-4cf389307a48	UnauthorizedError: Missing Supabase Bearer token
+20251218	19:18:42	add87f75-25d6-428f-bc42-adc243e4fbdf	BadRequestError: Validation errors
+20251218	19:18:49	896a9b47-00fc-45d4-9bd7-e14828b03ac4	BadRequestError: Validation errors
+20251218	19:19:51	8674b1ba-ffc2-4d2d-87a6-59346c049016	BadRequestError: Validation errors
+20251218	19:20:40	3a309914-21e6-4c94-a408-e2d5c523a4f1	BadRequestError: Validation errors
+20251218	19:21:08	dd3ef7a1-687f-40e0-8c2d-40f2d3dab37b	BadRequestError: Validation errors
+20251218	19:21:31	6f07e65c-daed-48b8-a6ea-ec47929b8694	BadRequestError: Validation errors
+20251218	19:21:37	1caa9896-973c-41ad-b55a-5c93b4ca38ad	BadRequestError: Validation errors
+20251218	19:21:52	f9a471c4-41b6-4dec-a845-199982ea478b	BadRequestError: Validation errors
+20251218	19:22:13	f60118de-7d10-473c-9071-62bb372565cd	BadRequestError: Validation errors
+20251218	19:22:43	c4422573-c1a7-47c7-829a-b0ca1eb17b1a	BadRequestError: Validation errors
+20251218	19:23:09	388077d8-d638-4fdf-b235-a3dcd523b5b6	BadRequestError: Validation errors
+20251218	19:23:12	f0ac7831-4429-49cb-95c7-d6d2c9994a40	BadRequestError: Validation errors
+20251218	19:24:16	fb82915e-aba2-4a22-80c9-d5bf067dc26b	BadRequestError: Validation errors
+20251218	19:26:52	ef3f6afa-49da-4a19-8f8e-510be3d226d9	BadRequestError: Validation errors
+20251218	19:57:08	c0d6fc65-2d4f-4fdc-b74d-79bd1697a3fa	BadRequestError: Validation errors
+20251218	19:57:12	32fffa27-70c6-43bd-bf48-20969ebd13d7	BadRequestError: Validation errors
+20251218	19:57:32	d1cdbe64-ea93-44f8-90e5-d836d1fa8ac5	BadRequestError: Validation errors
+20251218	19:57:41	181e4c0c-891a-4041-9b45-0c23afc52857	BadRequestError: Validation errors
+20251218	19:57:48	2866e829-90df-4972-a471-c86e45f32868	BadRequestError: Validation errors
+20251218	20:07:22	cfaaea1a-44f3-40cb-8e5e-ef63aac8bd80	PrismaClientKnownRequestError: 
+Invalid `prisma.user.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for an update.
+20251218	20:09:04	ffb5b55d-6c1b-499b-ae3f-d9c4c8eab336	PrismaClientKnownRequestError: 
+Invalid `prisma.user.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for an update.
+20251218	20:09:22	5936abe1-12d5-4d04-92af-316d0285cf34	ReferenceError: user is not defined
+20251218	20:09:24	549d544f-0f63-43c7-9a93-3c7ed3e5ea75	ReferenceError: user is not defined
+20251218	20:09:28	ce14203d-9d82-4058-bf7c-7ee09667e612	ReferenceError: user is not defined
+20251218	20:09:36	139e2264-6f73-411a-af8a-fdbac54875ae	PrismaClientKnownRequestError: 
+Invalid `prisma.user.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for an update.
+20251218	20:09:54	16c381c4-d1e0-41bc-94c7-638ffd9c6182	PrismaClientKnownRequestError: 
+Invalid `prisma.user.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for an update.
+20251218	20:12:59	a12e0169-184f-4e18-9772-3cff783a3e49	PrismaClientKnownRequestError: 
+Invalid `prisma.user.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for an update.
+20251218	20:13:10	fef2002b-6daf-4be5-9e04-18b932b276ad	PrismaClientKnownRequestError: 
+Invalid `prisma.user.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for an update.
+20251218	20:14:00	57f8d03c-b982-4191-b116-18ccb2cbca86	PrismaClientKnownRequestError: 
+Invalid `prisma.user.update()` invocation:
+
+
+An operation failed because it depends on one or more records that were required but not found. No record was found for an update.

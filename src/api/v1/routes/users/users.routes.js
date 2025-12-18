@@ -10,6 +10,8 @@ import {
     propertyFavoriteController,
     propertyUnfavoriteController,
     getPropertiesFavoritesController,
+    deleteUserController,
+    updateUserController,
 } from "#controllers/users/users.controller.js"
 import {
     createUserSearchController,
@@ -89,12 +91,15 @@ router.patch(
     [
         body("name").optional().isString().withMessage("Invalid name"),
         body("lastName").optional().isString().withMessage("Invalid last name"),
-        body("phone").optional().isNumeric().withMessage("Invalid phone"),
+        body("phone").optional().isString().withMessage("Invalid phone"),
         body("location").optional().isString().withMessage("Invalid location"),
     ],
     verifySupabaseToken,
-    validateRequest
+    validateRequest,
+    updateUserController
 )
+
+router.delete("/:id", verifySupabaseToken, deleteUserController)
 
 router.get("/:id/notifications", verifySupabaseToken, getUserNotificationsController)
 

@@ -1,7 +1,9 @@
 import { supabaseAdmin } from "#utils/supabaseClient.js"
 import { UserLanguage, UserRole } from "@prisma/client"
+import { createSupabaseClient } from "#utils/supabaseClient.js"
 import createError from "http-errors"
 import prisma from "#database/client.js"
+import { asyncHandler } from "#utils/helpers/async_handler.js"
 
 /**
  * @typedef {import("@prisma/client").User} User
@@ -117,7 +119,7 @@ export const findOrCreateUserService = async supabaseUser => {
             })
         })
 
-        return { user }
+        return { data: user, message: "User created successfully." }
     } catch (dbError) {
         console.error("[Prisma] Failed to create user:", dbError)
         throw createError(500, "Failed to create user in database")
@@ -133,6 +135,7 @@ export const getUserService = async userEmail => {
         const user = await prisma.user.findUnique({
             where: { email: userEmail },
         })
+
         if (!user) throw createError(404, "User not found")
         return { data: user, message: "User loaded successfully." }
     } catch (err) {
@@ -247,32 +250,73 @@ export const createUserService = async ({
  * Update existing user
  * @param {string} userId - User ID
  * @param {Object} updateData - Data to update
- * @returns {Promise<{user: PrismaUser}>}
+ * @param {string} [updateData.name] - User first name
+ * @param {string} [updateData.lastName] - User last name
+ * @param {string} [updateData.phone] - User phone number
+ * @param {string} [updateData.location] - User location
+ * @returns {Promise<{data: import('@prisma/client').User, message: string}>}
  */
-export const updateUserService = async (userId, updateData) => {
-    try {
-        const user = await prisma.user.update({
-            where: { id: userId },
-            data: updateData,
-        })
-        return { data: user, message: "User updated successfully." }
-    } catch (err) {
-        throw createError(500, "Failed to update user.")
+export const updateUserService = asyncHandler(async (userId, updateData) => {
+    if (!userId) {
+        throw createError(400, "User ID is required")
     }
-}
+
+    const updatePayload = removeUndefined({
+        name: updateData.name,
+        lastName: updateData.lastName,
+        phone: updateData.phone,
+        location: updateData.location,
+    })
+
+    const nextUser = await prisma.user.update({
+        where: { id: userId },
+        data: updatePayload,
+    })
+
+    return { data: nextUser, message: "User updated successfully." }
+})
 
 /**
  * Delete existing user
  * @param {string} userId - User ID
- * @returns {Promise<void>}
+ * @param {string} sessionId - Session ID
+ * @returns {Promise<{data: null, message: string}>}
  */
-export const deleteUserService = async userId => {
+export const deleteUserService = async (userId, sessionId) => {
+    let supabaseDeleted = false
+
     try {
-        await prisma.user.delete({
-            where: { id: userId },
+        const { error: supabaseError } = await supabaseAdmin.auth.admin.deleteUser(sessionId)
+        if (supabaseError) {
+            console.error("[deleteUserService] Supabase deletion failed:", supabaseError)
+            throw createError(500, `Failed to delete user from authentication service: ${supabaseError.message}`)
+        }
+
+        supabaseDeleted = true
+
+        await prisma.$transaction(async tx => {
+            await tx.client.delete({
+                where: {
+                    userId,
+                },
+            })
+            await tx.user.delete({
+                where: {
+                    id: userId,
+                },
+            })
         })
+
         return { data: null, message: "User deleted successfully." }
     } catch (err) {
+        console.error("[deleteUserService] Error:", err)
+
+        if (supabaseDeleted) {
+            console.error(
+                `[ORPHANED_USER] Supabase user deleted but database deletion failed for user ${userId}. Manual cleanup required.`
+            )
+        }
+
         throw createError(500, "Failed to delete user.")
     }
 }

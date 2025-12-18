@@ -29,11 +29,11 @@ export const findOrCreateUserController = async (req, res, next) => {
     try {
         const email = req.body.email
         if (!email) throw createError(400, "Supabase user data is required")
-        const { user } = await findOrCreateUserService(req.body)
+        const { data } = await findOrCreateUserService(req.body)
 
         res.status(200).json({
             message: "User retrieved successfully",
-            data: user,
+            data,
         })
     } catch (error) {
         next(error)
@@ -86,6 +86,19 @@ export const createUserController = async (req, res, next) => {
 }
 
 /**
+ * Controller to delete existing user
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {import('express').NextFunction} next - Express next function
+ * @returns {Promise<void>}
+ */
+export const deleteUserController = asyncHandler(async (req, res) => {
+    const { id } = req.params
+    const { sessionId } = req.body
+    const response = await deleteUserService(id, sessionId)
+    return res.status(200).json(response)
+})
+/**
  * Controller to update existing user
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -100,6 +113,8 @@ export const updateUserController = asyncHandler(async (req, res) => {
         phone: req.body.phone,
         location: req.body.location,
     }
+
+    console.log({ id, payload })
 
     const updatedUser = await updateUserService(id, payload)
     return res.status(200).json(updatedUser)
