@@ -1,4 +1,10 @@
-import { createUserService, findOrCreateUserService, getUserService } from "#services/users/users.service.js"
+import {
+    createUserService,
+    findOrCreateUserService,
+    getUserService,
+    updateUserService,
+    deleteUserService,
+} from "#services/users/users.service.js"
 import { asyncHandler } from "#utils/helpers/async_handler.js"
 import { getUserNotificationsService } from "#services/users/users_notifications.service.js"
 import {
@@ -80,7 +86,27 @@ export const createUserController = async (req, res, next) => {
 }
 
 /**
- * Controller to find or create user from Supabase auth data
+ * Controller to update existing user
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @param {import('express').NextFunction} next - Express next function
+ * @returns {Promise<void>}
+ */
+export const updateUserController = asyncHandler(async (req, res) => {
+    const { id } = req.params
+    const payload = {
+        name: req.body.name,
+        lastName: req.body.lastName,
+        phone: req.body.phone,
+        location: req.body.location,
+    }
+
+    const updatedUser = await updateUserService(id, payload)
+    return res.status(200).json(updatedUser)
+})
+
+/**
+ * Controller to update existing user
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
  * @param {import('express').NextFunction} next - Express next function

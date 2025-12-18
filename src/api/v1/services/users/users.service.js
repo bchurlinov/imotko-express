@@ -4,6 +4,10 @@ import createError from "http-errors"
 import prisma from "#database/client.js"
 
 /**
+ * @typedef {import("@prisma/client").User} User
+ */
+
+/**
  * @typedef {Object} CreateUserInput
  * @property {string} email - User email
  * @property {string} password - User password
@@ -236,5 +240,39 @@ export const createUserService = async ({
         }
 
         throw dbError
+    }
+}
+
+/**
+ * Update existing user
+ * @param {string} userId - User ID
+ * @param {Object} updateData - Data to update
+ * @returns {Promise<{user: PrismaUser}>}
+ */
+export const updateUserService = async (userId, updateData) => {
+    try {
+        const user = await prisma.user.update({
+            where: { id: userId },
+            data: updateData,
+        })
+        return { data: user, message: "User updated successfully." }
+    } catch (err) {
+        throw createError(500, "Failed to update user.")
+    }
+}
+
+/**
+ * Delete existing user
+ * @param {string} userId - User ID
+ * @returns {Promise<void>}
+ */
+export const deleteUserService = async userId => {
+    try {
+        await prisma.user.delete({
+            where: { id: userId },
+        })
+        return { data: null, message: "User deleted successfully." }
+    } catch (err) {
+        throw createError(500, "Failed to delete user.")
     }
 }

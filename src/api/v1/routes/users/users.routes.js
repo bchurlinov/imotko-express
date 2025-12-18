@@ -62,7 +62,7 @@ router.post(
             .withMessage("Password must be at least 8 characters long"),
         body("name").notEmpty().withMessage("Name is required").isString().withMessage("Invalid name"),
         body("lastName").optional().isString().withMessage("Invalid last name"),
-        body("phone").optional().isString().withMessage("Invalid phone"),
+        body("phone").optional().isNumeric().withMessage("Invalid phone"),
         body("location").optional().isString().withMessage("Invalid location"),
         body("language")
             .optional()
@@ -82,6 +82,18 @@ router.post(
     ],
     validateRequest,
     createUserController
+)
+
+router.patch(
+    "/:id",
+    [
+        body("name").optional().isString().withMessage("Invalid name"),
+        body("lastName").optional().isString().withMessage("Invalid last name"),
+        body("phone").optional().isNumeric().withMessage("Invalid phone"),
+        body("location").optional().isString().withMessage("Invalid location"),
+    ],
+    verifySupabaseToken,
+    validateRequest
 )
 
 router.get("/:id/notifications", verifySupabaseToken, getUserNotificationsController)
