@@ -1,4 +1,4 @@
-import { EngagementType } from "@prisma/client"
+import { EngagementType } from "#generated/prisma/enums.ts"
 import prisma from "#database/client.js"
 import createError from "http-errors"
 

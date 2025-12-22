@@ -1,4 +1,4 @@
-import { PropertyStatus } from "@prisma/client"
+import { PropertyStatus } from "#generated/prisma/enums.ts"
 import prisma from "#database/client.js"
 import {
     stringValue,
@@ -19,10 +19,10 @@ import {
 
 /**
  * @typedef {import('#types/api.js').ApiResponse} ApiResponse
- * @typedef {import('@prisma/client').Prisma.PropertyGetPayload<{include: {agency: true}}>} PropertyWithRelations
- * @typedef {import('@prisma/client').Prisma.PropertyWhereInput} PropertyWhereInput
- * @typedef {import('@prisma/client').Prisma.PropertyOrderByWithRelationInput} PropertyOrderByWithRelationInput
- * @typedef {import('@prisma/client').Prisma.PropertySelect} PropertySelect
+ * @typedef {import('#generated/prisma/client.ts').Prisma.PropertyGetPayload<{include: {agency: true}}>} PropertyWithRelations
+ * @typedef {import('#generated/prisma/client.ts').Prisma.PropertyWhereInput} PropertyWhereInput
+ * @typedef {import('#generated/prisma/client.ts').Prisma.PropertyOrderByWithRelationInput} PropertyOrderByWithRelationInput
+ * @typedef {import('#generated/prisma/client.ts').Prisma.PropertySelect} PropertySelect
  * @typedef {string | number | boolean | string[] | undefined} PrimitiveParam
  */
 

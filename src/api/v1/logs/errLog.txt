@@ -671,3 +671,6 @@ Invalid `prisma.user.update()` invocation:
 
 
 An operation failed because it depends on one or more records that were required but not found. No record was found for an update.
+20251222	17:08:44	56e91541-0241-4102-be91-3cc6d6a17068	Error: Failed to load properties
+20251222	17:09:03	463e4861-d106-4b06-a5a0-684569cb3e33	Error: Failed to load properties
+20251222	17:09:04	74c135b8-81a5-4157-aecd-3e4d26c8f1b6	Error: Failed to load properties

@@ -1,4 +1,4 @@
-import dotenv from "dotenv"
+import "dotenv/config"
 import express from "express"
 import cookieParser from "cookie-parser"
 import rateLimit from "express-rate-limit"
@@ -15,8 +15,6 @@ import { credentials } from "./api/v1/middlewares/credentials.js"
 
 // Jobs
 import { scheduleAnalyticsRefresh } from "./jobs/refreshAnalytics.js"
-
-dotenv.config()
 const app = express()
 
 // Handle Chrome DevTools inspector requests (must be before rate limiter)

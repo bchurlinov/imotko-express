@@ -10,16 +10,13 @@
 // npx prisma migrate resolve --applied "20250109191434_proposal_offer_title"
 
 generator client {
-  provider        = "prisma-client-js"
-  // output          = "../src/generated/prisma"
-  previewFeatures = ["fullTextSearchPostgres", "relationJoins"]
-  moduleFormat    = "esm"
-  binaryTargets   = ["native", "linux-arm64-openssl-3.0.x", "rhel-openssl-3.0.x"]
-  engineType      = "library"
+  provider               = "prisma-client"
+  output                 = "../generated/prisma"
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
 }

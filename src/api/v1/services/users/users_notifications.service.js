@@ -1,5 +1,5 @@
 import prisma from "#database/client.js"
-import { NotificationStatus } from "@prisma/client"
+import { NotificationStatus } from "#generated/prisma/enums.ts"
 
 /**
  * Get all notifications for a specific user

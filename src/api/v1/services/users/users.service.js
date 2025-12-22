@@ -1,9 +1,8 @@
 import { supabaseAdmin } from "#utils/supabaseClient.js"
-import { UserLanguage, UserRole } from "@prisma/client"
-import { createSupabaseClient } from "#utils/supabaseClient.js"
+import { UserLanguage, UserRole } from "#generated/prisma/enums.ts"
+import { asyncHandler } from "#utils/helpers/async_handler.js"
 import createError from "http-errors"
 import prisma from "#database/client.js"
-import { asyncHandler } from "#utils/helpers/async_handler.js"
 
 /**
  * @typedef {import("@prisma/client").User} User

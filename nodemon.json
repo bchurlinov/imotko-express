@@ -2,5 +2,5 @@
     "watch": ["./src/**/*.js"],
     "ext": "js",
     "ignore": ["src/**/*.spec.js"],
-    "exec": "node --inspect=127.0.0.1:9229 ./src/app.js"
+    "exec": "node --inspect=127.0.0.1:9229 --experimental-transform-types ./src/app.js"
 }

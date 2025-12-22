@@ -4,17 +4,17 @@
     "main": "src/app.js",
     "type": "module",
     "scripts": {
-        "start": "node src/app.js",
-        "dev": "nodemon"
+        "start": "node --experimental-transform-types src/app.js",
+        "dev": "nodemon",
+        "postinstall": "prisma generate",
+        "render-build": "prisma generate && prisma migrate deploy && pnpm run build"
     },
     "author": "",
     "license": "ISC",
     "description": "",
-    "prisma": {
-        "schema": "./prisma/"
-    },
     "dependencies": {
-        "@prisma/client": "^6.19.0",
+        "@prisma/adapter-pg": "^7.2.0",
+        "@prisma/client": "^7.2.0",
         "@supabase/supabase-js": "^2.81.1",
         "bcryptjs": "^2.4.3",
         "chalk": "^5.3.0",
@@ -32,13 +32,15 @@
         "jsonwebtoken": "^9.0.2",
         "morgan": "^1.10.0",
         "node-cron": "^3.0.3",
-        "prisma": "^6.19.0",
+        "pg": "^8.16.3",
+        "prisma": "^7.2.0",
         "uuid": "^11.0.3"
     },
     "devDependencies": {
         "concurrently": "^9.1.0",
         "nodemon": "^3.1.9",
-        "prettier": "^3.4.2"
+        "prettier": "^3.4.2",
+        "tsx": "^4.21.0"
     },
     "imports": {
         "#controllers/*": "./src/api/v1/controllers/*",
@@ -47,8 +49,8 @@
         "#services/*": "./src/api/v1/services/*",
         "#utils/*": "./src/utils/*",
         "#database/*": "./src/database/*",
-        "#generated/prisma": "./src/generated/prisma/index.js",
         "#supabase": "./src/config/supabase.js",
-        "#types/*": "./src/types/*"
+        "#types/*": "./src/types/*",
+        "#generated/*": "./generated/*"
     }
 }

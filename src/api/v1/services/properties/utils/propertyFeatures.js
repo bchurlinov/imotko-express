@@ -1,4 +1,4 @@
-import { PropertyType } from "@prisma/client"
+import { PropertyType } from "#generated/prisma/enums.ts"
 
 /**
  * Dictionary of property features with their visibility rules based on property type

@@ -49,6 +49,8 @@ model Agency {
   agencyView             AgencyView[]
   proposalOffer          ProposalOffer[]
   AgencySubmissionReview AgencySubmissionReview?
+  websiteSettings        AgencyWebsiteSettings?
+  testimonials           AgencyTestimonial[]
   //
   ownerId                String?                 @unique
   agencyOwner            User?                   @relation("AgencyOwner", fields: [ownerId], references: [id])
@@ -247,4 +249,46 @@ model AgentReminder {
 
   @@index([agencyMemberId])
   @@index([status])
+}
+
+model AgencyWebsiteSettings {
+  id              String   @id @default(cuid())
+  agencyId        String   @unique
+  agency          Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  // Settings Tab
+  enableRentals   Boolean  @default(true)
+  serviceAreas    String[] // Array of strings (locations)
+  analyticsCode   String?  // Text area for Google Analytics
+
+  // Design Tab
+  template        String   @default("default") // For now only 'default'
+  primaryColor    String?  // Hex code
+  accentColor     String?  // Hex code
+  secondaryColor  String?  // Hex code
+  heroImage       Json?    // Image object (url, id, etc.) - same structure as other image fields
+
+  // Content Tab
+  siteTitle       String?
+  tagline         String?
+  heroTitle       String?
+  heroSubtitle    String?
+
+  createdAt       DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime @updatedAt @db.Timestamptz(3)
+}
+
+model AgencyTestimonial {
+  id          String   @id @default(cuid())
+  agencyId    String
+  agency      Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  fullName    String
+  location    String?
+  content     String   // Text
+  dateCreated DateTime @default(now()) @db.Timestamptz(3)
+
+  updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([agencyId])
 }

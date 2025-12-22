@@ -1,5 +1,5 @@
 import prisma from "#database/client.js"
-import { AgencyApprovalStatus } from "@prisma/client"
+import { AgencyApprovalStatus } from "#generated/prisma/enums.ts"
 
 /**
  *  @typedef {import('#types/api.js').ApiResponse} ApiResponse

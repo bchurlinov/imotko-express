@@ -114,8 +114,6 @@ export const updateUserController = asyncHandler(async (req, res) => {
         location: req.body.location,
     }
 
-    console.log({ id, payload })
-
     const updatedUser = await updateUserService(id, payload)
     return res.status(200).json(updatedUser)
 })
