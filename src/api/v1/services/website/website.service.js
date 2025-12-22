@@ -15,8 +15,19 @@ import {
  * Allowed fields to return in agency response
  * These fields are safe to expose publicly via the website configuration API
  */
-const ALLOWED_AGENCY_FIELDS = ["id", "name", "logo", "social", "description", "address"]
-
+const ALLOWED_AGENCY_FIELDS = [
+    "id",
+    "name",
+    "logo",
+    "social",
+    "description",
+    "address",
+    "location",
+    "email",
+    "phone",
+    "websiteSettings",
+    "testimonials",
+]
 /**
  * Standardized error response constants
  * Ensures consistent error messaging across the API
@@ -84,6 +95,11 @@ export async function getAgencyByReferer(referer) {
             social: true,
             description: true,
             address: true,
+            location: true,
+            email: true,
+            phone: true,
+            websiteSettings: true,
+            testimonials: true,
         },
         orderBy: {
             id: "asc",
@@ -133,7 +149,7 @@ export async function getAgencyByReferer(referer) {
     }
 
     // Return filtered agency data or null
-    return matchedAgency ? filterAgencyData(matchedAgency) : null
+    return matchedAgency ? matchedAgency : null
 }
 
 /**
