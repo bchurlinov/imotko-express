@@ -51,6 +51,7 @@
         "#database/*": "./src/database/*",
         "#supabase": "./src/config/supabase.js",
         "#types/*": "./src/types/*",
-        "#generated/*": "./generated/*"
+        "#generated/*": "./generated/*",
+        "#config/*": "./src/config/*"
     }
 }
