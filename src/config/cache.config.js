@@ -19,10 +19,24 @@ export const CACHE_TTL = {
  * @property {number} ttl - Default time-to-live in milliseconds
  */
 export const CACHE_CONFIG = {
-    max: parseInt(process.env.CACHE_MAX_SIZE) || 500,
-    ttl: CACHE_TTL.default,
-}
+    max: parseInt(process.env.CACHE_MAX_ITEMS) || 500,
 
+    // Limit to ~50MB (10% of total RAM is safer)
+    maxSize: parseInt(process.env.CACHE_MAX_SIZE_BYTES) || 50 * 1024 * 1024,
+
+    // 3. Define how to calculate the size of each entry
+    // This tells the cache to look at the string length of the data
+    sizeCalculation: value => {
+        try {
+            return JSON.stringify(value).length
+        } catch {
+            return 1000
+        }
+    },
+
+    ttl: CACHE_TTL.default, // e.g., 1000 * 60 * 30 (30 mins)
+    updateAgeOnGet: true, // "Refresh" the TTL when someone searches the same thing
+}
 /**
  * Determines if caching is enabled
  * Automatically disabled in test environment
