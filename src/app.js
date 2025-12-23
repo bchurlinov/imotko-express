@@ -54,8 +54,8 @@ const start = () => {
     try {
         app.listen(port, () => {
             console.log(`Server is listening on port ${port}...`)
-            if (process.env.NODE_ENV === "production") scheduleAnalyticsRefresh()
-            else console.log("[Analytics] Scheduled refresh job disabled in development mode")
+            // if (process.env.NODE_ENV === "production") scheduleAnalyticsRefresh()
+            // else console.log("[Analytics] Scheduled refresh job disabled in development mode")
         })
     } catch (error) {
         console.log(error)
