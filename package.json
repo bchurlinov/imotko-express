@@ -30,6 +30,7 @@
         "http-errors": "^2.0.0",
         "jose": "^6.1.2",
         "jsonwebtoken": "^9.0.2",
+        "lru-cache": "^11.2.4",
         "morgan": "^1.10.0",
         "node-cron": "^3.0.3",
         "pg": "^8.16.3",

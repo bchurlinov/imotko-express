@@ -1,7 +1,7 @@
 import { asyncHandler } from "#utils/helpers/async_handler.js"
 import { getAgencyService } from "#services/agencies/agencies.service.js"
 import { getAgencyWebsiteConfiguration } from "#services/website/website.service.js"
-import { getPropertiesService } from "#services/properties/properties.service.js"
+import { getPropertiesService, getPropertyService } from "#services/properties/properties.service.js"
 
 /**
  * Controller to get agency website configuration based on referer header

@@ -1,6 +1,8 @@
 import prisma from "#database/client.js"
 import { normalizeUrl } from "#utils/url/normalizeUrl.js"
 import { getAllowedReferrers } from "#config/website.config.js"
+import { withCache } from "#utils/cache/index.js"
+import { CACHE_TTL } from "#config/cache.config.js"
 import {
     logAccessDenied,
     logAgencyNotFound,
@@ -73,7 +75,7 @@ export function filterAgencyData(agency) {
  *
  * This index would significantly speed up queries when matching referer domains.
  */
-export async function getAgencyByReferer(referer) {
+async function _getAgencyByReferer(referer) {
     const normalizedReferer = normalizeUrl(referer)
     if (!normalizedReferer) return null
 
@@ -113,6 +115,12 @@ export async function getAgencyByReferer(referer) {
         },
     })
 }
+
+// Export cached version
+export const getAgencyByReferer = withCache(_getAgencyByReferer, {
+    keyPrefix: "getAgencyByReferer",
+    ttl: CACHE_TTL.getAgencyByReferer, // 5 minutes
+})
 
 /**
  * Checks if a referer URL is in the allowed referrers list

@@ -1,5 +1,7 @@
 import { PropertyStatus } from "#generated/prisma/enums.ts"
 import prisma from "#database/client.js"
+import { withCache } from "#utils/cache/index.js"
+import { CACHE_TTL } from "#config/cache.config.js"
 import {
     stringValue,
     stringValues,
@@ -57,7 +59,7 @@ import {
  * @param {PropertyQueryParams} params - Query parameters
  * @returns {Promise<ApiResponse<PropertyWithRelations[]>>}
  */
-export const getPropertiesService = async (params = {}) => {
+const _getPropertiesService = async (params = {}) => {
     try {
         const locale = stringValue(params.locale) ?? DEFAULT_LOCALE
 
@@ -117,12 +119,9 @@ export const getPropertiesService = async (params = {}) => {
         )
         if (bathroomFilter) andConditions.push(bathroomFilter)
 
-        // Property features filter (e.g., ["elevator", "kitchen", "heating"])
         if (params.propertyFeatures) {
             const featureConditions = buildPropertyFeaturesFilter(params.propertyFeatures)
-            if (featureConditions.length > 0) {
-                andConditions.push(...featureConditions)
-            }
+            if (featureConditions.length > 0) andConditions.push(...featureConditions)
         }
 
         const sortParam = stringValue(params.sortBy)
@@ -196,12 +195,17 @@ export const getPropertiesService = async (params = {}) => {
     }
 }
 
+export const getPropertiesService = withCache(_getPropertiesService, {
+    keyPrefix: "getPropertiesService",
+    ttl: CACHE_TTL.getPropertiesService,
+})
+
 /**
  * Get single property by property ID
  * @param {string} propertyId - Property ID
  * @returns {Promise<ApiResponse<PropertyWithRelations[]>>}
  */
-export const getPropertyService = async propertyId => {
+export const _getPropertyService = async propertyId => {
     try {
         const property = await prisma.property.findUnique({
             where: { id: propertyId },
@@ -216,3 +220,8 @@ export const getPropertyService = async propertyId => {
         throw new Error("Failed to load property")
     }
 }
+
+export const getPropertyService = withCache(_getPropertyService, {
+    keyPrefix: "getPropertyService",
+    ttl: CACHE_TTL.getPropertyService,
+})
