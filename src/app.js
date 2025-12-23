@@ -52,10 +52,9 @@ app.use(errorMiddleware)
 const port = process.env.PORT || 5050
 const start = () => {
     try {
-        app.listen(port, () => {
+        // Add '0.0.0.0' as the second argument
+        app.listen(port, "0.0.0.0", () => {
             console.log(`Server is listening on port ${port}...`)
-            // if (process.env.NODE_ENV === "production") scheduleAnalyticsRefresh()
-            // else console.log("[Analytics] Scheduled refresh job disabled in development mode")
         })
     } catch (error) {
         console.log(error)
