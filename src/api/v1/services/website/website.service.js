@@ -1,14 +1,13 @@
 import prisma from "#database/client.js"
-import { getAgencyService } from "#services/agencies/agencies.service.js"
 import { normalizeUrl } from "#utils/url/normalizeUrl.js"
 import { getAllowedReferrers } from "#config/website.config.js"
 import {
     logAccessDenied,
-    logOriginMismatch,
-    logMalformedUrl,
-    logMissingReferer,
     logAgencyNotFound,
     logDevBypass,
+    logMalformedUrl,
+    logMissingReferer,
+    logOriginMismatch,
 } from "#utils/logger/securityLogger.js"
 
 /**
@@ -75,19 +74,30 @@ export function filterAgencyData(agency) {
  * This index would significantly speed up queries when matching referer domains.
  */
 export async function getAgencyByReferer(referer) {
-    // Normalize the referer URL to extract the domain
     const normalizedReferer = normalizeUrl(referer)
     if (!normalizedReferer) return null
 
-    // Query all agencies with non-null social field, ordered by ID for deterministic results
-    // Using Prisma select to fetch only allowed fields for performance and security
-    // ORDER BY ensures consistent results if multiple agencies share the same domain
-    const agencies = await prisma.agency.findMany({
-        where: {
-            social: {
-                not: null,
-            },
-        },
+    // First, find agencies with websites using raw query for the regex matching
+    const matchingAgencies = await prisma.$queryRaw`
+        SELECT id
+        FROM "Agency"
+        WHERE social IS NOT NULL
+          AND social->>'website' IS NOT NULL
+          AND social->>'website' != ''
+          AND LOWER(
+              REGEXP_REPLACE(
+                  REGEXP_REPLACE(social->>'website', '^https?://(www\.)?', ''),
+                  '/.*$', ''
+              )
+          ) = LOWER(${normalizedReferer})
+        ORDER BY id ASC
+        LIMIT 1
+    `
+
+    if (!matchingAgencies.length) return null
+
+    return prisma.agency.findUnique({
+        where: { id: matchingAgencies[0].id },
         select: {
             id: true,
             name: true,
@@ -101,55 +111,7 @@ export async function getAgencyByReferer(referer) {
             websiteSettings: true,
             testimonials: true,
         },
-        orderBy: {
-            id: "asc",
-        },
     })
-
-    // Find matching agency by comparing normalized domains
-    let matchedAgency = null
-    let matchCount = 0
-
-    for (const agency of agencies) {
-        // Check if social field has a website property
-        if (agency.social && typeof agency.social === "object" && "website" in agency.social) {
-            const website = agency.social.website
-
-            // Skip if website is null or empty
-            if (!website || website === "" || website.trim() === "") {
-                continue
-            }
-
-            // Normalize the agency website URL
-            const normalizedWebsite = normalizeUrl(website)
-
-            // Skip and log if website URL is malformed
-            if (!normalizedWebsite) {
-                console.warn(`Agency ${agency.id} has malformed website URL: ${website}`)
-                continue
-            }
-
-            // Compare normalized domains
-            if (normalizedWebsite === normalizedReferer) {
-                matchCount++
-
-                // Store first match
-                if (!matchedAgency) {
-                    matchedAgency = agency
-                }
-            }
-        }
-    }
-
-    // Log warning if multiple agencies match the same domain
-    if (matchCount > 1) {
-        console.warn(
-            `Multiple agencies (${matchCount}) match domain: ${normalizedReferer}. Returning first match (ID: ${matchedAgency?.id}).`
-        )
-    }
-
-    // Return filtered agency data or null
-    return matchedAgency ? matchedAgency : null
 }
 
 /**

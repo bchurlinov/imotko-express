@@ -45,6 +45,6 @@ export const agencyWebsiteConfigurationController = asyncHandler(async (req, res
  * @returns {Promise<void>}
  */
 export const getWebsiteAgencyPropertiesController = asyncHandler(async (req, res) => {
-    const agencyProperties = await getPropertiesService({ agency: req.agencyId })
+    const agencyProperties = await getPropertiesService({ agency: req.agencyId, ...req.query })
     return res.status(200).json(agencyProperties)
 })
