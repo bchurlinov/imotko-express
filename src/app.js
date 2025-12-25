@@ -14,8 +14,11 @@ import { errorMiddleware } from "./api/v1/middlewares/errorMiddleware.js"
 import { credentials } from "./api/v1/middlewares/credentials.js"
 
 // Jobs
-import { scheduleAnalyticsRefresh } from "./jobs/refreshAnalytics.js"
-import { schedulePropertyImport, stopPropertyImportJob } from "./jobs/schedulePropertyImport.js"
+import { scheduleAnalyticsRefresh, stopAnalyticsRefreshJob } from "./jobs/refreshAnalytics.js"
+import { stopPropertyImportJob } from "./jobs/schedulePropertyImport.js"
+
+// Database
+import prisma from "./database/client.js"
 
 const app = express()
 
@@ -45,60 +48,80 @@ app.use(errorMiddleware)
 
 const port = process.env.PORT || 5050
 let server = null
+let isShuttingDown = false
 
 const start = () => {
     try {
-        // Add '0.0.0.0' as the second argument
         server = app.listen(port, "0.0.0.0", () => {
             console.log(`Server is listening on port ${port}...`)
-
-            // Task 7.1.4: Register scheduled jobs after server starts
-            console.log("\n📅 Scheduling cron jobs...")
             scheduleAnalyticsRefresh()
-            schedulePropertyImport()
-            console.log("✅ All cron jobs scheduled\n")
         })
     } catch (error) {
         console.log(error)
     }
 }
 
-// Task 7.1.5: Graceful shutdown handling
-const shutdown = signal => {
+const shutdown = async (signal, code = 0) => {
+    if (isShuttingDown) {
+        console.log("⚠️  Shutdown already in progress...")
+        return
+    }
+    isShuttingDown = true
+
     console.log(`\n${signal} received. Starting graceful shutdown...`)
 
-    // Stop accepting new requests
-    if (server) {
-        server.close(() => {
-            console.log("✅ HTTP server closed")
-        })
+    const forceExitTimeout = setTimeout(() => {
+        console.error("⏰ Shutdown timeout reached, forcing exit")
+        process.exit(1)
+    }, 15000)
+
+    forceExitTimeout.unref()
+
+    try {
+        if (server) {
+            await new Promise((resolve, reject) => {
+                server.close(err => {
+                    if (err) return reject(err)
+                    console.log("✅ HTTP server closed")
+                    resolve()
+                })
+            })
+        }
+
+        console.log("🛑 Stopping scheduled jobs...")
+        await Promise.allSettled([stopAnalyticsRefreshJob()])
+        console.log("✅ All scheduled jobs stopped")
+
+        console.log("🔌 Closing database connections...")
+        await prisma.$disconnect()
+        console.log("✅ Database connections closed")
+
+        console.log("👋 Graceful shutdown complete")
+        clearTimeout(forceExitTimeout)
+        process.exit(code)
+    } catch (error) {
+        console.error("❌ Error during shutdown:", error)
+        clearTimeout(forceExitTimeout)
+        process.exit(1)
     }
-
-    // Stop cron jobs
-    console.log("🛑 Stopping scheduled jobs...")
-    stopPropertyImportJob()
-    console.log("✅ All scheduled jobs stopped")
-
-    // Give running jobs time to complete (max 30 seconds)
-    setTimeout(() => {
-        console.log("⏰ Shutdown timeout reached, forcing exit")
-        process.exit(0)
-    }, 30000)
 }
 
 // Handle shutdown signals
 process.on("SIGTERM", () => shutdown("SIGTERM"))
 process.on("SIGINT", () => shutdown("SIGINT"))
 
-// Handle uncaught errors
+// For uncaught exceptions, exit immediately without graceful shutdown
+// The app state may be corrupted, so attempting cleanup could hang
 process.on("uncaughtException", error => {
     console.error("💥 Uncaught Exception:", error)
-    shutdown("UNCAUGHT_EXCEPTION")
+    console.error("⚠️  Exiting immediately due to uncaught exception")
+    process.exit(1)
 })
 
+// For unhandled rejections, attempt graceful shutdown
 process.on("unhandledRejection", (reason, promise) => {
     console.error("💥 Unhandled Rejection at:", promise, "reason:", reason)
-    shutdown("UNHANDLED_REJECTION")
+    shutdown("UNHANDLED_REJECTION", 1)
 })
 
 start()

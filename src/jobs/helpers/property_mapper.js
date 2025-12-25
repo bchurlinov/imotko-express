@@ -112,62 +112,43 @@ export async function checkDuplicate(externalId) {
  */
 export function mapToPropertyModel(normalizedData) {
     const propertyData = {
-        // Task 5.3.2: name (Json) - structured name with mk/en
         name: normalizedData.name,
-
-        // Task 5.3.3, 5.3.4: latitude and longitude (Float)
         latitude: normalizedData.latitude,
         longitude: normalizedData.longitude,
-
-        // Task 5.3.5: address (String)
         address: normalizedData.address,
-
-        // Task 5.3.6: price (Int)
         price: normalizedData.price,
-
-        // Task 5.3.7: size (Int)
         size: normalizedData.size,
-
-        // Task 5.3.8: description (Json) - structured description with mk/en
         description: normalizedData.description,
-
-        // Task 5.3.9: createdBy (String) - from system user ID
-        createdBy: importConfig.systemUserId || "system",
-
-        // Task 5.3.10: type (PropertyType enum)
         type: normalizedData.type,
-
-        // Task 5.3.11: listingType (PropertyListingType enum)
         listingType: normalizedData.listingType,
-
-        // Task 5.3.12: photos (Json) - optional
         ...(normalizedData.photos && { photos: normalizedData.photos }),
-
-        // Task 5.3.13: attributes (Json) - optional
         ...(normalizedData.attributes && {
             attributes: normalizedData.attributes,
         }),
-
-        // Task 5.3.14: agencyId (String) - optional, from config
-        ...(importConfig.defaultAgencyId && {
-            agencyId: importConfig.defaultAgencyId,
-        }),
-
-        // Task 5.3.15: propertyLocationId (String) - optional
-        ...(normalizedData.propertyLocationId && {
-            propertyLocationId: normalizedData.propertyLocationId,
-        }),
-
-        // Task 5.3.16: externalId (String) - optional but recommended
+        agency: {
+            connect: { id: importConfig.defaultAgencyId },
+        },
+        propertyLocation: {
+            connect: { id: "cmafamjy10005jl04vingaam4" },
+        },
         ...(normalizedData.externalId && {
             externalId: normalizedData.externalId,
         }),
-
-        // Task 5.3.17: status - default PENDING
         status: "PENDING",
-
-        // Task 5.3.18: featured - default false
         featured: false,
+        orientation: "east",
+        createdBy: "cmhf5i5pa000al104xq2gneiu",
+        category: {
+            connect: { id: "1" },
+        },
+        subcategory: {
+            connect: { id: "101" },
+        },
+        createdByMember: {
+            connect: {
+                id: "cmhf5i5rv000el1041ygrzw4z",
+            },
+        },
     }
 
     const validation = validatePropertyData(propertyData)

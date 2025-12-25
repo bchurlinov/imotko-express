@@ -10,7 +10,13 @@ import {
     extractAttributes,
 } from "./helpers/ai_normalizer.js"
 import { geocodeAddress, mapPropertyLocation } from "./helpers/geocoder.js"
-import { generateExternalId, checkDuplicate, mapToPropertyModel, saveProperty } from "./helpers/property_mapper.js"
+import {
+    generateExternalId,
+    checkDuplicate,
+    mapToPropertyModel,
+    saveProperty,
+    extractExternalIdWithAI,
+} from "./helpers/property_mapper.js"
 
 /**
  * Main property import job
@@ -267,7 +273,8 @@ async function processSingleProperty(sourceProperty, stats, index, total) {
     try {
         console.log(`\n${testModePrefix}${logPrefix} 🏠 Processing: "${sourceProperty.title}"`)
         console.log(`${logPrefix} 🔑 Generating external ID...`)
-        const externalId = generateExternalId(sourceProperty)
+        const externalId = await extractExternalIdWithAI(sourceProperty)
+        console.log({ externalId })
         console.log(`${logPrefix} 🔍 Checking for duplicates...`)
         const duplicate = await checkDuplicate(externalId)
 
@@ -404,8 +411,6 @@ async function processBatches(properties, stats) {
  * @returns {Promise<Object>} Import results and execution record
  */
 export async function importProperties(triggeredBy = "manual") {
-    let executionRecord = null
-
     const stats = {
         total: 0,
         success: 0,
@@ -423,34 +428,19 @@ export async function importProperties(triggeredBy = "manual") {
         const { valid, invalid } = validateSourceData(properties)
         stats.failed = invalid.length
 
-        // Check if we have any valid properties to process
         if (valid.length === 0) {
             console.log("⚠️  No valid properties to import")
             return
         }
 
-        console.log("VALID PROPERTIES:", valids)
-
         await processBatches([valid?.at(0)], stats)
     } catch (error) {
-        // Task 6.3.8: Ensure errors don't stop entire job
         console.error("❌ Fatal error during import:", error)
         stats.errors.push({
             type: "FATAL",
             message: error.message,
             stack: error.stack,
         })
-
-        // Update execution record as failed
-        if (executionRecord) {
-            await updateExecutionRecord(executionRecord.id, {
-                status: "FAILED",
-                lastError: error.message,
-                completedAt: new Date(),
-                durationMs: Date.now() - startTime,
-                errors: stats.errors,
-            })
-        }
     } finally {
         // Calculate duration
         const duration = Date.now() - startTime
@@ -492,49 +482,7 @@ export async function importProperties(triggeredBy = "manual") {
         console.log("=".repeat(50))
         console.log(`🏁 Job completed at: ${new Date().toISOString()}`)
 
-        // Task 7.2.2: Store execution results in database
-        if (executionRecord) {
-            // Determine final status
-            let finalStatus = "SUCCESS"
-            let lastError = null
-
-            if (stats.failed > 0 && stats.success === 0) {
-                finalStatus = "FAILED"
-                lastError = stats.errors.length > 0 ? stats.errors[0].message : "All properties failed to import"
-            } else if (stats.failed > 0 && stats.success > 0) {
-                finalStatus = "PARTIAL"
-                lastError = `${stats.failed} properties failed to import`
-            }
-
-            try {
-                await updateExecutionRecord(executionRecord.id, {
-                    status: finalStatus,
-                    completedAt: new Date(),
-                    durationMs: duration,
-                    totalProperties: stats.total,
-                    successCount: stats.success,
-                    failedCount: stats.failed,
-                    skippedCount: stats.skipped,
-                    errors: stats.errors.length > 0 ? stats.errors : null,
-                    lastError: lastError,
-                })
-
-                console.log(`\n📊 Execution record saved (ID: ${executionRecord.id}, Status: ${finalStatus})`)
-            } catch (error) {
-                console.error("❌ Failed to save execution record:", error.message)
-            }
-        }
-
-        // Disconnect from database
         await prisma.$disconnect()
-
-        // Return results for manual triggers
-        return {
-            executionId: executionRecord?.id,
-            stats: stats,
-            duration: duration,
-            status: stats.failed > 0 && stats.success === 0 ? "FAILED" : stats.failed > 0 ? "PARTIAL" : "SUCCESS",
-        }
     }
 }
 

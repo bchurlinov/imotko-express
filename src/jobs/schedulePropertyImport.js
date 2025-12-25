@@ -37,7 +37,6 @@ async function runImportJob() {
  * Can be customized via IMPORT_CRON_SCHEDULE environment variable
  */
 export const schedulePropertyImport = () => {
-    // Task 7.1.3: Configure cron schedule
     // Default: Daily at midnight '0 0 * * *'
     // Can be overridden via environment variable
     const cronSchedule = process.env.IMPORT_CRON_SCHEDULE || "0 0 * * *"
@@ -76,12 +75,8 @@ export const schedulePropertyImport = () => {
  * @returns {Promise<Object>} Import results
  */
 export const triggerImportManually = async (triggeredBy = "manual") => {
-    if (isJobRunning) {
-        throw new Error("Import job is already running")
-    }
-
+    if (isJobRunning) throw new Error("Import job is already running")
     console.log(`[PropertyImport] 🚀 Manual trigger initiated by: ${triggeredBy}`)
-
     isJobRunning = true
 
     try {
@@ -98,17 +93,29 @@ export const triggerImportManually = async (triggeredBy = "manual") => {
 
 /**
  * Task 7.1.5: Graceful shutdown - stops the cron job
+ * Returns a promise that resolves when any running job completes
  */
-export const stopPropertyImportJob = () => {
+export const stopPropertyImportJob = async () => {
     if (importJobTask) {
         importJobTask.stop()
         console.log("[PropertyImport] 🛑 Cron job stopped")
     }
 
+    // Wait for running job to complete (with timeout)
     if (isJobRunning) {
-        console.log("[PropertyImport] ⚠️  Warning: Job is currently running. Waiting for completion...")
-        // Note: The running job will complete naturally
-        // For more advanced shutdown, we could implement AbortController
+        console.log("[PropertyImport] ⚠️  Job is currently running. Waiting for completion...")
+        const maxWaitTime = 10000 // 10 seconds
+        const startTime = Date.now()
+
+        while (isJobRunning && Date.now() - startTime < maxWaitTime) {
+            await new Promise(resolve => setTimeout(resolve, 100))
+        }
+
+        if (isJobRunning) {
+            console.log("[PropertyImport] ⚠️  Job still running after timeout, proceeding with shutdown")
+        } else {
+            console.log("[PropertyImport] ✅ Running job completed")
+        }
     }
 }
 
