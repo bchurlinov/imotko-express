@@ -15,6 +15,8 @@ import { credentials } from "./api/v1/middlewares/credentials.js"
 
 // Jobs
 import { scheduleAnalyticsRefresh } from "./jobs/refreshAnalytics.js"
+import { schedulePropertyImport, stopPropertyImportJob } from "./jobs/schedulePropertyImport.js"
+
 const app = express()
 
 // Log middleware - filter out Chrome DevTools inspector requests
@@ -38,22 +40,65 @@ app.use(cors())
 app.use(express.json())
 app.use(cookieParser(process.env.JWT_SECRET))
 
-// Initialize Routes
 initializeRoutes(app)
-
-// Error handling middleware
 app.use(errorMiddleware)
 
 const port = process.env.PORT || 5050
+let server = null
+
 const start = () => {
     try {
         // Add '0.0.0.0' as the second argument
-        app.listen(port, "0.0.0.0", () => {
+        server = app.listen(port, "0.0.0.0", () => {
             console.log(`Server is listening on port ${port}...`)
+
+            // Task 7.1.4: Register scheduled jobs after server starts
+            console.log("\n📅 Scheduling cron jobs...")
+            scheduleAnalyticsRefresh()
+            schedulePropertyImport()
+            console.log("✅ All cron jobs scheduled\n")
         })
     } catch (error) {
         console.log(error)
     }
 }
+
+// Task 7.1.5: Graceful shutdown handling
+const shutdown = signal => {
+    console.log(`\n${signal} received. Starting graceful shutdown...`)
+
+    // Stop accepting new requests
+    if (server) {
+        server.close(() => {
+            console.log("✅ HTTP server closed")
+        })
+    }
+
+    // Stop cron jobs
+    console.log("🛑 Stopping scheduled jobs...")
+    stopPropertyImportJob()
+    console.log("✅ All scheduled jobs stopped")
+
+    // Give running jobs time to complete (max 30 seconds)
+    setTimeout(() => {
+        console.log("⏰ Shutdown timeout reached, forcing exit")
+        process.exit(0)
+    }, 30000)
+}
+
+// Handle shutdown signals
+process.on("SIGTERM", () => shutdown("SIGTERM"))
+process.on("SIGINT", () => shutdown("SIGINT"))
+
+// Handle uncaught errors
+process.on("uncaughtException", error => {
+    console.error("💥 Uncaught Exception:", error)
+    shutdown("UNCAUGHT_EXCEPTION")
+})
+
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("💥 Unhandled Rejection at:", promise, "reason:", reason)
+    shutdown("UNHANDLED_REJECTION")
+})
 
 start()

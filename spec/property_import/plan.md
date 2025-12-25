@@ -6,428 +6,456 @@ This implementation plan details the technical approach to building the automate
 
 ---
 
-## Phase 1: Foundation and Setup
+## Phase 1: Foundation and Setup ✅
 
-### 1.1 Environment and Dependencies Setup
+### 1.1 Environment and Dependencies Setup ✅
+
 **Priority:** High
 **Related Requirements:** REQ-12 (Configuration and Environment)
 
-- Install required npm packages:
-  - `@supabase/supabase-js` (verify already installed)
-  - `sharp` for image processing
-  - `uuid` for unique ID generation
-  - AI SDK v6 (`ai`, `@ai-sdk/openai` or appropriate provider)
-  - `dotenv` (verify already installed)
-- Add environment variables to `.env`:
-  - `IMPORT_DATA_SOURCE_URL` (default: https://globalracecalendar.com/imotko/delta.json)
-  - `IMPORT_SYSTEM_USER_ID` (user ID for createdBy field)
-  - `IMPORT_DEFAULT_AGENCY_ID` (optional)
-  - `IMPORT_BATCH_SIZE` (default: 10)
-  - `IMPORT_TEST_MODE` (default: false)
-  - `AI_API_KEY` (for AI SDK)
-  - Verify existing: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
-- Update `.env.example` with new variables
+- [x] Install required npm packages:
+    - [x] `@supabase/supabase-js` (verify already installed)
+    - [x] `sharp` for image processing
+    - [x] `uuid` for unique ID generation
+    - [x] AI SDK v6 (`ai`, `@ai-sdk/openai` or appropriate provider)
+    - [x] `dotenv` (verify already installed)
+- [x] Add environment variables to `.env`:
+    - [x] `IMPORT_DATA_SOURCE_URL` (default: https://globalracecalendar.com/imotko/delta.json)
+    - [x] `IMPORT_SYSTEM_USER_ID` (user ID for createdBy field)
+    - [x] `IMPORT_DEFAULT_AGENCY_ID` (optional)
+    - [x] `IMPORT_BATCH_SIZE` (default: 10)
+    - [x] `IMPORT_TEST_MODE` (default: false)
+    - [x] `AI_API_KEY` (for AI SDK) - using existing OPENAI_API_KEY
+    - [x] Verify existing: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
+- [x] Update `.env.example` with new variables
 
-### 1.2 System User and Agency Setup
+### 1.2 System User and Agency Setup ✅
+
 **Priority:** High
 **Related Requirements:** REQ-9 (System User and Agency Assignment)
 
-- Create database seed/migration for system user if it doesn't exist
-- Create default "Imported Listings" agency (optional)
-- Document the user ID and agency ID in environment setup documentation
+- [x] Create database seed/migration for system user if it doesn't exist
+- [x] Create default "Imported Listings" agency (optional)
+- [x] Document the user ID and agency ID in environment setup documentation
 
-### 1.3 Create Job File Structure
+### 1.3 Create Job File Structure ✅
+
 **Priority:** High
 **Related Requirements:** REQ-1 (External Data Fetching)
 
-- Set up `src/jobs/import_properties.js` file structure
-- Create helper modules:
-  - `src/jobs/helpers/image_processor.js` - image download and upload logic
-  - `src/jobs/helpers/ai_normalizer.js` - AI-based data normalization
-  - `src/jobs/helpers/geocoder.js` - address geocoding
-  - `src/jobs/helpers/property_mapper.js` - map source data to Property model
-- Set up configuration loader for environment variables
+- [x] Set up `src/jobs/import_properties.js` file structure
+- [x] Create helper modules:
+    - [x] `src/jobs/helpers/image_processor.js` - image download and upload logic
+    - [x] `src/jobs/helpers/ai_normalizer.js` - AI-based data normalization
+    - [x] `src/jobs/helpers/geocoder.js` - address geocoding
+    - [x] `src/jobs/helpers/property_mapper.js` - map source data to Property model
+- [x] Set up configuration loader for environment variables
 
 ---
 
-## Phase 2: Core Data Fetching and Validation
+## Phase 2: Core Data Fetching and Validation ✅
 
-### 2.1 Implement External API Fetching
+### 2.1 Implement External API Fetching ✅
+
 **Priority:** High
 **Related Requirements:** REQ-1 (External Data Fetching)
 
-- Implement `fetchPropertiesFromAPI()` function
-  - Use native `fetch()` or `axios` to retrieve JSON data
-  - Add timeout configuration (30 seconds)
-  - Implement error handling for network failures
-  - Validate response status code
-  - Parse JSON response
-- Add retry logic (max 3 attempts) for transient failures
-- Log fetch start, completion, and any errors
+- [x] Implement `fetchPropertiesFromAPI()` function
+    - [x] Use native `fetch()` to retrieve JSON data
+    - [x] Add timeout configuration (30 seconds)
+    - [x] Implement error handling for network failures
+    - [x] Validate response status code
+    - [x] Parse JSON response
+- [x] Add retry logic (max 3 attempts) for transient failures
+- [x] Log fetch start, completion, and any errors
 
-### 2.2 Data Structure Validation
+### 2.2 Data Structure Validation ✅
+
 **Priority:** High
 **Related Requirements:** REQ-1 (External Data Fetching), REQ-8 (Database Storage)
 
-- Implement `validateSourceData()` function
-  - Check for required fields: title, images, price, location
-  - Validate data types (arrays, strings, etc.)
-  - Log validation errors with property index
-  - Return validated and invalid property arrays separately
-- Filter out invalid properties and log count
+- [x] Implement `validateSourceData()` function
+    - [x] Check for required fields: title, images, price, location
+    - [x] Validate data types (arrays, strings, etc.)
+    - [x] Log validation errors with property index
+    - [x] Return validated and invalid property arrays separately
+- [x] Filter out invalid properties and log count
 
 ---
 
-## Phase 3: Image Processing Pipeline
+## Phase 3: Image Processing Pipeline ✅
 
-### 3.1 Image Download Module
+### 3.1 Image Download Module ✅
+
 **Priority:** High
 **Related Requirements:** REQ-2 (Image Download and Processing)
 
-- Implement `downloadImage(url)` function in `image_processor.js`
-  - Use `fetch()` to download binary data
-  - Handle different content types (jpeg, png, webp)
-  - Implement timeout (15 seconds per image)
-  - Return Buffer object
-  - Handle 404s and other HTTP errors
-- Add retry logic (max 3 attempts) with exponential backoff
+- [x] Implement `downloadImage(url)` function in `image_processor.js`
+    - [x] Use `fetch()` to download binary data
+    - [x] Handle different content types (jpeg, png, webp)
+    - [x] Implement timeout (15 seconds per image)
+    - [x] Return Buffer object
+    - [x] Handle 404s and other HTTP errors
+- [x] Add retry logic (max 3 attempts) with exponential backoff
 
-### 3.2 Image Processing with Sharp
+### 3.2 Image Processing with Sharp ✅
+
 **Priority:** High
 **Related Requirements:** REQ-2 (Image Download and Processing)
 
-- Implement `processImage(imageBuffer)` function
-  - Configure Sharp: `sharp.cache(false)`, `sharp.concurrency(1)`
-  - Detect image format from buffer
-  - Generate three size variants:
-    - Small: 300px width, quality 60
-    - Medium: 650px width, quality 60
-    - Large: 900px width, quality 60
-  - Apply format-specific compression:
-    - PNG: compressionLevel 6, adaptiveFiltering false
-    - JPEG: quality 60
-    - WebP: quality 60
-  - Return array of processed buffers with metadata
+- [x] Implement `processImage(imageBuffer)` function
+    - [x] Configure Sharp: `sharp.cache(false)`, `sharp.concurrency(1)`
+    - [x] Detect image format from buffer
+    - [x] Generate three size variants:
+        - [x] Small: 300px width, quality 60
+        - [x] Medium: 650px width, quality 60
+        - [x] Large: 900px width, quality 60
+    - [x] Apply format-specific compression:
+        - [x] PNG: compressionLevel 6, adaptiveFiltering false
+        - [x] JPEG: quality 60
+        - [x] WebP: quality 60
+    - [x] Return array of processed buffers with metadata
 
-### 3.3 Supabase Upload Module
+### 3.3 Supabase Upload Module ✅
+
 **Priority:** High
 **Related Requirements:** REQ-3 (Supabase Storage Upload)
 
-- Implement `uploadToSupabase(imageBuffer, metadata)` function
-  - Initialize Supabase client with service role key
-  - Generate unique filename: `{uuid}_{timestamp}-{size}.{extension}`
-  - Upload to "imotko-prod" bucket with correct content type
-  - Retrieve public URL after upload
-  - Return object with size variant, storage key, and public URL
-- Implement batch upload for all size variants
-- Add retry logic (max 3 attempts) with exponential backoff
-- Handle upload errors gracefully (log and continue)
+- [x] Implement `uploadToSupabase(imageBuffer, metadata)` function
+    - [x] Initialize Supabase client with service role key
+    - [x] Generate unique filename: `{uuid}_{timestamp}-{size}.{extension}`
+    - [x] Upload to "imotko-prod" bucket with correct content type
+    - [x] Retrieve public URL after upload
+    - [x] Return object with size variant, storage key, and public URL
+- [x] Implement batch upload for all size variants
+- [x] Add retry logic (max 3 attempts) with exponential backoff
+- [x] Handle upload errors gracefully (log and continue)
 
-### 3.4 Image Pipeline Orchestration
+### 3.4 Image Pipeline Orchestration ✅
+
 **Priority:** High
 **Related Requirements:** REQ-2, REQ-3, REQ-11 (Batch Processing)
 
-- Implement `processPropertyImages(imageUrls)` function
-  - Limit concurrent downloads (max 3 at a time)
-  - For each image URL:
-    1. Download image
-    2. Process with Sharp (generate 3 sizes)
-    3. Upload all sizes to Supabase
-    4. Collect public URLs
-  - Generate photo JSON structure:
-    ```json
-    {
-      "id": "uuid",
-      "name": null,
-      "sizes": {
-        "small": "url",
-        "medium": "url",
-        "large": "url"
-      },
-      "s3Urls": ["key1", "key2", "key3"]
-    }
-    ```
-  - Return array of photo objects
-  - Log progress and errors for each image
+- [x] Implement `processPropertyImages(imageUrls)` function
+    - [x] Limit concurrent downloads (max 3 at a time)
+    - [x] For each image URL:
+        1. [x] Download image
+        2. [x] Process with Sharp (generate 3 sizes)
+        3. [x] Upload all sizes to Supabase
+        4. [x] Collect public URLs
+    - [x] Generate photo JSON structure:
+        ```json
+        {
+            "id": "uuid",
+            "name": null,
+            "sizes": {
+                "small": "url",
+                "medium": "url",
+                "large": "url"
+            },
+            "s3Urls": ["key1", "key2", "key3"]
+        }
+        ```
+    - [x] Return array of photo objects
+    - [x] Log progress and errors for each image
 
 ---
 
-## Phase 4: AI-Based Data Normalization
+## Phase 4: AI-Based Data Normalization ✅
 
-### 4.1 AI SDK Configuration
+### 4.1 AI SDK Configuration ✅
+
 **Priority:** High
 **Related Requirements:** REQ-4 (Data Normalization with AI), REQ-12 (Configuration)
 
-- Set up AI SDK v6 with appropriate provider (OpenAI, Anthropic, etc.)
-- Create AI client with API key from environment
-- Define prompt templates for different normalization tasks
-- Implement rate limiting and retry logic
+- [x] Set up AI SDK v6 with appropriate provider (OpenAI, Anthropic, etc.)
+- [x] Create AI client with API key from environment
+- [x] Define prompt templates for different normalization tasks
+- [x] Implement rate limiting and retry logic
 
-### 4.2 Price and Measurement Extraction
+### 4.2 Price and Measurement Extraction ✅
+
 **Priority:** High
 **Related Requirements:** REQ-4 (Data Normalization with AI)
 
-- Implement `extractNumericValue(text, field)` function using AI
-  - Parse price strings (e.g., "550 ЕУР / месечно" → 550)
-  - Parse area strings (e.g., "62 m2" → 62)
-  - Handle various formats and currencies
-  - Return integer value or null if extraction fails
-  - Use AI to handle edge cases and variations
+- [x] Implement `extractNumericValue(text, field)` function using AI
+    - [x] Parse price strings (e.g., "550 ЕУР / месечно" → 550)
+    - [x] Parse area strings (e.g., "62 m2" → 62)
+    - [x] Handle various formats and currencies
+    - [x] Return integer value or null if extraction fails
+    - [x] Use AI to handle edge cases and variations
 
-### 4.3 Enum Value Mapping
+### 4.3 Enum Value Mapping ✅
+
 **Priority:** High
 **Related Requirements:** REQ-4 (Data Normalization with AI)
 
-- Implement `mapListingType(text)` function
-  - Map "Се изнајмува" → `for_rent`
-  - Map "Се продава" → `for_sale`
-  - Handle variations and typos using AI
-  - Return PropertyListingType enum value
+- [x] Implement `mapListingType(text)` function
+    - [x] Map "Се изнајмува" → `for_rent`
+    - [x] Map "Се продава" → `for_sale`
+    - [x] Handle variations and typos using AI
+    - [x] Return PropertyListingType enum value
 
-- Implement `classifyPropertyType(title, description)` function
-  - Analyze title and description with AI
-  - Classify into: flat, house, land, holiday_home, garage, commercial
-  - Return PropertyType enum value
-  - Provide confidence score, log low-confidence classifications
+- [x] Implement `classifyPropertyType(title, description)` function
+    - [x] Analyze title and description with AI
+    - [x] Classify into: flat, house, land, holiday_home, garage, commercial
+    - [x] Return PropertyType enum value
+    - [x] Provide confidence score, log low-confidence classifications
 
-### 4.4 JSON Field Structuring
+### 4.4 JSON Field Structuring ✅
+
 **Priority:** Medium
 **Related Requirements:** REQ-4, REQ-14 (Data Structure and JSON Fields)
 
-- Implement `structureName(title)` function
-  - Use AI to detect language
-  - Structure as: `{ "mk": "macedonian", "en": "english" }`
-  - If no translation available, duplicate or leave English null
+- [x] Implement `structureName(title)` function
+    - [x] Use AI to detect language
+    - [x] Structure as: `{ "mk": "macedonian", "en": "english" }`
+    - [x] If no translation available, duplicate or leave English null
 
-- Implement `structureDescription(description)` function
-  - Similar to name structuring
-  - Preserve formatting where possible
+- [x] Implement `structureDescription(description)` function
+    - [x] Similar to name structuring
+    - [x] Preserve formatting where possible
 
-- Implement `extractAttributes(sourceData)` function
-  - Parse features array from source
-  - Map to structured attributes object
-  - Extract additional attributes from description using AI
-  - Return JSON object for attributes field
+- [x] Implement `extractAttributes(sourceData)` function
+    - [x] Parse features array from source
+    - [x] Map to structured attributes object
+    - [x] Extract additional attributes from description using AI
+    - [x] Return JSON object for attributes field
 
-### 4.5 Geocoding Implementation
+### 4.5 Geocoding Implementation ✅
+
 **Priority:** High
 **Related Requirements:** REQ-5 (Address Geocoding)
 
-- Implement `geocodeAddress(location, address)` function in `geocoder.js`
-  - Parse location and address fields
-  - Use AI or external geocoding API (Google Maps, Nominatim)
-  - Return latitude and longitude
-  - Implement caching for identical locations
-  - Handle geocoding failures with default coordinates or skip property
-  - Log geocoding results and failures
+- [x] Implement `geocodeAddress(location, address)` function in `geocoder.js`
+    - [x] Parse location and address fields
+    - [x] Use AI or external geocoding API (Google Maps, Nominatim)
+    - [x] Return latitude and longitude
+    - [x] Implement caching for identical locations
+    - [x] Handle geocoding failures with default coordinates or skip property
+    - [x] Log geocoding results and failures
 
-### 4.6 Location Mapping
+### 4.6 Location Mapping ✅
+
 **Priority:** Medium
 **Related Requirements:** REQ-6 (Property Location Mapping)
 
-- Implement `mapPropertyLocation(locationText)` function
-  - Parse location string (e.g., "Центар, Скопjе")
-  - Query PropertyLocation table for matching records
-  - Use AI to handle ambiguous matches
-  - Return PropertyLocation ID
-  - Log missing locations for manual creation
+- [x] Implement `mapPropertyLocation(locationText)` function
+    - [x] Parse location string (e.g., "Центар, Скопjе")
+    - [x] Query PropertyLocation table for matching records
+    - [x] Use AI to handle ambiguous matches
+    - [x] Return PropertyLocation ID
+    - [x] Log missing locations for manual creation
 
 ---
 
-## Phase 5: Property Persistence and Duplicate Handling
+## Phase 5: Property Persistence and Duplicate Handling ✅
 
-### 5.1 External ID Generation
+### 5.1 External ID Generation ✅
+
 **Priority:** High
 **Related Requirements:** REQ-7 (Duplicate Prevention)
 
-- Implement `generateExternalId(propertyData)` function
-  - Create consistent hash or ID from source data
-  - Use combination of title, address, and source identifier
-  - Ensure uniqueness and consistency across imports
+- [x] Implement `generateExternalId(propertyData)` function
+    - [x] Create consistent hash or ID from source data
+    - [x] Use combination of title, address, and source identifier
+    - [x] Ensure uniqueness and consistency across imports
 
-### 5.2 Duplicate Detection
+### 5.2 Duplicate Detection ✅
+
 **Priority:** High
 **Related Requirements:** REQ-7 (Duplicate Prevention), REQ-13 (Idempotency)
 
-- Implement `checkDuplicate(externalId)` function
-  - Query database for existing property with same externalId
-  - Return existing property or null
-  - Log duplicate detection
+- [x] Implement `checkDuplicate(externalId)` function
+    - [x] Query database for existing property with same externalId
+    - [x] Return existing property or null
+    - [x] Log duplicate detection
 
-- Implement configurable behavior:
-  - Skip duplicates (default)
-  - Update existing properties (optional)
+- [x] Implement configurable behavior:
+    - [x] Skip duplicates (default)
+    - [x] Update existing properties (optional)
 
-### 5.3 Property Data Mapping
+### 5.3 Property Data Mapping ✅
+
 **Priority:** High
 **Related Requirements:** REQ-8 (Database Storage), REQ-14 (Data Structure)
 
-- Implement `mapToPropertyModel(normalizedData)` function in `property_mapper.js`
-  - Map all normalized fields to Property model fields
-  - Set required fields:
-    - `name` (Json)
-    - `latitude` (Float)
-    - `longitude` (Float)
-    - `address` (String)
-    - `price` (Int)
-    - `size` (Int)
-    - `description` (Json)
-    - `createdBy` (from env)
-    - `type` (PropertyType)
-    - `listingType` (PropertyListingType)
-  - Set optional fields:
-    - `photos` (Json)
-    - `attributes` (Json)
-    - `agencyId` (from env if configured)
-    - `propertyLocationId`
-    - `externalId`
-  - Set default values:
-    - `status` = `PENDING`
-    - `featured` = false
-  - Validate required fields are present
-  - Return property creation object
+- [x] Implement `mapToPropertyModel(normalizedData)` function in `property_mapper.js`
+    - [x] Map all normalized fields to Property model fields
+    - [x] Set required fields:
+        - [x] `name` (Json)
+        - [x] `latitude` (Float)
+        - [x] `longitude` (Float)
+        - [x] `address` (String)
+        - [x] `price` (Int)
+        - [x] `size` (Int)
+        - [x] `description` (Json)
+        - [x] `createdBy` (from env)
+        - [x] `type` (PropertyType)
+        - [x] `listingType` (PropertyListingType)
+    - [x] Set optional fields:
+        - [x] `photos` (Json)
+        - [x] `attributes` (Json)
+        - [x] `agencyId` (from env if configured)
+        - [x] `propertyLocationId`
+        - [x] `externalId`
+    - [x] Set default values:
+        - [x] `status` = `PENDING`
+        - [x] `featured` = false
+    - [x] Validate required fields are present
+    - [x] Return property creation object
 
-### 5.4 Database Insertion
+### 5.4 Database Insertion ✅
+
 **Priority:** High
 **Related Requirements:** REQ-8 (Database Storage), REQ-13 (Idempotency)
 
-- Implement `saveProperty(propertyData)` function
-  - Use Prisma client from `@database/client.js`
-  - Wrap in try-catch for error handling
-  - Use database transaction for atomicity
-  - Return created property or error
-  - Log successful creation with property ID
-  - Log failures with property data for debugging
+- [x] Implement `saveProperty(propertyData)` function
+    - [x] Use Prisma client from `@database/client.js`
+    - [x] Wrap in try-catch for error handling
+    - [x] Use database transaction for atomicity
+    - [x] Return created property or error
+    - [x] Log successful creation with property ID
+    - [x] Log failures with property data for debugging
 
 ---
 
-## Phase 6: Orchestration and Job Execution
+## Phase 6: Orchestration and Job Execution ✅
 
-### 6.1 Main Import Function
+### 6.1 Main Import Function ✅
+
 **Priority:** High
 **Related Requirements:** REQ-11 (Batch Processing), REQ-10 (Error Handling)
 
-- Implement `importProperties()` main function in `src/jobs/import_properties.js`
-  - Load configuration from environment
-  - Initialize logging
-  - Fetch properties from API
-  - Validate source data
-  - Process in batches (configurable size, default 10)
-  - For each property in batch:
-    1. Generate external ID
-    2. Check for duplicates
-    3. Process images
-    4. Normalize data with AI
-    5. Geocode address
-    6. Map to Property model
-    7. Save to database
-  - Collect statistics: total, success, failed, skipped
-  - Log summary on completion
-  - Handle errors gracefully (continue processing)
+- [x] Implement `importProperties()` main function in `src/jobs/import_properties.js`
+    - [x] Load configuration from environment
+    - [x] Initialize logging
+    - [x] Fetch properties from API
+    - [x] Validate source data
+    - [x] Process in batches (configurable size, default 10)
+    - [x] For each property in batch:
+        1. [x] Generate external ID
+        2. [x] Check for duplicates
+        3. [x] Process images
+        4. [x] Normalize data with AI
+        5. [x] Geocode address
+        6. [x] Map to Property model
+        7. [x] Save to database
+    - [x] Collect statistics: total, success, failed, skipped
+    - [x] Log summary on completion
+    - [x] Handle errors gracefully (continue processing)
 
-### 6.2 Batch Processing Logic
+### 6.2 Batch Processing Logic ✅
+
 **Priority:** High
 **Related Requirements:** REQ-11 (Batch Processing and Performance)
 
-- Implement batch iteration with controlled concurrency
-  - Process batches sequentially
-  - Within batch, process properties in parallel (with limits)
-  - Wait for batch completion before starting next
-  - Implement progress logging (e.g., "Processing batch 3/10")
+- [x] Implement batch iteration with controlled concurrency
+    - [x] Process batches sequentially
+    - [x] Within batch, process properties in parallel (with limits)
+    - [x] Wait for batch completion before starting next
+    - [x] Implement progress logging (e.g., "Processing batch 3/10")
 
-### 6.3 Error Handling and Logging
+### 6.3 Error Handling and Logging ✅
+
 **Priority:** High
 **Related Requirements:** REQ-10 (Error Handling and Logging), REQ-13 (Retry Logic)
 
-- Implement comprehensive logging throughout:
-  - Job start: timestamp, configuration
-  - Fetch: start, completion, errors
-  - Per property: start processing, stage completions, errors
-  - Batch: completion statistics
-  - Job end: summary statistics, duration
-- Use structured logging with property identifiers
-- Implement error collection for final summary report
-- Ensure errors don't stop entire job (continue processing)
+- [x] Implement comprehensive logging throughout:
+    - [x] Job start: timestamp, configuration
+    - [x] Fetch: start, completion, errors
+    - [x] Per property: start processing, stage completions, errors
+    - [x] Batch: completion statistics
+    - [x] Job end: summary statistics, duration
+- [x] Use structured logging with property identifiers
+- [x] Implement error collection for final summary report
+- [x] Ensure errors don't stop entire job (continue processing)
 
-### 6.4 Test Mode Implementation
+### 6.4 Test Mode Implementation ✅
+
 **Priority:** Medium
 **Related Requirements:** REQ-15 (Testing and Validation Mode)
 
-- Implement test mode flag check
-- When `IMPORT_TEST_MODE=true`:
-  - Skip database saves
-  - Log normalized data instead
-  - Optionally skip image uploads (configurable)
-  - Clearly log "TEST MODE" in all log output
-  - Generate test report with would-be database insertions
+- [x] Implement test mode flag check
+- [x] When `IMPORT_TEST_MODE=true`:
+    - [x] Skip database saves
+    - [x] Log normalized data instead
+    - [x] Optionally skip image uploads (configurable)
+    - [x] Clearly log "TEST MODE" in all log output
+    - [x] Generate test report with would-be database insertions
 
 ---
 
-## Phase 7: Cron Job Integration and Monitoring
+## Phase 7: Cron Job Integration and Monitoring ✅
 
-### 7.1 Cron Job Setup
+### 7.1 Cron Job Setup ✅
+
 **Priority:** Medium
 **Related Requirements:** REQ-1 (External Data Fetching)
 
-- Configure cron schedule (e.g., daily at midnight)
-- Use existing cron infrastructure or node-cron package
-- Add job registration in application startup
-- Implement graceful shutdown handling
+- [x] Configure cron schedule (e.g., daily at midnight)
+- [x] Use existing cron infrastructure or node-cron package
+- [x] Add job registration in application startup
+- [x] Implement graceful shutdown handling
 
-### 7.2 Execution Monitoring
+### 7.2 Execution Monitoring ✅
+
 **Priority:** Low
 **Related Requirements:** REQ-10 (Error Handling and Logging)
 
-- Implement execution tracking:
-  - Store last execution timestamp
-  - Track consecutive failures
-  - Alert on repeated failures (optional)
-- Create admin endpoint to view import history (optional)
-- Log retention and rotation strategy
+- [x] Implement execution tracking:
+    - [x] Store last execution timestamp
+    - [x] Track consecutive failures
+    - [x] Alert on repeated failures (optional)
+- [x] Create admin endpoint to view import history (optional)
+- [x] Log retention and rotation strategy
 
 ---
 
 ## Phase 8: Testing and Documentation
 
 ### 8.1 Unit Tests
+
 **Priority:** Medium
 **Related Requirements:** All
 
 - Write unit tests for key functions:
-  - `downloadImage()`
-  - `processImage()`
-  - `uploadToSupabase()`
-  - `extractNumericValue()`
-  - `mapListingType()`
-  - `classifyPropertyType()`
-  - `geocodeAddress()`
-  - `generateExternalId()`
-  - `mapToPropertyModel()`
+    - `downloadImage()`
+    - `processImage()`
+    - `uploadToSupabase()`
+    - `extractNumericValue()`
+    - `mapListingType()`
+    - `classifyPropertyType()`
+    - `geocodeAddress()`
+    - `generateExternalId()`
+    - `mapToPropertyModel()`
 - Mock external dependencies (API, Supabase, AI SDK)
 
 ### 8.2 Integration Tests
+
 **Priority:** Low
 **Related Requirements:** All
 
 - Test end-to-end flow with sample data
 - Test error scenarios:
-  - API unavailable
-  - Image download failures
-  - AI API failures
-  - Database errors
+    - API unavailable
+    - Image download failures
+    - AI API failures
+    - Database errors
 - Verify duplicate handling
 - Verify idempotency
 
 ### 8.3 Documentation
+
 **Priority:** Medium
 **Related Requirements:** REQ-12 (Configuration)
 
 - Update README with:
-  - Import job overview
-  - Environment variable configuration
-  - How to run manually
-  - How to enable test mode
-  - Troubleshooting guide
+    - Import job overview
+    - Environment variable configuration
+    - How to run manually
+    - How to enable test mode
+    - Troubleshooting guide
 - Document JSON field structures
 - Document system user setup requirements
 - Add inline code comments for complex logic
@@ -437,6 +465,7 @@ This implementation plan details the technical approach to building the automate
 ## Phase 9: Optimization and Refinement
 
 ### 9.1 Performance Optimization
+
 **Priority:** Low
 **Related Requirements:** REQ-11 (Batch Processing and Performance)
 
@@ -447,6 +476,7 @@ This implementation plan details the technical approach to building the automate
 - Fine-tune batch sizes and concurrency limits
 
 ### 9.2 Error Recovery
+
 **Priority:** Low
 **Related Requirements:** REQ-13 (Idempotency and Retry Logic)
 
@@ -455,6 +485,7 @@ This implementation plan details the technical approach to building the automate
 - Add manual retry functionality for failed properties
 
 ### 9.3 Monitoring and Alerting
+
 **Priority:** Low
 **Related Requirements:** REQ-10 (Error Handling and Logging)
 
@@ -467,6 +498,7 @@ This implementation plan details the technical approach to building the automate
 ## Priority Summary
 
 ### High Priority (Must Have)
+
 - All Phase 1 items (Foundation and Setup)
 - All Phase 2 items (Core Data Fetching)
 - All Phase 3 items (Image Processing Pipeline)
@@ -475,6 +507,7 @@ This implementation plan details the technical approach to building the automate
 - Phase 6.1, 6.2, 6.3 (Job Execution and Error Handling)
 
 ### Medium Priority (Should Have)
+
 - Phase 4.4 (JSON Field Structuring)
 - Phase 5.2 update behavior (optional duplicate update)
 - Phase 6.4 (Test Mode)
@@ -483,6 +516,7 @@ This implementation plan details the technical approach to building the automate
 - Phase 8.3 (Documentation)
 
 ### Low Priority (Nice to Have)
+
 - Phase 7.2 (Execution Monitoring)
 - Phase 8.2 (Integration Tests)
 - All Phase 9 items (Optimization and Refinement)
@@ -492,18 +526,21 @@ This implementation plan details the technical approach to building the automate
 ## Dependencies and Risks
 
 ### External Dependencies
+
 - AI SDK v6 API availability and rate limits
 - Supabase storage availability
 - External data source reliability
 - Geocoding API availability (if using external service)
 
 ### Technical Risks
+
 - AI classification accuracy for property types
 - Geocoding accuracy and coverage for Macedonian addresses
 - Image processing memory usage for large properties
 - External URL image availability (broken links, rate limiting)
 
 ### Mitigation Strategies
+
 - Implement robust retry logic with exponential backoff
 - Implement graceful degradation (skip properties with errors)
 - Monitor resource usage and adjust batch sizes
