@@ -209,7 +209,7 @@ export const _getPropertyService = async propertyId => {
     try {
         const property = await prisma.property.findUnique({
             where: { id: propertyId },
-            include: { agency: true },
+            include: { agency: true, propertyLocation: true },
         })
         return {
             data: property,
