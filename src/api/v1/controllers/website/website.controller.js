@@ -1,5 +1,4 @@
 import { asyncHandler } from "#utils/helpers/async_handler.js"
-import { getAgencyService } from "#services/agencies/agencies.service.js"
 import { getAgencyWebsiteConfiguration } from "#services/website/website.service.js"
 import { getPropertiesService, getPropertyService } from "#services/properties/properties.service.js"
 
@@ -45,6 +44,19 @@ export const agencyWebsiteConfigurationController = asyncHandler(async (req, res
  * @returns {Promise<void>}
  */
 export const getWebsiteAgencyPropertiesController = asyncHandler(async (req, res) => {
-    const agencyProperties = await getPropertiesService({ agency: req.agencyId, ...req.query })
+    const { f, ...otherParams } = req.query
+    let decodedFilters = {}
+
+    if (f) {
+        try {
+            const decodedString = Buffer.from(f, "base64").toString("utf-8")
+            decodedFilters = JSON.parse(decodedString)
+        } catch (error) {
+            console.error("Error decoding filter parameter:", error)
+        }
+    }
+
+    const queryParams = { agency: req.agencyId, ...otherParams, ...decodedFilters }
+    const agencyProperties = await getPropertiesService(queryParams)
     return res.status(200).json(agencyProperties)
 })

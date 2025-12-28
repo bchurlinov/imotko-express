@@ -15,7 +15,7 @@ import { normalizeUrl } from "#utils/url/normalizeUrl.js"
  */
 export const domainRateLimit = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // 100 requests per window
+    max: 1000, // 100 requests per window
     standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 
@@ -26,7 +26,7 @@ export const domainRateLimit = rateLimit({
      * @param {import('express').Request} req - Express request object
      * @returns {string} The rate limit key (normalized domain or IP)
      */
-    keyGenerator: (req) => {
+    keyGenerator: req => {
         const referer = req.get("referer") || req.get("referrer")
 
         if (!referer) {
@@ -62,10 +62,14 @@ export const domainRateLimit = rateLimit({
     },
 
     /**
-     * Skip rate limiting for successful requests when testing
-     * This prevents test suites from hitting rate limits
+     * Skip rate limiting in development mode and when explicitly disabled
+     * This prevents issues during development and testing
      */
-    skip: (req) => {
+    skip: req => {
+        // Skip rate limiting in development mode
+        if (process.env.ENV === "development") {
+            return true
+        }
         // Skip rate limiting if explicitly disabled via environment variable
         return process.env.DISABLE_RATE_LIMIT === "true"
     },

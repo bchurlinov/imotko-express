@@ -6,6 +6,7 @@ import {
     stringValue,
     stringValues,
     booleanValue,
+    numberValue,
     positiveInt,
     buildNumericFilter,
     buildPriceFilter,
@@ -46,6 +47,10 @@ import {
  * @property {PrimitiveParam} [numOfBathroomsFrom]
  * @property {PrimitiveParam} [numOfBathroomsTo]
  * @property {PrimitiveParam} [propertyFeatures]
+ * @property {PrimitiveParam} [north]
+ * @property {PrimitiveParam} [south]
+ * @property {PrimitiveParam} [east]
+ * @property {PrimitiveParam} [west]
  * @property {PrimitiveParam} [sortBy]
  * @property {PrimitiveParam} [query]
  * @property {PrimitiveParam} [limit]
@@ -122,6 +127,23 @@ const _getPropertiesService = async (params = {}) => {
         if (params.propertyFeatures) {
             const featureConditions = buildPropertyFeaturesFilter(params.propertyFeatures)
             if (featureConditions.length > 0) andConditions.push(...featureConditions)
+        }
+
+        // Geographic bounding box filtering
+        const north = numberValue(params.north)
+        const south = numberValue(params.south)
+        const east = numberValue(params.east)
+        const west = numberValue(params.west)
+
+        if (south !== undefined && north !== undefined && west !== undefined && east !== undefined) {
+            filters.latitude = {
+                gte: south,
+                lte: north,
+            }
+            filters.longitude = {
+                gte: west,
+                lte: east,
+            }
         }
 
         const sortParam = stringValue(params.sortBy)

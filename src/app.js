@@ -28,12 +28,21 @@ app.use(morgan("dev"))
 // credentials middleware
 app.use(credentials)
 
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    limit: 10000,
-    standardHeaders: "draft-7",
-    legacyHeaders: false,
-})
+// Rate limiting - only apply in production, skip in development
+const limiter =
+    process.env.ENV === "production"
+        ? rateLimit({
+              windowMs: 15 * 60 * 1000,
+              limit: 100,
+              standardHeaders: "draft-7",
+              legacyHeaders: false,
+              message: {
+                  data: undefined,
+                  code: 429,
+                  message: "Too many requests, please try again later.",
+              },
+          })
+        : (req, res, next) => next()
 
 app.set("trust proxy", false)
 app.use(limiter)
