@@ -130,7 +130,7 @@ export function createContactEmailTemplate(data, agency) {
             propertyId
                 ? `
         <div class="field">
-            <span class="field-label">Имот:</span>
+            <span class="field-label">Недвижност:</span>
             <div class="field-value">${
                 propertyUrl
                     ? `<a href="${propertyUrl}" target="_blank" style="color: #007bff; text-decoration: none;">${propertyName ? propertyName : `#${propertyId}`}</a>`
