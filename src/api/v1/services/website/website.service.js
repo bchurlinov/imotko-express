@@ -1,8 +1,5 @@
-import prisma from "#database/client.js"
 import { normalizeUrl } from "#utils/url/normalizeUrl.js"
-import { getAllowedReferrers } from "#config/website.config.js"
-import { withCache } from "#utils/cache/index.js"
-import { CACHE_TTL } from "#config/cache.config.js"
+import { SendEmailCommand, SendRawEmailCommand, SESClient } from "@aws-sdk/client-ses"
 import {
     logAccessDenied,
     logAgencyNotFound,
@@ -11,198 +8,15 @@ import {
     logMissingReferer,
     logOriginMismatch,
 } from "#utils/logger/securityLogger.js"
-
-/**
- * Allowed fields to return in agency response
- * These fields are safe to expose publicly via the website configuration API
- */
-const ALLOWED_AGENCY_FIELDS = [
-    "id",
-    "name",
-    "logo",
-    "social",
-    "description",
-    "address",
-    "location",
-    "email",
-    "phone",
-    "websiteSettings",
-    "testimonials",
-]
-/**
- * Standardized error response constants
- * Ensures consistent error messaging across the API
- */
-const ErrorResponses = {
-    FORBIDDEN_REFERER: { code: 403, message: "forbiddenReferer" },
-    AGENCY_NOT_FOUND: { code: 404, message: "agencyNotFound" },
-    INTERNAL_ERROR: { code: 500, message: "somethingWentWrong" },
-}
-
-/**
- * Filters agency data to only include allowed fields
- *
- * @param {Object} agency - The agency object to filter
- * @returns {Object} Filtered agency object with only allowed fields
- *
- * @example
- * const filtered = filterAgencyData(agency);
- */
-export function filterAgencyData(agency) {
-    if (!agency) return null
-
-    const filtered = {}
-    for (const field of ALLOWED_AGENCY_FIELDS) {
-        if (field in agency) {
-            filtered[field] = agency[field]
-        }
-    }
-    return filtered
-}
-
-/**
- * Retrieves an agency by matching the referer domain against agency website URLs
- *
- * @param {string} referer - The referer URL to match against
- * @returns {Promise<Object|null>} The matched agency object or null if not found
- *
- * @example
- * const agency = await getAgencyByReferer('https://example-agency.com/page');
- *
- * @note Performance Optimization:
- * For better performance with large datasets, consider adding a database index:
- * CREATE INDEX idx_agency_website ON "Agency" ((social->>'website'));
- *
- * This index would significantly speed up queries when matching referer domains.
- */
-async function _getAgencyByReferer(referer) {
-    const normalizedReferer = normalizeUrl(referer)
-    if (!normalizedReferer) return null
-
-    // First, find agencies with websites using raw query for the regex matching
-    const matchingAgencies = await prisma.$queryRaw`
-        SELECT id
-        FROM "Agency"
-        WHERE social IS NOT NULL
-          AND social->>'website' IS NOT NULL
-          AND social->>'website' != ''
-          AND LOWER(
-              REGEXP_REPLACE(
-                  REGEXP_REPLACE(social->>'website', '^https?://(www\.)?', ''),
-                  '/.*$', ''
-              )
-          ) = LOWER(${normalizedReferer})
-        ORDER BY id ASC
-        LIMIT 1
-    `
-
-    if (!matchingAgencies.length) return null
-
-    return prisma.agency.findUnique({
-        where: { id: matchingAgencies[0].id },
-        select: {
-            id: true,
-            name: true,
-            logo: true,
-            social: true,
-            description: true,
-            address: true,
-            location: true,
-            email: true,
-            phone: true,
-            websiteSettings: true,
-            testimonials: true,
-        },
-    })
-}
-
-// Export cached version
-export const getAgencyByReferer = withCache(_getAgencyByReferer, {
-    keyPrefix: "getAgencyByReferer",
-    ttl: CACHE_TTL.getAgencyByReferer, // 5 minutes
-})
-
-/**
- * Checks if a referer URL is in the allowed referrers list
- *
- * @param {string} referer - The referer URL to check
- * @returns {boolean} True if referer is in allowed list, false otherwise
- *
- * @example
- * const allowed = isAllowedReferrer('https://localhost:3000/page');
- */
-export function isAllowedReferrer(referer) {
-    const allowedReferrers = getAllowedReferrers()
-    const normalizedReferer = normalizeUrl(referer)
-
-    // Return false if referer is malformed
-    if (!normalizedReferer) return false
-
-    // Check each allowed referrer
-    for (const allowed of allowedReferrers) {
-        // Add protocol if not present
-        const allowedUrl = allowed.startsWith("http") ? allowed : `http://${allowed}`
-        const normalizedAllowed = normalizeUrl(allowedUrl)
-
-        // Skip malformed allowed URLs
-        if (!normalizedAllowed) {
-            continue
-        }
-
-        // Compare normalized domains
-        if (normalizedAllowed === normalizedReferer) {
-            return true
-        }
-    }
-
-    return false
-}
-
-/**
- * Validates that Origin and Referer headers match (if both present)
- *
- * @param {string|undefined} referer - The referer header value
- * @param {string|undefined} origin - The origin header value
- * @returns {boolean} True if valid (match or only one present), false if mismatch
- *
- * @example
- * validateOriginRefererMatch('https://example.com/page', 'https://example.com') // true
- * validateOriginRefererMatch('https://example.com/page', 'https://other.com') // false
- * validateOriginRefererMatch('https://example.com/page', undefined) // true
- */
-export function validateOriginRefererMatch(referer, origin) {
-    // If either header is missing, allow the request
-    if (!origin || !referer) return true
-
-    // Normalize both URLs
-    const normalizedReferer = normalizeUrl(referer)
-    const normalizedOrigin = normalizeUrl(origin)
-
-    // If either URL is malformed, reject
-    if (!normalizedReferer || !normalizedOrigin) return false
-
-    // Compare normalized domains - must match
-    return normalizedOrigin === normalizedReferer
-}
-
-/**
- * Checks if development bypass should be applied
- *
- * @param {string|undefined} userAgent - The user-agent header value
- * @returns {boolean} True if in development mode with Postman, false otherwise
- *
- * @example
- * isDevelopmentBypass('PostmanRuntime/7.28.4') // true in dev mode
- * isDevelopmentBypass('Mozilla/5.0...') // false
- */
-export function isDevelopmentBypass(userAgent) {
-    if (process.env.NODE_ENV !== "development") return false
-
-    // Check if user-agent contains "postman" (case-insensitive)
-    if (!userAgent) return false
-
-    return userAgent.toLowerCase().includes("postman")
-}
+import {
+    ErrorResponses,
+    getAgencyByReferer,
+    isAllowedReferrer,
+    validateOriginRefererMatch,
+    isDevelopmentBypass,
+} from "./utils/index.js"
+import { createContactEmailTemplate } from "./templates/contact_email_template.js"
+import prisma from "#database/client.js"
 
 /**
  * Main service function to get agency website configuration with full authorization
@@ -318,6 +132,119 @@ export async function getAgencyWebsiteConfiguration(referer, origin, userAgent, 
         return {
             success: false,
             error: ErrorResponses.INTERNAL_ERROR,
+        }
+    }
+}
+
+const domain = process.env.PUBLIC_APP_URL
+const emailClient = new SESClient({
+    region: process.env.AWS_SES_REGION,
+    credentials: {
+        accessKeyId: process.env.AWS_SES_KEY,
+        secretAccessKey: process.env.AWS_SES_SECRET_KEY,
+    },
+})
+
+/**
+ * Service to handle agency contact form submission and send email
+ * @param {Object} body - Form data from request body
+ * @param {string} body.name - Contact name
+ * @param {string} [body.email] - Contact email (optional)
+ * @param {string} body.phone - Contact phone
+ * @param {string} [body.subject] - Message subject (optional)
+ * @param {string} [body.message] - Message content (optional)
+ * @param {Object} [body.property] - Property object (optional)
+ * @param {number} [body.property.id] - Property ID
+ * @param {string} [body.property.slug] - Property slug
+ * @param {string} [body.property.name] - Property name
+ * @param {Object} agency - Agency data from middleware
+ * @returns {Promise<{success: boolean, data?: Object, error?: {code: number, message: string}}>}
+ */
+export async function postAgencyContactService(body, agency) {
+    try {
+        if (!agency || !agency.email) {
+            return {
+                success: false,
+                error: {
+                    code: 400,
+                    message: "Agency email not found",
+                },
+            }
+        }
+
+        let { name, email, phone, subject, message, property } = body
+
+        // If property is provided, construct URL and extract details
+        let propertyUrl = null
+        let propertyId = null
+        let propertyName = null
+        if (property && property.id && property.slug) {
+            propertyId = property.id
+            propertyName = property.name || null
+            if (agency.social?.website)
+                propertyUrl = `${agency.social.website}/nedviznini/${property.slug}/${property.id}`
+        }
+
+        const htmlContent = createContactEmailTemplate(
+            { name, email, phone, subject, message, propertyId, propertyUrl, propertyName },
+            agency
+        )
+
+        console.log({ property })
+
+        const emailSubject = subject ? `Contact Form: ${subject}` : `New Contact Form Submission from ${name}`
+
+        const sendEmailCommand = new SendEmailCommand({
+            Source: process.env.IMOTKO_EMAIL || "contact@imotko.mk",
+            Destination: {
+                ToAddresses: [agency.email],
+            },
+            Message: {
+                Subject: {
+                    Data: emailSubject,
+                    Charset: "UTF-8",
+                },
+                Body: {
+                    Html: {
+                        Data: htmlContent,
+                        Charset: "UTF-8",
+                    },
+                    Text: {
+                        Data: `
+                    New Contact Form Submission
+                    Name: ${name}
+                    ${email ? `Email: ${email}` : ""}
+                    Phone: ${phone}
+                    ${subject ? `Subject: ${subject}` : ""}
+                    ${message ? `Message: ${message}` : ""}
+                    ${propertyId ? `Недвижност: #${propertyId}` : ""}
+
+                     Примено на: ${new Date().toLocaleString("en-US", { timeZone: "UTC" })} UTC
+                        `.trim(),
+                        Charset: "UTF-8",
+                    },
+                },
+            },
+            ReplyToAddresses: email ? [email] : undefined,
+        })
+
+        const response = await emailClient.send(sendEmailCommand)
+
+        return {
+            success: true,
+            data: {
+                messageId: response.MessageId,
+                sentTo: agency.email,
+            },
+        }
+    } catch (error) {
+        console.error("Error sending contact form email:", error)
+        return {
+            success: false,
+            error: {
+                code: 500,
+                message: "Failed to send contact form email",
+            },
         }
     }
 }

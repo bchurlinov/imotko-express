@@ -17,6 +17,10 @@ export const attachAgencyFromReferer = asyncHandler(async (req, res, next) => {
         })
     }
 
-    req.agencyId = result.data.id
+    const agency = result.data
+    if (process.env.NODE_ENV !== "production" && process.env.FAKE_EMAIL) agency.email = process.env.FAKE_EMAIL
+
+    req.agency = agency
+    req.agencyId = agency.id || null
     next()
 })

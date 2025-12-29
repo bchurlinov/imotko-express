@@ -9,7 +9,9 @@ import createError from "http-errors"
  * @returns {void}
  */
 export const validateRequest = (req, res, next) => {
+    console.log(req.body)
     const errors = validationResult(req)
+    console.log(errors)
     if (!errors.isEmpty()) throw createError(400, "Validation errors", { errors: errors.array() })
     next()
 }

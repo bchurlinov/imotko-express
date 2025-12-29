@@ -3,12 +3,15 @@
  * @module routes/website
  */
 import { Router } from "express"
+import { body } from "express-validator"
 import {
     agencyWebsiteConfigurationController,
     getWebsiteAgencyPropertiesController,
+    postAgencyContactController,
 } from "#controllers/website/website.controller.js"
 import { domainRateLimit } from "#middlewares/domainRateLimit.js"
 import { attachAgencyFromReferer } from "#middlewares/agencyFromReferer.js"
+import { validateRequest } from "#middlewares/validate_request.js"
 
 const router = Router()
 
@@ -57,7 +60,36 @@ const router = Router()
  *   "message": "forbiddenReferer"
  * }
  */
-router.get("/configuration", domainRateLimit, agencyWebsiteConfigurationController)
+// name: user.name || '',
+//     email: user.email || '',
+//     phone: user.phone || '',
+//     subject: '',
+//     message: ''
+
+router.get("/configuration", domainRateLimit, attachAgencyFromReferer, agencyWebsiteConfigurationController)
 router.get("/agency-properties", domainRateLimit, attachAgencyFromReferer, getWebsiteAgencyPropertiesController)
+router.post(
+    "/agency-contact",
+    [
+        body("name").trim().notEmpty().withMessage("Name is required"),
+        body("email").optional().isEmail().withMessage("Invalid email format").normalizeEmail(),
+        body("phone")
+            .trim()
+            .notEmpty()
+            .withMessage("Phone is required")
+            .matches(/^[\+]?[(]?[0-9]{1,4}[)]?[-\s]?[(]?[0-9]{1,4}[)]?[-\s]?[0-9]{1,9}$/)
+            .withMessage("Invalid phone number format"),
+        body("subject").optional().trim(),
+        body("message").optional().trim(),
+        body("property").optional().isObject().withMessage("Property must be an object"),
+        body("property.id").optional().isString().withMessage("Property ID must be an integer"),
+        body("property.slug").optional().isString().trim().withMessage("Property slug must be a string"),
+        body("property.name").optional().isString().trim().withMessage("Property name must be a string"),
+    ],
+    domainRateLimit,
+    validateRequest,
+    attachAgencyFromReferer,
+    postAgencyContactController
+)
 
 export default router
