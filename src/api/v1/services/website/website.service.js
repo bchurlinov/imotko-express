@@ -82,12 +82,12 @@ export async function getAgencyWebsiteConfiguration(referer, origin, userAgent, 
 
         // Step 5: Check against allowed referrers list
         const allowed = isAllowedReferrer(referer)
-        if (allowed) {
+        if (!allowed) {
             return {
-                success: true,
+                success: false,
                 data: {
-                    allowed: true,
-                    message: "Allowed referrer",
+                    allowed: false,
+                    message: "Not allowed referrer",
                 },
             }
         }
