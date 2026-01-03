@@ -14,7 +14,7 @@ export const scheduleAnalyticsRefresh = () => {
         }
     })
 
-    console.log("[Analytics] Scheduled job registered: Refresh every 30 minutes")
+    console.log("[Analytics] Scheduled job registered: Refresh once per week on Sunday at midnight")
 }
 
 /**
