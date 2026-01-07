@@ -16,7 +16,6 @@ import {
     isDevelopmentBypass,
 } from "./utils/index.js"
 import { createContactEmailTemplate } from "./templates/contact_email_template.js"
-import prisma from "#database/client.js"
 
 /**
  * Main service function to get agency website configuration with full authorization
@@ -122,7 +121,6 @@ export async function getAgencyWebsiteConfiguration(referer, origin, userAgent, 
             }
         }
 
-        // Step 7: Return successful result with agency data (already filtered)
         return {
             success: true,
             data: agency,
