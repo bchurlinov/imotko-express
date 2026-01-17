@@ -5,7 +5,10 @@
     "type": "module",
     "scripts": {
         "start": "node --experimental-transform-types src/app.js",
-        "dev": "nodemon",
+        "dev": "dotenv -e .env.development -- nodemon",
+        "stage": "dotenv -e .env.stage -- nodemon",
+        "start:dev": "dotenv -e .env.development -- node --experimental-transform-types src/app.js",
+        "start:stage": "dotenv -e .env.stage -- node --experimental-transform-types src/app.js",
         "postinstall": "prisma generate"
     },
     "prisma": {
@@ -45,6 +48,7 @@
     },
     "devDependencies": {
         "concurrently": "^9.1.0",
+        "dotenv-cli": "^11.0.0",
         "nodemon": "^3.1.9",
         "prettier": "^3.4.2",
         "tsx": "^4.21.0"
