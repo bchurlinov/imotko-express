@@ -13,6 +13,7 @@ import { getAllowedReferrers } from "#config/website.config.js"
 export function isAllowedReferrer(referer) {
     const allowedReferrers = getAllowedReferrers()
     const normalizedReferer = normalizeUrl(referer)
+    console.log("isAllowedReferrer - allowedReferrers:", allowedReferrers)
 
     // Return false if referer is malformed
     if (!normalizedReferer) return false
@@ -21,6 +22,7 @@ export function isAllowedReferrer(referer) {
     for (const allowed of allowedReferrers) {
         // Add protocol if not present
         const allowedUrl = allowed.startsWith("http") ? allowed : `http://${allowed}`
+        console.log("allowedUrl:", allowedUrl)
         const normalizedAllowed = normalizeUrl(allowedUrl)
 
         // Skip malformed allowed URLs
