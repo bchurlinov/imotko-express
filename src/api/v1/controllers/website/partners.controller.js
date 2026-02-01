@@ -4,7 +4,7 @@
  * @module controllers/website/partners
  */
 
-import asyncHandler from "express-async-handler"
+import { asyncHandler } from "#utils/helpers/async_handler.js"
 import { validationResult } from "express-validator"
 import createError from "http-errors"
 import {
@@ -63,11 +63,7 @@ export const createWebsitePartnerController = asyncHandler(async (req, res) => {
         throw createError(401, "Authentication required")
     }
 
-    const partner = await createAgencyPartnerService(
-        agencyId,
-        { name, image, url, sortOrder },
-        user.id
-    )
+    const partner = await createAgencyPartnerService(agencyId, { name, image, url, sortOrder }, user.id)
 
     res.status(201).json({
         data: partner,
@@ -102,12 +98,7 @@ export const updateWebsitePartnerController = asyncHandler(async (req, res) => {
         throw createError(401, "Authentication required")
     }
 
-    const partner = await updateAgencyPartnerService(
-        agencyId,
-        partnerId,
-        { name, image, url, sortOrder },
-        user.id
-    )
+    const partner = await updateAgencyPartnerService(agencyId, partnerId, { name, image, url, sortOrder }, user.id)
 
     res.status(200).json({
         data: partner,
