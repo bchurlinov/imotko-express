@@ -1,5 +1,6 @@
 import prisma from "#database/client.js"
 import createError from "http-errors"
+import { calculatePagination, createPaginationResponse } from "#utils/pagination/index.js"
 
 /**
  *  @typedef {import('#types/api.js').ApiResponse} ApiResponse
@@ -116,12 +117,15 @@ export const createUserSearchService = async (_userId, body) => {
 }
 
 /**
- * Get all searches for a user
+ * Get all searches for a user with pagination
  * @param {string} userId - User ID
+ * @param {object} query - Query parameters
+ * @param {string | number | undefined} query.page - Page number (default: 1)
+ * @param {string | number | undefined} query.limit - Items per page (default: 15, max: 500)
  * @returns {Promise<ApiResponse<UserSearch[]>>}
  */
 
-export const getUserSearchesService = async userId => {
+export const getUserSearchesService = async (userId, query = {}) => {
     try {
         const user = await prisma.user.findUnique({
             where: { id: userId },
@@ -131,15 +135,35 @@ export const getUserSearchesService = async userId => {
         if (!user) throw createError(404, "User not found")
         if (!user.client) throw createError(400, "User does not have a client profile")
 
+        const total = await prisma.clientSearch.count({
+            where: { clientId: user.client.id },
+        })
+
+        // Calculate pagination
+        const { page, limit, skip, totalPages } = calculatePagination({
+            page: query.page,
+            limit: query.limit,
+            total,
+        })
+
+        // Fetch paginated searches
         const searches = await prisma.clientSearch.findMany({
             where: { clientId: user.client.id },
             orderBy: { createdAt: "desc" },
+            skip,
+            take: limit,
         })
 
         return {
             data: searches,
             code: 200,
             message: "User searches loaded successfully.",
+            pagination: createPaginationResponse({
+                currentPage: page,
+                pageSize: limit,
+                totalPages,
+                total,
+            }),
         }
     } catch (err) {
         console.error("Error retrieving user searches:", err)

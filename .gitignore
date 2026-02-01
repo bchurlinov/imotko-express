@@ -1,7 +1,11 @@
 node_modules
 
 .env
-.env.example
+.env.development
+.env.stage
+.env.local
+!.env.example
 .idea
 dist
 generated
+supabase_backup.sql

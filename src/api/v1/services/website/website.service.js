@@ -188,8 +188,6 @@ export async function postAgencyContactService(body, agency) {
             agency
         )
 
-        console.log({ property })
-
         const emailSubject = subject ? `Contact Form: ${subject}` : `New Contact Form Submission from ${name}`
 
         const sendEmailCommand = new SendEmailCommand({

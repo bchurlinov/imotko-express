@@ -924,3 +924,442 @@ An operation failed because it depends on one or more records that were required
 20260106	19:58:43	447ea51d-bc55-4adf-b073-3e482a430869	UnauthorizedError: Missing Supabase Bearer token
 20260106	19:58:43	fd4c0182-9c3a-4c7d-bd87-6c94a8959624	UnauthorizedError: Missing Supabase Bearer token
 20260106	19:58:43	35173b68-7480-4928-82f3-160e6e1ab7ef	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:27:25	5dc47269-ad3d-4ce6-aba6-98fe0bd02761	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:27:25	6b55ed29-f5e5-469a-a988-15734891fd56	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:27:25	ca03947e-de63-4ffe-8b97-455eb34e606a	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:27:26	fe49534c-adb5-4e88-a10b-8dc4faa63317	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:27:26	adf6ad95-7a98-4ffc-85b2-7e5f691eae25	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:27:26	9e7ae0cc-9f05-4a2e-adda-e7a2dbf716da	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:27:51	eb4971fe-9367-4927-bb29-ebc1ac08b73e	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:27:51	6ec7c645-9884-4872-92cf-65c683a810e5	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:27:51	cd95b971-31bf-429b-a510-07f94aa916fe	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:27:52	3e4c1825-785e-4248-8e55-e3da5c366440	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:27:52	5c553557-1c61-4415-9914-affa535dff0e	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:27:52	bf32e8f7-b6b9-420c-8ac9-45e09037fae9	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:29:54	ebeb826c-0590-4c35-a367-940b163434e4	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:29:54	40a37310-2921-4208-91eb-ed26b2e1eeeb	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:29:55	659d0342-2c1c-4e7a-8018-006de173de2e	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:29:55	2e49ffb2-0f4d-42d6-b9b0-21264085fe35	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:30:13	e574b1b8-1a87-460f-bfb5-61f7e7d28972	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:30:13	2799a8d5-852c-41ff-9329-63914c245711	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:30:14	d50e4eea-eeb1-490c-9ef5-9cd8c81e52a2	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:30:14	2d1b1ac8-7a99-48c4-9f93-9245950aa2d5	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:30:24	64ee2432-e05b-4c64-92a2-0fc079b6b2e2	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:30:35	77444cda-e343-4ebb-b26c-df940339887a	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:30:36	782d4201-914a-4a4a-8f15-30e51e29eeb8	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:30:36	ae22a43f-b559-4db4-a986-627727cd0149	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:30:37	49301ec1-8038-4016-b12c-43a840111176	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:30:37	e6796c6a-e0a0-47e9-9a2a-374cd4b54a93	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:30:37	ed854aca-d7da-46b4-a4b6-857fece73fa6	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:30:42	0c6912b9-d25e-488b-a429-42eb114ba6ac	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:30:42	ddde8cee-91d9-4f51-9a77-a1ddaa963926	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:30:43	f1de338d-440b-455c-89cb-9ace3bbd0ce8	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:30:43	9a856ae7-63b1-46ae-8a3c-5fb2261eb9c8	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:31:20	0b3a928e-efd2-40d9-8b3e-a707b73c0b37	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:31:20	1993964a-e9cc-43e1-a6fe-3c89c9f88e1f	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:31:21	7f3fbcd6-c4f6-48ea-b5f1-7d8a6494d08b	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:31:21	92861ce9-2746-4286-a80d-0265ab2bef43	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:31:34	7a73990a-af60-4dc7-a739-f202e9cd40a2	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:31:34	213227fc-e24f-4091-8b92-cb8f75a8e793	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:31:35	a05f4da3-3670-4d67-a0fc-59579ed4daf4	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:31:35	9a3667b7-e526-47d5-b016-7219821c2a71	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:32:58	ea75ec41-3072-4137-8393-15f8f762eeed	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:32:58	925073bd-b21c-43f3-a06f-8470f0db13a2	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:32:59	52f0ce6e-1597-4864-955b-6fcb391d1356	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:32:59	32e9ac5f-d516-41fe-bebd-10b35cd51e76	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:33:11	8626faae-5130-4c8c-bcad-cb5f229b082c	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:33:11	25227c50-d046-4a82-aa8e-fe21e89e596d	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:33:12	59c21265-12ae-4487-9813-d9308e866eca	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:33:12	fa76dc7c-c5ad-44ef-998e-d4e6435d304b	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:34:30	41781750-d74d-4300-ac8b-e35a117137bc	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:34:30	0cb721b3-173f-47f3-b7bb-126fc50f43e9	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:34:31	d7a5621e-2055-48e7-9e4c-4fd808537d8b	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:34:31	be9fbff6-e707-4518-b090-868cb4ac603b	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:34:41	a0254944-2b50-466a-8c17-cd2dbb7ed8e4	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:34:41	7d65977d-301f-4111-a40a-dbb7f406fd01	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:34:42	d281d6cb-417f-4771-81bf-18aa2774d5a2	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:34:42	62bdc31d-3a1e-4c53-96d8-3bf8ef185351	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:34:45	e8e0c6c4-12ec-46a2-84b9-cdc0bbf8bc7c	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:34:45	a4eaef4d-77cc-4f9c-950d-1906f9cbd1fe	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:34:46	2dc14387-1850-43a2-9210-585a6e380059	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:34:46	864745a8-586d-4d96-b3c7-3bac5a7cb822	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:35:07	5c07bb8d-8651-4f02-a0e2-6b99871696a6	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:35:07	b4999e4e-524b-4e63-a655-e9b6bc8d1c67	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:35:08	e20c9f74-766c-49fb-b957-8dae6afaec5d	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:35:08	b8de72e1-d3a6-479a-8772-557a2a428cf8	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:35:20	bae8f558-0eac-40da-8c2c-639d709c38ed	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:35:20	b422116a-b1d0-41b0-9038-a16d34b7359f	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:35:21	5d08f98c-304a-4746-8a50-6437fbdcf7ed	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:35:21	86a6a2fd-835b-4931-9643-8a9dae39fca7	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:36:58	d7e7e5be-5c04-4841-8f9b-6d72232431e2	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:36:58	47f3490c-953b-490f-8cff-9085b04f7880	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:36:59	8097d812-94ae-4821-99fc-e5851a7f07f8	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:36:59	067f5690-0a45-432f-9810-a41394972476	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:37:12	6e47f155-6ea5-4e16-adfe-75edef262909	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:37:12	a9749009-78e6-4d6e-8f78-871ecd8d2f39	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:37:13	5ac980fe-a9a3-4fbb-9056-012f2198d037	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:37:13	c1e4e7b1-f3db-40bb-ae9e-008f9cdd0cb9	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:37:30	be1e3942-25ab-43c7-a0b7-5c3b46abbe17	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:37:30	91affaa6-214e-49ad-8b7b-1c911b39223a	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:37:31	16a9a1bf-9965-41e6-ba63-b62d1d50b023	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:37:31	9986d727-ab06-47e0-bb7b-17490d381206	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:37:44	7231058d-3918-42de-b720-5131e20cf5dd	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:37:44	62c97c29-9954-4b4e-a072-47e1ab294882	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:37:45	01545451-3a36-4c03-9c1a-a6a0d077f950	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:37:45	ea454881-a723-4c28-99a6-cbcd6a40c3c9	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:38:30	72a640f4-139c-449c-9485-9cccdb3de88b	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:38:31	ed1234b9-2a24-4e1c-b55a-3b41eefe77c3	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:38:31	7e01f107-ceaf-4246-bdde-fa979a9a466b	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:38:31	ab3a4226-55b2-45e4-a2e5-6cbb56f0f5b5	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:38:32	b12e0610-3f51-442f-9809-ce338a521cd3	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:38:32	bb90c41b-0626-4bca-999b-5705b6f20dbe	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:38:46	ef9c299c-812e-4ba5-a510-4e09f15db5aa	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:38:46	1ee4449d-6d37-481a-bb30-59557a2bc62e	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:38:46	335a7130-0444-4afa-ad05-56c305fc2398	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:38:47	3140247e-0ed6-49df-a233-6a7842215ab2	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:38:47	d90dc884-8e4a-4742-b13f-3f047d5d8b9d	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:38:47	b627cc38-c763-4dff-a69f-9dbf3780400b	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:48:28	1bfc70a2-fab5-4f27-9135-6e16e986f986	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:48:28	1939dfc1-0df3-4012-a689-4947a8c974f1	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:48:28	4db410a3-743e-4c1c-995d-23457019a4f8	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:48:29	1fb22d91-3da1-447d-829f-e94e4a32e862	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:48:29	16dcfab7-b35a-4d0b-82fb-a00658e1ced6	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:48:29	b9558cb1-67dd-499c-a500-442f0e81fd16	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:50:44	c31d4365-6ef6-4ed5-85e9-af650e154dde	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:50:44	aa27e56f-f78a-460f-98d7-16ac0ce43e4b	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:50:45	5a2af6cd-5e38-43b1-a749-3274b56c5754	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:50:45	aeb055d4-b444-4609-9022-1d370cdefab7	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:51:07	2af59eff-81eb-4983-a549-9be0352f71e4	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:51:07	07dcd1d5-02f3-4901-86e6-a8e4c83342b4	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:51:08	b649266f-a353-4331-a819-4d33f11257a9	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:51:08	ee33c3b3-56d6-44ae-878d-fe8553c7e5b2	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:51:31	23d9860e-e59d-4111-9587-7cba7a904c56	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:51:31	0d5bfc29-1618-49b9-a09a-20bd382ab978	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:51:32	f147eec0-e482-4706-8d32-ebe815d3498e	UnauthorizedError: Missing Supabase Bearer token
+20260108	10:51:32	846609fc-9a0e-4ab4-b886-5e93b22c554b	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:01:57	544f0a8b-37d1-4d00-ba98-11f06b63cce2	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:01:57	a982e86f-4a3e-492b-a122-881b13d33d94	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:01:58	9d51b87d-7bcb-45a7-b6ee-edd45852fce4	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:01:59	3c907e6c-b4dc-48fc-8a63-953130c29fd8	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:01:59	eb085e8d-1fab-4b0a-8a59-5b4a961cda52	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:01:59	8d089843-9cf0-42ef-90a1-73206b8c5258	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:04:08	a6de36bd-4b03-4391-a891-aee90b57a421	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:04:08	da120724-bdca-4f45-97f4-52874207cddb	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:04:08	a27ae29f-f7f9-4a6f-9b03-602d2c74bdb0	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:04:09	e5e81973-cd8a-469d-9f32-873fae66738c	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:04:09	038d3b7b-0053-4b19-a7ee-dc061d8c9cc2	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:04:09	791f3a98-3986-43f3-aa94-8f4858c58ac1	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:06:24	63b1875f-4536-4365-ab93-64844db56e96	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:06:25	d944bb1f-9905-4143-8d64-f44c0c23b1b5	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:17:25	166b85a0-9278-4dc5-9bb9-14bc82849a51	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:17:25	9029c2d1-dec3-4f3b-a29c-2120d3d46abb	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:17:25	abd339e4-9f01-42dc-bb56-5412ca27a055	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:17:26	90c04b07-c5d2-4b6f-8ed8-aa06383cf55a	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:17:26	708963f2-b396-42ad-9606-73ce8d85f0a0	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:17:26	f03ac77b-520b-4d08-9cb8-f9506e4f416b	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:19:38	9180e6a1-bb40-4a00-9e77-f1abab49339f	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:19:38	286cd2ec-d75e-4fb6-a910-17f1cf9957d3	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:19:38	1c627664-75f2-41f7-b07a-7eb3b94d6494	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:19:39	2bc729af-dad6-42d4-aa6f-840b6fbcd8db	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:19:39	1aca24cd-356d-46bf-b73d-8a13e015130f	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:19:39	852e2453-4674-400b-9624-3ec1720f8f61	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:26:15	2668e76c-16b0-4e71-a797-236bd5abebc6	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:26:16	c6c31b2e-ebbe-424f-b0c6-e07d3efba38b	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:26:24	3913e53a-9af2-44d3-a72b-749455a7bdcc	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:26:25	c250fb44-a77a-42f5-b7bb-5ffc00a8ad60	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:26:32	90c94108-68a7-455b-9843-e68106f02e50	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:26:33	2430f945-b489-492c-80df-c6c30d2e5c6b	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:28:04	a62e6015-e5fa-4fe2-859a-0e1a5fb55341	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:28:04	724db92e-2cfe-4bdb-9ba1-676ee8f8733a	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:28:04	284d408b-fd8a-4e8c-a9a0-4ba0712f4957	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:28:05	46219834-4289-4eb3-be90-86d8b6fabf8d	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:28:05	ba316760-2d31-4e4b-a25a-a43b36205bf6	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:28:05	8078b7c7-a9bb-45b8-9321-2eecd6332724	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:32:11	5769dbb2-9db9-48f2-97f2-3c0d5d463740	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:32:11	48b26c04-e67a-4bad-bd52-ba309a4b56db	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:32:11	7b6c9595-1a23-4f8f-bbc7-58c287107127	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:32:12	19ea9ba0-0266-40bc-82b4-f7150713aa05	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:32:12	94738dd5-0dcb-41e7-b24f-ef654ae2743d	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:32:12	e54e777f-acee-4438-9e3a-27e34486014d	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:34:20	53d534c5-f762-4e99-864f-40cc0a67e6c6	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:34:20	6a236368-7a0a-4ec0-a817-87cd0199a2c7	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:34:21	7d09104a-ba26-410f-a2c0-eafd83948dec	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:34:21	b85601ba-cefc-49b2-9cfc-25ba9b4bfecb	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:34:24	b0bbc510-e23d-4739-93dd-17be7b5382c4	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:34:24	b11e938c-52e5-47de-b7ab-f5a81749bf28	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:34:24	43b72c78-0dc3-4c02-91cc-39177ca963a1	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:34:25	621b19b5-0850-4d82-bae9-214965114e74	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:34:25	817e651b-f275-42e9-b90c-dc99df3aa1e0	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:34:25	dc100228-05c0-4730-8d7c-84583a3fa6e7	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:35:28	0a6f4318-3b0d-4cea-9c87-22dd0609a94e	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:35:28	3f8f14ab-7731-4812-a125-32c8b3f615c4	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:35:28	db2c97e6-6074-4cd0-b430-9a308d1dd3d1	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:35:29	7ce8e0cf-b9a6-49f4-9434-535fd78cf26e	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:35:29	7a62c15a-3493-45ed-8c1f-4cf443dbd298	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:35:29	12e4a440-2d7c-42bf-861f-acba74c736ab	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:35:38	0b960e83-d2d6-4b4c-8b4a-07f12abb1b95	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:35:38	883d77d8-eea0-42c0-8518-3bc6403b1562	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:35:39	eb39012e-10d8-4a0c-926e-585c5afee1ec	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:35:39	cffe853b-40c8-496c-9e2d-0f79c9ca745f	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:17	04a4513f-dfe5-4c89-89ab-68136918a2a6	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:17	057d5262-b24f-4ed7-b7dd-13e6937069e6	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:18	8a0fca8a-ca63-46cd-b603-4725d173cbf1	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:18	3c65be0f-c6e2-4a45-82fd-470406bf98fe	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:46	ff2fd3d9-ea43-4e2f-83ca-ee0f8924e664	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:46	50794474-9078-435d-98a8-76aafc9f965b	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:47	c368bfa5-b3d3-4612-8f3a-326163ae9b17	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:47	d5b4785e-6c24-4c31-8312-8b9cabed6520	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:51	8d50a81e-402f-40b1-8c84-e1daacb08e2f	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:51	64e5f7b3-064e-4a8f-b8a3-f84a6562554e	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:52	0db4c5cf-e8e3-4de4-b53b-f12ac90d7d83	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:52	f760b6ae-999a-4c3b-8bdc-a93bf4bdc88c	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:55	7902134a-594a-4c1b-8f28-fe2d160d6140	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:55	64be7d5c-0642-492f-b0ab-1b6eff1d735e	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:56	bdd73dd9-6c15-445a-9a88-fc2e9f0f52cc	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:56	f65d2eb9-64b9-4a63-84da-33923ff26f57	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:59	4d38e95c-7060-4cdf-9597-98ef85b5b0bd	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:36:59	0cdd9a29-fe7d-4aed-bec6-93ce085d6702	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:00	a9c107b9-28fe-43b5-a952-fb6c650b1556	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:00	cc31dd33-0e4f-47ce-ae13-8703bf2afb69	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:03	3c3b69e7-e841-46e7-833a-10839bac5720	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:03	380826d8-5e9f-43df-8fba-1e03dfd4ff0c	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:04	41e73366-77d5-4587-9ee3-3bd6577a3705	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:04	d31ddb9f-8548-44e5-8aaa-627c38bffdff	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:18	2b19170a-f75c-48e8-b93e-a615ffce64d0	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:18	b9ab66a5-6e84-4dbb-9ea4-f8e86e24388e	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:19	ca696f54-9a58-434a-9553-eeb9e43e8911	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:19	6c3c0a5f-fb0a-48c8-9123-8b4d9e2b0ad3	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:30	f12b5898-e79c-43d0-aa48-909377bcd9e6	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:30	a9a4e810-c316-4474-90cc-922408b64949	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:31	1a417f36-ee0c-4827-a6a4-1df8a2c62d2d	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:31	e2dc2d20-2ce5-440e-b701-5f7befb57927	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:49	8221c645-ab47-499a-a032-78697a664cb4	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:49	e0697eba-de62-478e-b226-e1658463dec0	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:50	d8c9b0ba-cd97-4c31-9793-580a39563541	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:37:50	8df08714-94e2-451f-abaa-4293bd838a48	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:04	5742f258-c305-45df-804f-44c9c1306983	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:04	b5cd78dc-a7b6-498e-a03c-ffd03bea079f	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:04	2c04a684-94ba-413a-b43b-66c7240aea39	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:05	2a612cdc-6d2f-4a25-816c-e7e8cd7e3c1a	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:05	de6bb92b-33d2-4096-bc1d-be1c8634d37e	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:05	0ee81d23-6531-4172-ad38-4462b18c6665	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:14	e5b0b832-105f-4ccb-b478-1545475cad4a	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:14	880e13bc-d9b0-455e-8ab0-301a1aabeaf3	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:15	93f80b48-f8be-435b-9a5f-e08aa903a88f	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:15	18b1fb99-ea86-44ac-84bf-36400b4135e2	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:16	f2f6e366-19c5-42d4-8b28-e091f6cb2739	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:27	0b5dc292-1804-4899-b9bf-4169c0f07f34	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:27	2eefee75-717b-47af-8481-3e06e8d7a84f	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:27	27bcc0d3-40eb-4ece-8b7e-9b7714a38ba1	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:28	84bd8493-fb36-4703-b62d-e61518f31686	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:28	3f033692-461c-4565-b83c-50db0e872e74	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:38:28	e82aa26b-75c7-4c1b-afb7-1f537ea49b1f	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:40:19	bf86d9e4-8b71-4819-af91-d23bad452e25	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:40:19	5208cf75-9521-4d77-bc9e-42bd9fc52852	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:40:19	13f68f92-06ce-4343-bc33-dcaa2f7cc65e	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:40:20	b5a43692-abae-46eb-9270-1138957a5345	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:40:20	e0fdb15f-2eb6-42c0-b34d-b855cba3fd06	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:40:20	ef94b45f-24db-493b-91fd-71bca8cbaf66	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:06	159820e8-c2be-4b17-9d55-83e75171922d	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:06	616b0608-0683-4ef5-a034-e0539920ee60	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:06	12b9a538-faa1-47ec-90e0-fe540e20f07b	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:07	c91fdf8f-57a6-430d-9fad-8973b1b888a1	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:08	5c41c6ca-194a-4c95-8b69-b51d49d709f9	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:08	a3401d2a-20f3-438b-b6ba-e20ae5752192	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:45	5d64368e-86f1-4f1b-b62c-85f2c280277a	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:45	8a768621-6122-4516-a543-f716ac43cae8	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:45	630f1524-c567-492c-954b-62bc427571c1	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:46	e9f1faee-39a2-4ecf-a25c-8217c1293e89	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:46	e9b21acd-42ad-4bab-b32c-68ff29c072b3	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:46	4c34f3c7-7ae3-4d87-9768-063a173ef6a5	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:47	8649c6a0-a5fd-4936-85c1-13213d89da86	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:57	0cf6f209-f897-47fa-b796-9eba2b2d8c62	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:57	d468f177-b27f-4b61-bd12-9d10e136d632	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:57	920baf66-bce9-44bf-9cc4-ee1f7eac8bcf	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:58	0b3d5d12-bf20-4c3c-9d16-d2ef6d262b6c	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:58	c078277c-acf5-4bc0-a9c8-8267f48e8cff	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:41:58	32b37737-9cf9-4fec-b56f-f964207eecfd	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:42:00	244e58ed-f607-4666-82c1-81ae75bd3820	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:42:01	8c926388-cc16-4b31-b0c6-3241c1ef1c8b	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:42:14	c624306d-4e59-4984-9328-1e1c418fc08a	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:42:14	a789728c-cd61-49a8-9f3b-56f37ab60b18	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:42:14	73600a63-6076-4184-9e92-ca294c7683b4	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:42:15	d47bac71-96bd-43a1-b3b9-cae8ef893bd6	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:42:16	3d320c77-6845-4108-9983-64db860aa45b	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:42:16	adc0bc7f-4215-4072-8303-5d5b19a2f19a	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:42:17	f28a63c2-0768-454c-a99f-7a00294a9531	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:42:18	2198bdc4-3929-4ab7-b9a5-0c2a582f1edb	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:43:11	b640189b-21fd-4f45-a3b0-e3cc71f6b19d	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:43:11	9ee5b4f7-f3a4-4a35-91a2-43b297ecb235	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:43:11	74d87037-af8e-4b50-ae10-9d12d5d4a8cf	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:43:12	c3bda22c-f6b8-432a-befd-f1f8a2fc3b0a	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:43:12	f2019d57-6d0c-4da5-b55c-e51425d55184	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:43:12	9f6c53db-0596-4aab-ab01-52c604a271f8	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:44:19	6b83cad3-62fe-4458-8167-f8eaf98e5bf3	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:44:20	aeebcf63-6acc-4ceb-b506-3d5137856641	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:44:43	f64891dc-e401-4f07-8f92-a38c5a2b028a	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:44:44	a620b361-317f-4af6-a4f0-4504fa035574	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:44:50	a0f16e86-8d62-499b-9fab-4a59f472a199	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:44:51	ff98b378-d4f8-48d3-8fe0-0b90d0007dee	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:44:55	e9ab6d6f-14b7-478e-8d79-77a5dc2aabf1	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:44:56	7a4911c5-c984-40b9-b755-895c39a61b0d	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:45:03	0171dedc-72e5-4f1d-8e8d-a7a26d61627d	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:45:04	7f3ec251-5610-4d26-a4d2-9b6e59136001	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:45:10	21e0970c-3986-4305-b646-dc3df276cd24	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:45:11	ee0d71e6-1d18-4dcf-8969-a6ad59cb18f6	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:45:14	9f1ca26d-4b79-45fc-909f-a1c03e26635a	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:45:15	dcf7bcee-faaa-4c41-83ef-088ff8882426	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:48:10	6a5a9ebc-3b23-4f9a-9fca-5e11eb0fcccb	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:48:10	e82f531a-3d73-4fd6-94d9-f2d49ea7b312	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:48:10	72127aaf-98e4-4f02-8a54-209bfdd74f9d	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:48:11	c5db4cb8-78be-4496-aff0-7b95a2ba0658	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:48:12	1cd80a8d-f7d8-4f84-86fa-975e785eefb8	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:48:12	f08a274b-8d52-448e-9d85-04805846256f	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:34	70d6a124-3f8c-422d-9740-d535592aff78	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:34	662ded6f-1a3d-4de2-a69c-6e3776b53a4d	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:35	c15180da-cb58-45e9-817e-d70aa68d0eff	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:36	b28cb94a-12ea-4a07-8569-b6aa0fec3176	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:36	1d88589e-2001-4b4f-8a2e-25b4b7793145	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:37	46f3ea6f-86e5-42b5-a8c7-86607c4054d8	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:37	dce20f96-4327-42d7-a98c-f68f8ad4b6de	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:37	4dba46bd-1649-46a0-affd-f4a0ffef8dea	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:37	eaeedd0d-22a6-4c96-876f-00e1901a2f29	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:40	5c46846d-1924-4b91-ad3f-ff56f5fe906c	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:40	98a020d7-691a-4911-a569-16b930090fab	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:40	16aaa076-14b6-43ea-8e11-643f2561c906	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:41	e0fc5c89-da07-4dc0-9392-b40099962103	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:41	2accb891-870e-40e2-ac0e-c05f2ed13194	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:41	f3ba5d57-792e-4657-a094-4f9e0c108598	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:42	c1fcd541-c744-4097-9668-bb87adca896d	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:43	ca5a859c-19b7-4319-880a-dd11fd51007f	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:44	8a726fe9-9047-4247-b8e1-87960fc44cff	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:45	db217568-2dbf-4219-835d-629fd747e823	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:46	37a6f16d-755a-4b68-ab00-3ba8657d6da3	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:47	e99af29d-ff45-426c-84b9-023bb1fda546	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:48	8bd1867b-438a-42be-9fcf-504461451e0d	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:48	344edde4-a9a7-40d0-bf5f-ef0327b4deca	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:49	860c0abc-d389-435c-a506-8dda6b8e4c28	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:51	de4776d8-2e9a-4159-83c6-5250cbc17248	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:51	66727318-2971-4d3e-8f90-e72fd7dedf12	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:52	20a4fe5c-a3e7-4555-a32e-d59d5c952d6c	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:54	39d3d41a-b763-45ee-a40a-04df3181e17e	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:54	0e92c5a4-8a6c-478a-ba67-a955580c137c	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:55	afb8fe48-302a-4dec-aec8-f6dffb4ddfe8	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:56	60160c28-6878-42db-b281-794a40138f81	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:56	f061ae06-9105-4686-a7a5-8a887d04de26	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:57	a9a6c9f2-208c-473a-957c-866f2cc61c86	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:57	4eb46a4f-062b-46c6-a2c5-279902762d58	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:57	2abd7ef6-a600-4580-9683-45ef35993eea	UnauthorizedError: Missing Supabase Bearer token
+20260108	11:59:59	cb930c5f-b13c-4c1a-9e59-2698dab25ba0	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:00:07	f4f3d2f8-c6d7-463b-8ee4-477a99438c54	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:00:07	e5eaf4a8-611b-4e76-b592-fa856a42cea5	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:00:08	edbae719-f3ff-4eb8-8ccc-5e18a25938dc	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:00:41	e133d297-b9bc-422d-8954-1086cac9534d	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:00:41	fc6d3090-3ccb-49c8-b7f7-9fe0427d31cf	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:00:41	b45a4911-fcfb-46f0-a63e-5bec95d5b5fb	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:00:42	9e136462-1e97-409b-8831-93e9482ff989	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:00:42	e9ec03e1-a543-4ab5-91e0-17c3df46098e	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:00:42	ae9032f6-e201-427f-ac0e-5779261142f4	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:00:52	88b81866-f7e3-4f42-bdcd-b4b7d489e444	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:00:52	a9c849a0-5607-4b93-85a4-17f0bdfd39f6	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:00:52	8c32ba9d-3826-4e8d-bccc-044728de5ead	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:00:53	21be4209-ba40-402a-85aa-d0d85cc6d5e9	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:00:53	9cc8645b-6c42-4d60-9692-7f2ec983031f	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:00:53	7dbf141a-b8f1-4ebf-8861-1d2cc985629f	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:02	1fd57050-c2d7-4bb6-8b0e-6d97ee30ba30	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:02	5cadbdf5-0049-4e6e-a6d3-b488c18312f8	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:02	b496f473-233a-461d-9d90-ea663a03c444	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:03	ce462f2b-5542-406a-9a40-9bcd14c1977f	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:03	8bf118fe-fe7c-47ed-b84b-756ef3db9da0	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:03	c48876cb-4171-4e64-92ef-ceb066a38a2b	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:26	d331cf20-8501-4d4f-ba24-6cd5f3e0f9b7	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:26	1e2cfab9-d5f8-44f3-a9ad-4b413998b651	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:26	ef2df421-e548-41ff-bc68-3cd82c52c911	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:27	1620a94d-d89a-4783-8669-a623a81f1af8	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:27	0cbc127d-5ff3-4b41-940d-67010cdfd456	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:27	3128e8cf-223a-403b-8203-b9575d7acbec	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:36	61cbbf3d-b2dc-407c-a7d6-94a19cc6921e	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:36	36acc0a8-8b95-428b-ac2a-ee08cf5fa863	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:36	9fd91ca1-6fce-4197-95c3-6aab1e305b50	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:37	e6e7ffab-4cd5-4860-a509-0427592505d8	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:37	3b4ec267-391c-4cd9-8131-3333d3834da2	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:37	b69e0987-b576-4afa-9ea3-2f6182969423	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:44	1b4399c6-778d-4075-8218-380d24ea3d60	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:44	1cb2a25b-6576-4c01-9d3b-9d9ed6bf80bd	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:44	567c6d92-e2b5-45e1-b416-f16dca637eba	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:45	d82335e4-07bc-4411-8768-bfd481cb7aee	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:45	065bf7a9-4a96-4a18-a366-df12fe24d427	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:02:45	492e50b2-be5d-48db-818c-405b355ac532	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:03:52	6b98f19e-a072-40c1-830b-62cf59d5dc69	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:03:52	555bbd0d-dd3b-4646-aa83-f607b3c51123	UnauthorizedError: Missing Supabase Bearer token
+20260108	12:03:52	12dfaa65-eca1-4094-9095-1248b40db322	UnauthorizedError: Missing Supabase Bearer token
+20260118	14:32:36	c4322181-5480-4a58-94e3-e28bf10ebe81	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:32:36	c06ac796-73df-4c57-8c7f-9dc494cce21d	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:32:36	4b40fb46-1db2-4982-bbcf-832bdfc57001	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:32:36	d39f8ec8-d9bf-46e6-9deb-38e688c6faec	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:32:49	8bb4914d-cf2e-41ea-8af6-2f6bfc66cd38	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:32:49	6acb160e-da9e-4b71-8b99-f0ba56fdbf4c	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:19	4bfe6a20-cc64-4617-bdf7-b83e8615253c	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:19	912315dd-9c96-4128-9064-47c921b41fab	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:19	6a57c215-1a55-47f1-b325-41b4c0e2caf5	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:19	d2d7be1a-d124-434c-8684-480bf5271849	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:19	dc7f545c-b39c-4b84-b63b-f466a8c3fbe9	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:19	316df621-ef61-4598-b57b-f9ee5d2205a5	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:26	5b5e8ea8-dba6-465a-9c09-bf4b3f4e105e	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:26	9507719b-ad74-4686-9e36-86e31a3ae8ae	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:26	4c98b139-6838-4e1d-b925-f9eff8ddd89d	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:26	610d280a-7874-48b7-9443-4a0230e7660a	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:26	cbb2fb4e-3a31-474a-b662-f6fde794fcc4	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:26	30f50678-4410-4d71-83e1-a61af4946eda	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:30	b4bec5dd-0eb9-4e43-8db0-ac09700e118a	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:31	8fc03463-7af6-4777-abc2-b1891d03443f	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:31	c30f2150-44d3-46fe-87b3-38b9792b033a	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:31	d691e2b7-5dd0-4bb2-9063-75de9f0581e8	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:31	7e1dfd54-06cb-4676-865d-452d22db1bb8	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:31	9c1cea4b-e307-482b-89ca-13dd3e1ed010	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:57	61c5b890-d901-462d-901c-825d7a98cafe	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:57	2411e27d-bbee-47b8-a780-02b9521039b9	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:57	116e9418-73f9-4157-89c4-9d1b48b839b1	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:57	8ec388d5-f4c7-45ba-95e4-e348df9b3150	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:57	7bc99555-b858-4bd3-b9cd-f618728b5e8e	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:33:57	aa4e5229-c933-4655-a8ce-e438883d763c	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:34:37	4c16e378-3571-455b-b40e-6a82e1a09ba1	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:34:37	83058a28-801d-45f0-be8b-1ca4dd9cb6af	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:34:37	3dce0797-e030-4ea7-a30f-ced6afb488b5	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:34:37	6b63ca8c-9309-4005-89ef-ccc4ce546a0b	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:34:37	d154e14e-25e8-4e1b-bf96-fa59dc508757	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:34:37	80ba20ce-453e-4bb8-aa2d-d3bc6af8529c	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:49:43	03c6d104-9b89-41e4-b6a2-400751b9866c	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:49:44	2659e3ad-02cb-4ad8-9a63-973d530ffa48	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:49:44	28517bfc-af73-4d51-82aa-a7a05cafc287	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:49:44	58622cc7-9b69-4e98-bfd0-7db1dc431fba	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:49:44	51de2fea-8d8f-4fe8-88c8-5424cdfa8534	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:49:44	2ea19ced-549e-4c26-8d42-5cc79965480f	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:49:50	6ed43be9-1cea-4765-9b51-f0bbe6684580	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:49:50	6345293f-45f7-46c6-9ca2-485bedb5f833	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:13	20911736-7c6d-407c-985e-b44736f356bf	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:13	b412a1ac-8f3d-45d6-b411-265635911f96	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:13	d5e8d829-c664-4e0c-bfdb-00128fcac85b	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:13	80f50746-75d7-4f61-88e5-752634a5aac2	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:13	1bffe1c8-6600-4e04-8c4a-9dbd3bbcd35c	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:13	b48d0b38-5e4c-4948-8cd7-6cdd2f895565	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:25	c232b0d4-5e9c-416f-80c8-01457f9787ff	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:25	bca0dacb-7d58-4917-9ef2-0889ae92efbc	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:25	60b5a37a-7077-4844-8ec8-bb9ba3a6df3c	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:25	d24a0890-1b78-4edb-b98e-4fa21ca9331d	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:25	6c7b15c9-63ea-4daf-87a9-fe1513670da8	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:25	98f8d1be-026f-446b-b0c1-b5b8d5e29cdf	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:29	e9a428ed-66cc-400b-8f2b-3a32ee93f600	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:29	98577a7c-8a47-4d1b-a46e-568dea3961b9	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:42	e8098268-66e2-48e3-99c3-c55384b2bdec	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:42	9bd65f03-1d15-4d19-818b-270faf31cc5f	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:42	c1334922-da00-44f8-8ec1-6364315e624c	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:42	5309f13e-cc50-4d9f-9eae-297e77a9eda6	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:42	69b4ead1-c5c8-4532-9f28-228948886b84	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:42	4f72bcdf-5302-4c26-9f0f-ebfcc6321ce3	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:58	663e5129-bad7-4a81-aee1-de90f79319f0	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:50:58	59336896-dd98-4f8e-85a1-ff2f15ff2ba1	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:51:17	8bbf6182-c1e0-466a-b799-2afc61e0bff3	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:51:17	52710f1f-4550-4529-9eb8-0383b5e1076a	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:51:17	d5feb5e1-a53c-438d-a47a-17835fe04c15	UnauthorizedError: Invalid or expired Supabase token
+20260118	14:51:17	46c5c80e-7aca-4bd6-8a6b-e27a3e6f76c3	UnauthorizedError: Invalid or expired Supabase token

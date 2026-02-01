@@ -15,16 +15,17 @@
  * getAllowedReferrers() // returns ['localhost:3000', 'example.com', 'agency-site.com']
  */
 export function getAllowedReferrers() {
-  const allowedReferrers = process.env.ALLOWED_REFERRERS;
+    const allowedReferrers = process.env.ALLOWED_REFERRERS
+    console.log("allowedReferrers:", allowedReferrers)
 
-  // Return empty array if not configured
-  if (!allowedReferrers || allowedReferrers.trim() === '') {
-    return [];
-  }
+    // Return empty array if not configured
+    if (!allowedReferrers || allowedReferrers.trim() === "") {
+        return []
+    }
 
-  // Split by comma, trim whitespace from each entry, and filter out empty strings
-  return allowedReferrers
-    .split(',')
-    .map((referrer) => referrer.trim())
-    .filter((referrer) => referrer.length > 0);
+    // Split by comma, trim whitespace from each entry, and filter out empty strings
+    return allowedReferrers
+        .split(",")
+        .map(referrer => referrer.trim())
+        .filter(referrer => referrer.length > 0)
 }

@@ -6,7 +6,7 @@ import {
 } from "#services/users/users_searches.service.js"
 
 /**
- * Controller to create a new client search
+ * Controller to get user searches with pagination
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
  * @param {import('express').NextFunction} next - Express next function
@@ -14,7 +14,7 @@ import {
  */
 export const getUserSearchesController = asyncHandler(async (req, res) => {
     const userId = req.params.id
-    const result = await getUserSearchesService(userId)
+    const result = await getUserSearchesService(userId, req.query)
     return res.status(result.code).json(result)
 })
 
