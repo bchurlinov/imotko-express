@@ -55,6 +55,11 @@ async function _getAgencyByReferer(referer) {
             phone: true,
             websiteSettings: true,
             testimonials: true,
+            partners: {
+                orderBy: {
+                    sortOrder: "asc",
+                },
+            },
         },
     })
 }

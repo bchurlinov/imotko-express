@@ -14,6 +14,7 @@ export const ALLOWED_AGENCY_FIELDS = [
     "phone",
     "websiteSettings",
     "testimonials",
+    "partners",
 ]
 
 /**

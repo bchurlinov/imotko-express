@@ -51,6 +51,7 @@ model Agency {
   AgencySubmissionReview AgencySubmissionReview?
   websiteSettings        AgencyWebsiteSettings?
   testimonials           AgencyTestimonial[]
+  partners               AgencyPartner[]
   //
   ownerId                String?                 @unique
   agencyOwner            User?                   @relation("AgencyOwner", fields: [ownerId], references: [id])
@@ -282,4 +283,19 @@ model AgencyTestimonial {
   updatedAt   DateTime @updatedAt @db.Timestamptz(3)
 
   @@index([agencyId])
+}
+
+model AgencyPartner {
+  id        String   @id @default(cuid())
+  agencyId  String
+  agency    Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  name      String
+  image     Json?
+  url       String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([agencyId])
+  @@index([sortOrder])
 }

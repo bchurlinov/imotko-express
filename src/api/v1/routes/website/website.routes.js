@@ -9,9 +9,17 @@ import {
     getWebsiteAgencyPropertiesController,
     postAgencyContactController,
 } from "#controllers/website/website.controller.js"
+import {
+    getWebsitePartnersController,
+    createWebsitePartnerController,
+    updateWebsitePartnerController,
+    deleteWebsitePartnerController,
+    reorderWebsitePartnersController,
+} from "#controllers/website/partners.controller.js"
 import { domainRateLimit } from "#middlewares/domainRateLimit.js"
 import { attachAgencyFromReferer } from "#middlewares/agencyFromReferer.js"
 import { validateRequest } from "#middlewares/validate_request.js"
+import { verifySupabaseToken } from "#middlewares/verifySupabaseToken.js"
 
 const router = Router()
 
@@ -90,6 +98,55 @@ router.post(
     validateRequest,
     attachAgencyFromReferer,
     postAgencyContactController
+)
+
+// Partner management routes
+router.get("/partners", domainRateLimit, attachAgencyFromReferer, getWebsitePartnersController)
+
+router.post(
+    "/partners",
+    [
+        body("name").trim().notEmpty().withMessage("Partner name is required"),
+        body("image").optional().isObject().withMessage("Image must be a JSON object"),
+        body("url").optional().isURL().withMessage("Invalid URL format"),
+        body("sortOrder").optional().isInt({ min: 0 }).withMessage("Sort order must be a non-negative integer"),
+    ],
+    domainRateLimit,
+    validateRequest,
+    attachAgencyFromReferer,
+    verifySupabaseToken,
+    createWebsitePartnerController
+)
+
+router.put(
+    "/partners/:partnerId",
+    [
+        body("name").optional().trim().notEmpty().withMessage("Partner name cannot be empty"),
+        body("image").optional().isObject().withMessage("Image must be a JSON object"),
+        body("url").optional().isURL().withMessage("Invalid URL format"),
+        body("sortOrder").optional().isInt({ min: 0 }).withMessage("Sort order must be a non-negative integer"),
+    ],
+    domainRateLimit,
+    validateRequest,
+    attachAgencyFromReferer,
+    verifySupabaseToken,
+    updateWebsitePartnerController
+)
+
+router.delete("/partners/:partnerId", domainRateLimit, attachAgencyFromReferer, verifySupabaseToken, deleteWebsitePartnerController)
+
+router.patch(
+    "/partners/reorder",
+    [
+        body("partners").isArray().withMessage("Partners must be an array"),
+        body("partners.*.id").isString().withMessage("Partner ID must be a string"),
+        body("partners.*.sortOrder").isInt({ min: 0 }).withMessage("Sort order must be a non-negative integer"),
+    ],
+    domainRateLimit,
+    validateRequest,
+    attachAgencyFromReferer,
+    verifySupabaseToken,
+    reorderWebsitePartnersController
 )
 
 export default router
