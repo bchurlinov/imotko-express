@@ -34,43 +34,35 @@ export const isPropertySort = value => PROPERTY_SORTS.includes(value)
  * @param {PrimitiveParam} locationParam
  * @returns {Promise<string[]>}
  */
-export const resolveLocationIds = async locationParam => {
-    const requestedLocations = stringValues(locationParam)
-    if (!requestedLocations.length) return []
+export const parseLocation = location => {
+    if (location.includes("-")) {
+        const [city, municipality] = location.split("-")
+        return { city, municipality }
+    } else {
+        return {
+            city: location,
+            municipality: null,
+        }
+    }
+}
 
-    const baseLocations = await prisma.propertyLocation.findMany({
-        where: {
-            OR: [
-                { id: { in: requestedLocations } },
-                {
-                    name: {
-                        in: requestedLocations,
-                        mode: "insensitive",
-                    },
-                },
-            ],
-        },
-        select: { id: true },
+export async function resolveLocationIds(locationName) {
+    const loc = parseLocation(locationName)
+    const location = await prisma.propertyLocation.findFirst({
+        where: { name: loc.municipality ?? loc.city },
     })
 
-    if (!baseLocations.length) return []
+    if (!location) return []
 
-    const discovered = new Set(baseLocations.map(location => location.id))
-    let frontier = [...discovered]
-
-    while (frontier.length) {
-        const children = await prisma.propertyLocation.findMany({
-            where: {
-                parentId: { in: frontier },
-            },
+    async function getAllLocationIds(locationId) {
+        const childLocations = await prisma.propertyLocation.findMany({
+            where: { parentId: locationId },
             select: { id: true },
         })
 
-        const newIds = children.map(child => child.id).filter(id => !discovered.has(id))
-        if (!newIds.length) break
-        newIds.forEach(id => discovered.add(id))
-        frontier = newIds
+        const childIds = childLocations.map(location => location.id)
+        return [locationId, ...childIds]
     }
 
-    return Array.from(discovered)
+    return getAllLocationIds(location.id)
 }
