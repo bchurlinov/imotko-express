@@ -68,8 +68,11 @@ const _getPropertiesService = async (params = {}) => {
     try {
         const locale = stringValue(params.locale) ?? DEFAULT_LOCALE
 
+        const includePending = booleanValue(params.includePending) && params.agency
         let filters = {
-            status: PropertyStatus.PUBLISHED,
+            status: includePending
+                ? { in: [PropertyStatus.PUBLISHED, PropertyStatus.PENDING] }
+                : PropertyStatus.PUBLISHED,
         }
 
         const andConditions = []
