@@ -44,7 +44,11 @@ async function _getAgencyByReferer(referer) {
     return prisma.agency.findUnique({
         where: { id: matchingAgencies[0].id },
         select: {
-            agencyMembers: true,
+            agencyMembers: {
+                include: {
+                    user: true,
+                },
+            },
             id: true,
             name: true,
             logo: true,
