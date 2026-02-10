@@ -234,7 +234,15 @@ export const _getPropertyService = async propertyId => {
     try {
         const property = await prisma.property.findUnique({
             where: { id: propertyId },
-            include: { agency: true, propertyLocation: true },
+            include: {
+                agency: true,
+                propertyLocation: true,
+                createdByMember: {
+                    include: {
+                        user: true,
+                    },
+                },
+            },
         })
         return {
             data: property,
