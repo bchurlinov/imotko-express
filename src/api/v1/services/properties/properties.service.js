@@ -197,7 +197,6 @@ const _getPropertiesService = async (params = {}) => {
             },
             omit: {
                 modifications: true,
-                externalId: true,
             },
             take: safeLimit,
             skip: (page - 1) * safeLimit,
