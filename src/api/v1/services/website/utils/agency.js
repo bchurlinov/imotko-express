@@ -45,6 +45,9 @@ async function _getAgencyByReferer(referer) {
         where: { id: matchingAgencies[0].id },
         select: {
             agencyMembers: {
+                orderBy: {
+                    updatedAt: "desc",
+                },
                 include: {
                     user: true,
                 },
