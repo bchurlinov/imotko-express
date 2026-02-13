@@ -1,6 +1,6 @@
 import { asyncHandler } from "#utils/helpers/async_handler.js"
 import { getPropertiesService } from "#services/properties/properties.service.js"
-import { postAgencyContactService } from "#services/website/website.service.js"
+import { postAgencyContactService, postAgencyAppraisalService } from "#services/website/website.service.js"
 
 /**
  * Controller to get agency website configuration based on referer header
@@ -65,5 +65,28 @@ export const postAgencyContactController = asyncHandler(async (req, res) => {
         message: "Contact form submitted successfully",
         data: null,
         // data: result.data,
+    })
+})
+
+/**
+ * Controller to handle agency property appraisal request
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>}
+ */
+export const postAgencyAppraisalController = asyncHandler(async (req, res) => {
+    const result = await postAgencyAppraisalService(req.body, req.agency)
+
+    if (!result.success) {
+        return res.status(result.error.code).json({
+            code: result.error.code,
+            message: result.error.message,
+        })
+    }
+
+    return res.status(200).json({
+        code: 200,
+        message: "Appraisal request submitted successfully",
+        data: null,
     })
 })

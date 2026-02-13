@@ -16,6 +16,7 @@ import {
     isDevelopmentBypass,
 } from "./utils/index.js"
 import { createContactEmailTemplate } from "./templates/contact_email_template.js"
+import { createAppraisalEmailTemplate } from "./templates/appraisal_email_template.js"
 
 /**
  * Main service function to get agency website configuration with full authorization
@@ -240,6 +241,100 @@ export async function postAgencyContactService(body, agency) {
             error: {
                 code: 500,
                 message: "Failed to send contact form email",
+            },
+        }
+    }
+}
+
+/**
+ * Service to handle agency property appraisal request and send email
+ * @param {Object} body - Form data from request body
+ * @param {string} body.name - Contact name
+ * @param {string} [body.email] - Contact email (optional)
+ * @param {string} body.phone - Contact phone
+ * @param {string} [body.message] - Message content (optional)
+ * @param {string} [body.location] - Property location (optional)
+ * @param {number} [body.price] - Expected price (optional)
+ * @param {string} [body.category] - Property category e.g. APARTMENT (optional)
+ * @param {string} [body.propertyType] - Property type e.g. flat (optional)
+ * @param {string} [body.helpWith] - What help is needed: selling, buying, renting (optional)
+ * @param {Object} agency - Agency data from middleware
+ * @returns {Promise<{success: boolean, data?: Object, error?: {code: number, message: string}}>}
+ */
+export async function postAgencyAppraisalService(body, agency) {
+    try {
+        if (!agency || !agency.email) {
+            return {
+                success: false,
+                error: {
+                    code: 400,
+                    message: "Agency email not found",
+                },
+            }
+        }
+
+        const { name, email, phone, message, location, price, category, propertyType, helpWith } = body
+
+        const htmlContent = createAppraisalEmailTemplate(
+            { name, email, phone, message, location, price, category, propertyType, helpWith },
+            agency
+        )
+
+        const emailSubject = `Барање за проценка на недвижност од ${name}`
+
+        const sendEmailCommand = new SendEmailCommand({
+            Source: process.env.IMOTKO_EMAIL || "contact@imotko.mk",
+            Destination: {
+                // ToAddresses: [agency.email],
+                ToAddresses: ["contact@bojanchurlinov.com"],
+            },
+            Message: {
+                Subject: {
+                    Data: emailSubject,
+                    Charset: "UTF-8",
+                },
+                Body: {
+                    Html: {
+                        Data: htmlContent,
+                        Charset: "UTF-8",
+                    },
+                    Text: {
+                        Data: `
+                            Барање за проценка на недвижност
+                            Име: ${name}
+                            ${email ? `Е-пошта: ${email}` : ""}
+                            Телефон: ${phone}
+                            ${helpWith ? `Потреба: ${helpWith}` : ""}
+                            ${location ? `Локација: ${location}` : ""}
+                            ${category ? `Категорија: ${category}` : ""}
+                            ${propertyType ? `Вид: ${propertyType}` : ""}
+                            ${price ? `Цена: ${price}` : ""}
+                            ${message ? `Порака: ${message}` : ""}
+                        Примено на: ${new Date().toLocaleString("en-US", { timeZone: "UTC" })} UTC
+                        `.trim(),
+                        Charset: "UTF-8",
+                    },
+                },
+            },
+            ReplyToAddresses: email ? [email] : undefined,
+        })
+
+        const response = await emailClient.send(sendEmailCommand)
+
+        return {
+            success: true,
+            data: {
+                messageId: response.MessageId,
+                sentTo: agency.email,
+            },
+        }
+    } catch (error) {
+        console.error("Error sending appraisal request email:", error)
+        return {
+            success: false,
+            error: {
+                code: 500,
+                message: "Failed to send appraisal request email",
             },
         }
     }

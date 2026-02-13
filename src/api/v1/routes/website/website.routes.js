@@ -8,6 +8,7 @@ import {
     agencyWebsiteConfigurationController,
     getWebsiteAgencyPropertiesController,
     postAgencyContactController,
+    postAgencyAppraisalController,
 } from "#controllers/website/website.controller.js"
 import {
     getWebsitePartnersController,
@@ -100,6 +101,30 @@ router.post(
     postAgencyContactController
 )
 
+router.post(
+    "/agency-appraisal",
+    [
+        body("name").trim().notEmpty().withMessage("Name is required"),
+        body("email").optional().isEmail().withMessage("Invalid email format").normalizeEmail(),
+        body("phone")
+            .trim()
+            .notEmpty()
+            .withMessage("Phone is required")
+            .matches(/^[\+]?[(]?[0-9]{1,4}[)]?[-\s]?[(]?[0-9]{1,4}[)]?[-\s]?[0-9]{1,9}$/)
+            .withMessage("Invalid phone number format"),
+        body("message").optional().trim(),
+        body("location").optional().trim(),
+        body("price").optional().isNumeric().withMessage("Price must be a number"),
+        body("category").optional().trim(),
+        body("propertyType").optional().trim(),
+        body("helpWith").optional().trim(),
+    ],
+    domainRateLimit,
+    validateRequest,
+    attachAgencyFromReferer,
+    postAgencyAppraisalController
+)
+
 // Partner management routes
 router.get("/partners", domainRateLimit, attachAgencyFromReferer, getWebsitePartnersController)
 
@@ -133,7 +158,13 @@ router.put(
     updateWebsitePartnerController
 )
 
-router.delete("/partners/:partnerId", domainRateLimit, attachAgencyFromReferer, verifySupabaseToken, deleteWebsitePartnerController)
+router.delete(
+    "/partners/:partnerId",
+    domainRateLimit,
+    attachAgencyFromReferer,
+    verifySupabaseToken,
+    deleteWebsitePartnerController
+)
 
 router.patch(
     "/partners/reorder",
