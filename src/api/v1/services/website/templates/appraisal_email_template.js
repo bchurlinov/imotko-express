@@ -33,8 +33,8 @@ export function createAppraisalEmailTemplate(data, agency) {
     const propertyRows = [
         helpWithLabel && { label: "Потреба", value: helpWithLabel },
         location && { label: "Локација", value: location },
-        category && { label: "Категорија", value: category },
-        propertyType && { label: "Вид", value: propertyType },
+        category && { label: "Поткатегорија", value: category },
+        propertyType && { label: "Категорија", value: propertyType },
         formattedPrice && { label: "Очекувана цена", value: formattedPrice },
     ].filter(Boolean)
 
@@ -87,13 +87,13 @@ export function createAppraisalEmailTemplate(data, agency) {
                                                text-transform:uppercase;color:#7b82a0;
                                                font-family:'Lato','Trebuchet MS',Verdana,Arial,sans-serif;
                                                mso-line-height-rule:exactly;line-height:16px;">
-                                        Ново барање
+                                        Нова порака
                                     </p>
                                     <h1 style="margin:0;font-size:26px;color:#ffffff;font-weight:700;
                                                letter-spacing:0.2px;
                                                font-family:'Lato','Trebuchet MS',Verdana,Arial,sans-serif;
                                                mso-line-height-rule:exactly;line-height:34px;">
-                                        Проценка на недвижност
+                                        Клиент ви испрати порака
                                     </h1>
                                 </td>
                                 <td align="right" valign="middle" style="padding-left:16px;white-space:nowrap;">
@@ -171,7 +171,9 @@ export function createAppraisalEmailTemplate(data, agency) {
                                         </tr>
                                     </table>
 
-                                    ${email ? `
+                                    ${
+                                        email
+                                            ? `
                                     <!-- Email -->
                                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                                         <tr>
@@ -192,7 +194,9 @@ export function createAppraisalEmailTemplate(data, agency) {
                                             </td>
                                         </tr>
                                     </table>
-                                    ` : ""}
+                                    `
+                                            : ""
+                                    }
                                 </td>
 
                                 <!-- ── Vertical divider (18px spacer + 1px line + 18px spacer) ── -->
@@ -205,10 +209,14 @@ export function createAppraisalEmailTemplate(data, agency) {
                                                text-transform:uppercase;color:#9ca3af;
                                                font-family:'Lato','Trebuchet MS',Verdana,Arial,sans-serif;
                                                mso-line-height-rule:exactly;line-height:14px;">
-                                        Детали за недвижноста
+                                        Детали
                                     </p>
 
-                                    ${propertyRows.length > 0 ? propertyRows.map(row => `
+                                    ${
+                                        propertyRows.length > 0
+                                            ? propertyRows
+                                                  .map(
+                                                      row => `
                                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
                                         style="margin-bottom:10px;">
                                         <tr>
@@ -228,17 +236,23 @@ export function createAppraisalEmailTemplate(data, agency) {
                                             </td>
                                         </tr>
                                     </table>
-                                    `).join("") : `
+                                    `
+                                                  )
+                                                  .join("")
+                                            : `
                                     <p style="font-size:15px;color:#9ca3af;font-style:italic;margin:0;
                                                font-family:'Lato','Trebuchet MS',Verdana,Arial,sans-serif;">
                                         Нема дополнителни детали
-                                    </p>`}
+                                    </p>`
+                                    }
                                 </td>
 
                             </tr>
                         </table>
 
-                        ${message ? `
+                        ${
+                            message
+                                ? `
                         <!-- ── Message ── -->
                         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
                             style="margin-top:24px;">
@@ -258,7 +272,9 @@ export function createAppraisalEmailTemplate(data, agency) {
                                 </td>
                             </tr>
                         </table>
-                        ` : ""}
+                        `
+                                : ""
+                        }
 
                     </td>
                 </tr>
@@ -276,7 +292,9 @@ export function createAppraisalEmailTemplate(data, agency) {
                                         Примено: ${receivedAt}
                                     </p>
                                 </td>
-                                ${agency?.name ? `
+                                ${
+                                    agency?.name
+                                        ? `
                                 <td align="right" valign="middle">
                                     <p style="margin:0;font-size:13px;color:#7b82a0;
                                                font-family:'Lato','Trebuchet MS',Verdana,Arial,sans-serif;
@@ -284,7 +302,9 @@ export function createAppraisalEmailTemplate(data, agency) {
                                         ${agency.name}
                                     </p>
                                 </td>
-                                ` : ""}
+                                `
+                                        : ""
+                                }
                             </tr>
                         </table>
                     </td>

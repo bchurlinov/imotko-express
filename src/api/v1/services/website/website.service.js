@@ -285,8 +285,8 @@ export async function postAgencyAppraisalService(body, agency) {
         const sendEmailCommand = new SendEmailCommand({
             Source: process.env.IMOTKO_EMAIL || "contact@imotko.mk",
             Destination: {
-                // ToAddresses: [agency.email],
-                ToAddresses: ["contact@bojanchurlinov.com"],
+                ToAddresses: [agency.email],
+                // ToAddresses: ["bchurlinov@gmail.com"],
             },
             Message: {
                 Subject: {
