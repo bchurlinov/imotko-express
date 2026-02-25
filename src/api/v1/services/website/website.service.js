@@ -280,7 +280,7 @@ export async function postAgencyAppraisalService(body, agency) {
             agency
         )
 
-        const emailSubject = `Барање за проценка на недвижност од ${name}`
+        const emailSubject = `Порака од ${name}`
 
         const sendEmailCommand = new SendEmailCommand({
             Source: process.env.IMOTKO_EMAIL || "contact@imotko.mk",

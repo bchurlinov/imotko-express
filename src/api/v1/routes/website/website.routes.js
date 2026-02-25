@@ -81,7 +81,7 @@ router.post(
     "/agency-contact",
     [
         body("name").trim().notEmpty().withMessage("Name is required"),
-        body("email").optional().isEmail().withMessage("Invalid email format").normalizeEmail(),
+        body("email").optional().trim(),
         body("phone")
             .trim()
             .notEmpty()
@@ -105,7 +105,7 @@ router.post(
     "/agency-appraisal",
     [
         body("name").trim().notEmpty().withMessage("Name is required"),
-        body("email").optional().isEmail().withMessage("Invalid email format").normalizeEmail(),
+        body("email").optional().trim(),
         body("phone")
             .trim()
             .notEmpty()
