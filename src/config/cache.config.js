@@ -6,10 +6,10 @@ import "dotenv/config"
  * @type {Object.<string, number>}
  */
 export const CACHE_TTL = {
-    getPropertiesService: parseInt(process.env.CACHE_TTL_GET_PROPERTIES_SERVICE) || 5 * 60 * 1000, // 5 minutes
-    getPropertyService: parseInt(process.env.CACHE_TTL_GET_PROPERTIES_SERVICE) || 5 * 60 * 1000, // 30 minutes
-    getAgencyByReferer: parseInt(process.env.CACHE_TTL_GET_AGENCY_BY_REFERER) || 5 * 60 * 1000, // 5 minutes
-    default: parseInt(process.env.CACHE_TTL_DEFAULT) || 5 * 60 * 1000, // 5 minutes
+    getPropertiesService: parseInt(process.env.CACHE_TTL_GET_PROPERTIES_SERVICE) || 3 * 60 * 1000, // 3 minutes
+    getPropertyService: parseInt(process.env.CACHE_TTL_GET_PROPERTIES_SERVICE) || 3 * 60 * 1000, // 3 minutes
+    getAgencyByReferer: parseInt(process.env.CACHE_TTL_GET_AGENCY_BY_REFERER) || 3 * 60 * 1000, // 3 minutes
+    default: parseInt(process.env.CACHE_TTL_DEFAULT) || 3 * 60 * 1000, // 3 minutes
 }
 
 /**
