@@ -1,6 +1,7 @@
 import prisma from "#database/client.js"
 import createError from "http-errors"
 import { calculatePagination, createPaginationResponse } from "#utils/pagination/index.js"
+import { PropertyLocationDictionary, PropertyCategoryDictionary } from "#dictionaries/property/index.js"
 
 /**
  *  @typedef {import('#types/api.js').ApiResponse} ApiResponse
@@ -23,7 +24,6 @@ export const createUserSearchService = async (_userId, body) => {
         const { email, filters, queryString, params, preferences } = body
 
         if (!email) throw createError(400, "Email is required")
-
         if (!queryString) throw createError(400, "Query string is required")
 
         const user = await prisma.user.findUnique({
@@ -66,12 +66,48 @@ export const createUserSearchService = async (_userId, body) => {
             return acc
         }, {})
 
+        const LOCALES = ["en", "mk", "sq"]
+
+        const TITLE_TEMPLATES = {
+            en: {
+                categoryInLocation: (cat, loc) => `${cat} in ${loc}`,
+                propertiesInLocation: loc => `Properties in ${loc}`,
+                properties: () => "Properties",
+            },
+            mk: {
+                categoryInLocation: (cat, loc) => `${cat} во ${loc}`,
+                propertiesInLocation: loc => `Недвижности во ${loc}`,
+                properties: () => "Недвижности",
+            },
+            sq: {
+                categoryInLocation: (cat, loc) => `${cat} në ${loc}`,
+                propertiesInLocation: loc => `Prona në ${loc}`,
+                properties: () => "Prona",
+            },
+        }
+
+        const titles = LOCALES.reduce((acc, locale) => {
+            const locationLabel = params?.location
+                ? PropertyLocationDictionary[locale]?.find(l => l.value === params.location)?.label
+                : null
+            const categoryLabel = params?.category
+                ? PropertyCategoryDictionary[locale]?.find(c => c.id === params.category)?.label
+                : null
+
+            const tmpl = TITLE_TEMPLATES[locale]
+            if (categoryLabel && locationLabel) acc[locale] = tmpl.categoryInLocation(categoryLabel, locationLabel)
+            else if (locationLabel) acc[locale] = tmpl.propertiesInLocation(locationLabel)
+            else acc[locale] = tmpl.properties()
+
+            return acc
+        }, {})
+
         const createdSearch = await prisma.$transaction(async tx => {
             const nextClientSearch = await tx.clientSearch.create({
                 data: {
                     client: { connect: { id: user.client.id } },
                     link: "",
-                    title: { mk: "", en: "", sq: "" },
+                    title: titles,
                     filters: prepareFilters || {},
                     receiveOffers: preferences.agencyOffers || false,
                 },
