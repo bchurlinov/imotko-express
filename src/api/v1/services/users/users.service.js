@@ -3,6 +3,7 @@ import { UserLanguage, UserRole } from "#generated/prisma/enums.ts"
 import { asyncHandler } from "#utils/helpers/async_handler.js"
 import createError from "http-errors"
 import prisma from "#database/client.js"
+import { v4 as uuidv4 } from "uuid"
 
 /**
  * @typedef {import("@prisma/client").User} User
@@ -71,56 +72,50 @@ export const findOrCreateUserService = async supabaseUser => {
     if (!supabaseUser?.email) throw createError(400, "Invalid Supabase user data")
     const normalizedEmail = supabaseUser.email.toLowerCase()
 
-    let existingUser = await prisma.user.findFirst({
-        where: {
-            OR: [{ email: normalizedEmail }, { id: supabaseUser.id }],
-        },
-        include: {
-            client: true,
-            agency: true,
-            admin: true,
-        },
-    })
-
-    if (existingUser) return { data: existingUser, message: "User loaded successfully." }
-
     const name = supabaseUser.fullName || ""
-    const avatarUrl = supabaseUser.avatarUrl || ""
-
-    const role = UserRole.CLIENT
+    const image = supabaseUser.avatarUrl ?? null
+    const emailVerified = supabaseUser.email_confirmed_at ? new Date() : null
 
     try {
         const user = await prisma.$transaction(async tx => {
-            const userData = {
-                email: normalizedEmail,
-                name,
-                role,
+            // True atomic INSERT ... ON CONFLICT — avoids race condition with Prisma's
+            // upsert() which doesn't use native ON CONFLICT when using driver adapters.
+            const userRows = await tx.$queryRaw`
+                INSERT INTO "User" (id, email, name, role, image, "emailVerified", "createdAt", "updatedAt")
+                VALUES (${uuidv4()}, ${normalizedEmail}, ${name}, 'CLIENT'::"UserRole", ${image}, ${emailVerified}, NOW(), NOW())
+                ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email
+                RETURNING id, "clientId"
+            `
+            const userRow = userRows[0]
+
+            if (userRow.clientId) {
+                return tx.user.findUnique({
+                    where: { id: userRow.id },
+                    include: { client: true, agency: true, admin: true },
+                })
             }
 
-            if (avatarUrl) userData.image = avatarUrl
-            if (supabaseUser.email_confirmed_at) userData.emailVerified = new Date()
+            const clientRows = await tx.$queryRaw`
+                INSERT INTO "Client" (id, "userId", "createdAt", "updatedAt")
+                VALUES (${uuidv4()}, ${userRow.id}, NOW(), NOW())
+                ON CONFLICT ("userId") DO UPDATE SET "updatedAt" = "Client"."updatedAt"
+                RETURNING id
+            `
+            const clientRow = clientRows[0]
 
-            const createdUser = await tx.user.create({ data: userData })
+            await tx.$executeRaw`
+                UPDATE "User" SET "clientId" = ${clientRow.id} WHERE id = ${userRow.id}
+            `
 
-            const client = await tx.client.create({
-                data: {
-                    user: {
-                        connect: { id: createdUser.id },
-                    },
-                },
-            })
-            return tx.user.update({
-                where: { id: createdUser.id },
-                data: { clientId: client.id },
-                include: {
-                    client: true,
-                },
+            return tx.user.findUnique({
+                where: { id: userRow.id },
+                include: { client: true, agency: true, admin: true },
             })
         })
 
-        return { data: user, message: "User created successfully." }
+        return { data: user, message: "User loaded successfully." }
     } catch (dbError) {
-        console.error("[Prisma] Failed to create user:", dbError)
+        console.error("[Prisma] Failed to find or create user:", dbError)
         throw createError(500, "Failed to create user in database")
     }
 }
