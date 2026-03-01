@@ -138,9 +138,8 @@ export const getUserNotificationsController = asyncHandler(async (req, res) => {
  * @returns {Promise<void>}
  */
 export const patchNotificationStatusController = asyncHandler(async (req, res) => {
-    const { notificationId } = req.params
-    const { status } = req.body
-    const result = await patchNotificationStatusService(notificationId, status)
+    const { notificationIds, status } = req.body
+    const result = await patchNotificationStatusService(notificationIds, status)
     return res.status(200).json(result)
 })
 

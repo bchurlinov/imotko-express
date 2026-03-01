@@ -103,7 +103,13 @@ router.delete("/:id", verifySupabaseToken, deleteUserController)
 
 router.get("/:id/notifications", verifySupabaseToken, getUserNotificationsController)
 
-router.patch("/:id/notifications/:notificationId/status", verifySupabaseToken, patchNotificationStatusController)
+router.patch(
+    "/:id/notifications/status",
+    [body("notificationIds").isArray({ min: 1 }).withMessage("notificationIds must be a non-empty array")],
+    verifySupabaseToken,
+    validateRequest,
+    patchNotificationStatusController
+)
 
 router.delete("/:id/notifications/:notificationId", verifySupabaseToken, deleteNotificationController)
 

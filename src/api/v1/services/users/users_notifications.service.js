@@ -1,5 +1,4 @@
 import prisma from "#database/client.js"
-import { NotificationStatus } from "#generated/prisma/enums.ts"
 
 /**
  * Get all notifications for a specific user
@@ -23,21 +22,20 @@ export const getUserNotificationsService = async userId => {
 }
 
 /**
- * Get all notifications for a specific user
- * @param {string} notificationId - The ID of notification that needs to be updated
- * @param {string} status - The new status to set for the notification
- * @returns {Promise<{data: import('@prisma/client').Notification, message: string}>} Promise resolving to an object containing the notification and success message
+ * Update the status of one or more notifications
+ * @param {string[]} notificationIds - Array of notification IDs to update
+ * @param {string} status - The current status; will be toggled to the opposite value
+ * @returns {Promise<{data: {count: number}, message: string}>} Promise resolving to an object containing the update count and success message
  * @throws {Error} Throws any database errors that occur during the query
  */
-export const patchNotificationStatusService = async (notificationId, status) => {
+export const patchNotificationStatusService = async (notificationIds, status) => {
     try {
-        const nextStatus = status === NotificationStatus.UNREAD ? NotificationStatus.READ : NotificationStatus.UNREAD
-        const updatedNotification = await prisma.notification.update({
-            where: { id: notificationId },
-            data: { status: nextStatus },
+        const result = await prisma.notification.updateMany({
+            where: { id: { in: notificationIds } },
+            data: { status },
         })
         return {
-            data: updatedNotification,
+            data: result,
             message: "Notification status updated successfully.",
         }
     } catch (err) {
