@@ -1,7 +1,5 @@
 import { PropertyStatus } from "#generated/prisma/enums.ts"
 import prisma from "#database/client.js"
-import { withCache } from "#utils/cache/index.js"
-import { CACHE_TTL } from "#config/cache.config.js"
 import {
     stringValue,
     stringValues,
@@ -64,7 +62,7 @@ import {
  * @param {PropertyQueryParams} params - Query parameters
  * @returns {Promise<ApiResponse<PropertyWithRelations[]>>}
  */
-const _getPropertiesService = async (params = {}) => {
+export const getPropertiesService = async (params = {}) => {
     try {
         const locale = stringValue(params.locale) ?? DEFAULT_LOCALE
 
@@ -219,17 +217,12 @@ const _getPropertiesService = async (params = {}) => {
     }
 }
 
-export const getPropertiesService = withCache(_getPropertiesService, {
-    keyPrefix: "getPropertiesService",
-    ttl: CACHE_TTL.getPropertiesService,
-})
-
 /**
  * Get single property by property ID
  * @param {string} propertyId - Property ID
  * @returns {Promise<ApiResponse<PropertyWithRelations[]>>}
  */
-export const _getPropertyService = async propertyId => {
+export const getPropertyService = async propertyId => {
     try {
         const property = await prisma.property.findUnique({
             where: { id: propertyId },
@@ -252,8 +245,3 @@ export const _getPropertyService = async propertyId => {
         throw new Error("Failed to load property")
     }
 }
-
-export const getPropertyService = withCache(_getPropertyService, {
-    keyPrefix: "getPropertyService",
-    ttl: CACHE_TTL.getPropertyService,
-})
