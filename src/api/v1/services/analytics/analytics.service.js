@@ -19,6 +19,8 @@ import prisma from "#database/client.js"
  * @param {TimeRange} range - Time range ('1m', '3m', '6m', '1y')
  * @returns {Date} Start date for the range
  */
+const normalizeLocationId = id => (id ? id.replace(/^skopje-/, "") : id)
+
 const getStartDate = range => {
     const now = new Date()
     switch (range) {
@@ -45,7 +47,8 @@ const getStartDate = range => {
  */
 export const getPriceTrendsService = async (params = {}) => {
     try {
-        const { locationId, listingType, propertyType, range = "1y" } = params
+        const { locationId: rawLocationId, listingType, propertyType, range = "1y" } = params
+        const locationId = normalizeLocationId(rawLocationId)
         const startDate = getStartDate(range)
 
         // Get start date for YoY comparison (1 year before the range start)
@@ -59,6 +62,7 @@ export const getPriceTrendsService = async (params = {}) => {
                 where: { name: locationId },
                 select: { id: true },
             })
+            console.log("LOCATION >>", location)
             if (location) {
                 resolvedLocationId = location.id
             }
@@ -149,7 +153,8 @@ export const getPriceTrendsService = async (params = {}) => {
  */
 export const getPricePerSqmService = async (params = {}) => {
     try {
-        const { locationId, listingType, propertyType, groupBy = "city" } = params
+        const { locationId: rawLocationId, listingType, propertyType, groupBy = "city" } = params
+        const locationId = normalizeLocationId(rawLocationId)
 
         const whereConditions = []
         const queryParams = []
@@ -240,7 +245,8 @@ export const getPricePerSqmService = async (params = {}) => {
  */
 export const getDemandAnalyticsService = async (params = {}) => {
     try {
-        const { locationId, listingType, limit = 20 } = params
+        const { locationId: rawLocationId, listingType, limit = 20 } = params
+        const locationId = normalizeLocationId(rawLocationId)
 
         // Resolve locationId if it's a name instead of an ID
         let resolvedLocationId = locationId
