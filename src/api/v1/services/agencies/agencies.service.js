@@ -43,7 +43,7 @@ export const getAgenciesService = async (params = {}) => {
 
         const queryParams = {
             where: {
-                status: AgencyApprovalStatus.ACTIVE,
+                status: AgencyApprovalStatus.APPROVED,
             },
             take: parseInt(limit, 10),
             orderBy: {
