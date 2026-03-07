@@ -209,8 +209,6 @@ export const getPropertiesService = async (params = {}) => {
                 featuredUntil: true,
                 inDevelopmentUntil: true,
                 lastAutoRenewedAt: true,
-                latitude: true,
-                longitude: true,
                 ownerId: true,
                 orientation: true,
                 propertyCadastralMunicipality: true,
