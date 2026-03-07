@@ -1,5 +1,4 @@
 import { PropertyStatus } from "#generated/prisma/enums.ts"
-import prisma from "#database/client.js"
 import {
     stringValue,
     stringValues,
@@ -17,6 +16,7 @@ import {
     PAGE_SIZE,
     DEFAULT_LOCALE,
 } from "./utils/index.js"
+import prisma from "#database/client.js"
 
 /**
  * @typedef {import('#types/api.js').ApiResponse} ApiResponse
@@ -192,9 +192,34 @@ export const getPropertiesService = async (params = {}) => {
                 propertyLocation: true,
                 category: true,
                 subcategory: true,
+                agency: {
+                    select: {
+                        logo: true,
+                    },
+                },
             },
             omit: {
                 modifications: true,
+                autoRenewEnabled: true,
+                autoRenewEndDate: true,
+                autoRenewStartDate: true,
+                builder: true,
+                externalId: true,
+                inDevelopment: true,
+                featuredUntil: true,
+                inDevelopmentUntil: true,
+                lastAutoRenewedAt: true,
+                latitude: true,
+                longitude: true,
+                ownerId: true,
+                orientation: true,
+                propertyCadastralMunicipality: true,
+                propertyDeed: true,
+                propertyPlan: true,
+                remarks: true,
+                renterId: true,
+                video: true,
+                yearBuilt: true,
             },
             take: safeLimit,
             skip: (page - 1) * safeLimit,

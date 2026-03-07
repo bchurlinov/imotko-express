@@ -58,25 +58,22 @@ export const verifySupabaseToken = async (req, res, next) => {
             : req.headers.authorization
 
         if (!rawAuthHeader?.startsWith(BEARER_PREFIX)) {
-            return next(createError(401, "Missing Supabase Bearer token"))
+            return next(createError(401, "Недостасува или е невалиден токенот."))
         }
 
         const token = rawAuthHeader.slice(BEARER_PREFIX.length).trim()
-        if (!token) return next(createError(401, "Missing Supabase Bearer token"))
+        if (!token) return next(createError(401, "Недостасува токенот за верификација."))
 
         const { payload } = await verifyJwt(token)
 
         const supabasePayload = payload
 
         if (typeof supabasePayload.sub !== "string" || supabasePayload.sub.length === 0) {
-            return next(createError(401, "Invalid Supabase token payload"))
+            return next(createError(401, "Проблем при верификација на токенот."))
         }
 
         const role = ensureRole(supabasePayload)
-
-        if (!role || role === "anon") {
-            return next(createError(403, "Supabase role lacks required permissions"))
-        }
+        if (!role || role === "anon") return next(createError(403, "Supabase role lacks required permissions"))
 
         req.user = {
             id: supabasePayload.sub,
@@ -91,6 +88,6 @@ export const verifySupabaseToken = async (req, res, next) => {
         next()
     } catch (error) {
         console.error("verifySupabaseToken error:", error)
-        return next(createError(401, "Invalid or expired Supabase token"))
+        return next(createError(401, "Проблем при верификација на токенот."))
     }
 }

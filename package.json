@@ -7,8 +7,10 @@
         "start": "node --experimental-transform-types src/app.js",
         "dev": "dotenv -e .env.development -- nodemon",
         "stage": "dotenv -e .env.stage -- nodemon",
+        "prod": "dotenv -e .env.production -- nodemon",
         "start:dev": "dotenv -e .env.development -- node --experimental-transform-types src/app.js",
         "start:stage": "dotenv -e .env.stage -- node --experimental-transform-types src/app.js",
+        "start:prod": "dotenv -e .env.production -- node --experimental-transform-types src/app.js",
         "postinstall": "prisma generate"
     },
     "prisma": {
