@@ -204,7 +204,6 @@ export const getPropertiesService = async (params = {}) => {
                 autoRenewEndDate: true,
                 autoRenewStartDate: true,
                 builder: true,
-                externalId: true,
                 inDevelopment: true,
                 featuredUntil: true,
                 inDevelopmentUntil: true,
