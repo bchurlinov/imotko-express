@@ -137,6 +137,30 @@ export const getUserService = async userEmail => {
     }
 }
 
+const BLOCKED_USER_ROLES = new Set([UserRole.ADMIN, UserRole.AGENCY])
+const BLOCKED_USER_ROLE_MESSAGE = "Оваа е-пошта е веќе во употреба."
+
+/**
+ * Check whether an email can continue through the public auth preflight.
+ * @param {string} email - User email
+ * @returns {Promise<{allowed: boolean, message?: string, reason?: string}>}
+ */
+export const checkUserRoleService = async email => {
+    const normalizedEmail = email.toLowerCase()
+    const user = await prisma.user.findUnique({
+        where: { email: normalizedEmail },
+        select: { role: true },
+    })
+
+    if (!BLOCKED_USER_ROLES.has(user?.role)) return { allowed: true }
+
+    return {
+        allowed: false,
+        message: BLOCKED_USER_ROLE_MESSAGE,
+        reason: "ROLE_BLOCKED",
+    }
+}
+
 /**
  * Create a new user in both Supabase and Prisma database
  * @param {CreateUserInput} input - User creation input

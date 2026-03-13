@@ -62,7 +62,6 @@ export const getPriceTrendsService = async (params = {}) => {
                 where: { name: locationId },
                 select: { id: true },
             })
-            console.log("LOCATION >>", location)
             if (location) {
                 resolvedLocationId = location.id
             }

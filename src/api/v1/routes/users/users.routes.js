@@ -1,6 +1,7 @@
 import { Router } from "express"
 import { body } from "express-validator"
 import {
+    checkUserRoleController,
     createUserController,
     findOrCreateUserController,
     getUserNotificationsController,
@@ -29,6 +30,13 @@ const ALLOWED_ROLES = ["CLIENT", "AGENCY", "ADMIN"]
 router.get("/", verifySupabaseToken, validateRequest, getUserController)
 
 router.post(
+    "/check-user-role",
+    [body("email").notEmpty().withMessage("Email is required").isEmail().withMessage("Invalid email")],
+    validateRequest,
+    checkUserRoleController
+)
+
+router.post(
     "/create-user",
     [
         body("fullName")
@@ -36,12 +44,7 @@ router.post(
             .withMessage("User name is required")
             .isString()
             .withMessage("User ID must be a string"),
-        body("email")
-            .notEmpty()
-            .withMessage("User email is required")
-            .isEmail()
-            .withMessage("Invalid email")
-            .normalizeEmail(),
+        body("email").notEmpty().withMessage("User email is required").isEmail().withMessage("Invalid email"),
         body("avatarUrl").isString().optional().isURL().withMessage("Avatar URL must be a valid URL"),
     ],
     validateRequest,
@@ -51,12 +54,7 @@ router.post(
 router.post(
     "/",
     [
-        body("email")
-            .notEmpty()
-            .withMessage("Email is required")
-            .isEmail()
-            .withMessage("Invalid email")
-            .normalizeEmail(),
+        body("email").notEmpty().withMessage("Email is required").isEmail().withMessage("Invalid email"),
         body("password")
             .notEmpty()
             .withMessage("Password is required")

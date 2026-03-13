@@ -58,8 +58,7 @@ router.post(
             .notEmpty()
             .withMessage("email is required")
             .isEmail()
-            .withMessage("email must be valid")
-            .normalizeEmail(),
+            .withMessage("email must be valid"),
         body("phone")
             .isString()
             .withMessage("phone must be a string")

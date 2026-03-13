@@ -1,4 +1,5 @@
 import {
+    checkUserRoleService,
     createUserService,
     findOrCreateUserService,
     getUserService,
@@ -51,6 +52,17 @@ export const getUserController = asyncHandler(async (req, res) => {
     const { email } = req.user
     const { data, message } = await getUserService(email)
     return res.status(200).json({ data, message })
+})
+
+/**
+ * Controller to preflight-check whether an email is blocked by role.
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>}
+ */
+export const checkUserRoleController = asyncHandler(async (req, res) => {
+    const result = await checkUserRoleService(req.body.email)
+    return res.status(200).json(result)
 })
 
 /**
