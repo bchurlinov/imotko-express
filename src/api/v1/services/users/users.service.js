@@ -228,15 +228,11 @@ export const createUserService = async ({
             if (resolvedLanguage) userData.language = resolvedLanguage
             const avatar = buildDefaultAvatar()
             if (avatar) userData.image = avatar
-            if (supabaseUser.email_confirmed_at) {
-                userData.emailVerified = new Date(supabaseUser.email_confirmed_at)
-            }
+            if (supabaseUser.email_confirmed_at) userData.emailVerified = new Date(supabaseUser.email_confirmed_at)
+            else userData.emailVerified = new Date()
 
             const createdUser = await tx.user.create({ data: userData })
-
-            if (resolvedRole !== UserRole.CLIENT) {
-                return createdUser
-            }
+            if (resolvedRole !== UserRole.CLIENT) return createdUser
 
             const client = await tx.client.create({
                 data: {
