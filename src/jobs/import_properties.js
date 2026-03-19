@@ -481,15 +481,17 @@ export async function importProperties(triggeredBy = "manual") {
 
         console.log("=".repeat(50))
         console.log(`🏁 Job completed at: ${new Date().toISOString()}`)
-
-        await prisma.$disconnect()
     }
 }
 
 // If running directly (not imported as module)
 if (import.meta.url === `file://${process.argv[1]}`) {
-    importProperties().catch(error => {
-        console.error("❌ Unhandled error:", error)
-        process.exit(1)
-    })
+    importProperties()
+        .catch(error => {
+            console.error("❌ Unhandled error:", error)
+            process.exitCode = 1
+        })
+        .finally(async () => {
+            await prisma.$disconnect()
+        })
 }
