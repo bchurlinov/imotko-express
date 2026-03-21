@@ -13,10 +13,6 @@ import initializeRoutes from "./api/v1/routes/index.js"
 import { errorMiddleware } from "./api/v1/middlewares/errorMiddleware.js"
 import { credentials } from "./api/v1/middlewares/credentials.js"
 
-// Jobs
-import { scheduleAnalyticsRefresh, stopAnalyticsRefreshJob } from "./jobs/refreshAnalytics.js"
-import { stopPropertyImportJob } from "./jobs/schedulePropertyImport.js"
-
 // Database
 import prisma from "./database/client.js"
 
@@ -63,7 +59,6 @@ const start = () => {
     try {
         server = app.listen(port, "0.0.0.0", () => {
             console.log(`Server is listening on port ${port}...`)
-            // scheduleAnalyticsRefresh()
         })
     } catch (error) {
         console.log(error)
@@ -96,10 +91,6 @@ const shutdown = async (signal, code = 0) => {
                 })
             })
         }
-
-        console.log("🛑 Stopping scheduled jobs...")
-        await Promise.allSettled([stopAnalyticsRefreshJob()])
-        console.log("✅ All scheduled jobs stopped")
 
         console.log("🔌 Closing database connections...")
         await prisma.$disconnect()
