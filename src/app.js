@@ -125,3 +125,9 @@ process.on("unhandledRejection", (reason, promise) => {
 })
 
 start()
+
+const dbUrl = new URL(process.env.DATABASE_URL)
+
+console.log("[db] host:", dbUrl.hostname)
+console.log("[db] port:", dbUrl.port)
+console.log("[db] pgbouncer:", dbUrl.searchParams.get("pgbouncer"))
