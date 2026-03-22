@@ -1,6 +1,5 @@
 import { generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
-import { importConfig } from "../config.js"
 import prisma from "#database/client.js"
 
 /**
@@ -25,12 +24,7 @@ const DEFAULT_COORDINATES = {
  */
 export async function geocodeAddress(location, address) {
     const cacheKey = `${location}|${address}`.toLowerCase().trim()
-
-    if (geocodeCache.has(cacheKey)) {
-        const cached = geocodeCache.get(cacheKey)
-        console.log(`📍 Using cached coordinates for: ${location}, ${address}`)
-        return cached
-    }
+    if (geocodeCache.has(cacheKey)) return geocodeCache.get(cacheKey)
 
     try {
         const fullAddress = address ? `${address}, ${location}` : location

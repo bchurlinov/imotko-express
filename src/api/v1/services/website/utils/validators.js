@@ -13,7 +13,6 @@ import { getAllowedReferrers } from "#config/website.config.js"
 export function isAllowedReferrer(referer) {
     const allowedReferrers = getAllowedReferrers()
     const normalizedReferer = normalizeUrl(referer)
-    console.log("isAllowedReferrer - allowedReferrers:", allowedReferrers)
 
     // Return false if referer is malformed
     if (!normalizedReferer) return false
