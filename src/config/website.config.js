@@ -16,13 +16,8 @@
  */
 export function getAllowedReferrers() {
     const allowedReferrers = process.env.ALLOWED_REFERRERS
-    console.log("allowedReferrers:", allowedReferrers)
-
     // Return empty array if not configured
-    if (!allowedReferrers || allowedReferrers.trim() === "") {
-        return []
-    }
-
+    if (!allowedReferrers || allowedReferrers.trim() === "") return []
     // Split by comma, trim whitespace from each entry, and filter out empty strings
     return allowedReferrers
         .split(",")
