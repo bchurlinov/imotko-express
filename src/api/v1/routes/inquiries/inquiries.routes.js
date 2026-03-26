@@ -37,7 +37,10 @@ router.post(
             .customSanitizer(normalizeSingleLine)
             .notEmpty()
             .withMessage("Категорија е задолжителна."),
-        body("price").isString().withMessage("Невалидна цена.").customSanitizer(normalizePrice),
+        body("price")
+            .customSanitizer(normalizePrice)
+            .custom(value => Number.isFinite(value))
+            .withMessage("Невалидна цена."),
         body("size")
             .isNumeric()
             .withMessage("Невалидна големина.")
