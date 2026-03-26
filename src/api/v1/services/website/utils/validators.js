@@ -21,7 +21,6 @@ export function isAllowedReferrer(referer) {
     for (const allowed of allowedReferrers) {
         // Add protocol if not present
         const allowedUrl = allowed.startsWith("http") ? allowed : `http://${allowed}`
-        console.log("allowedUrl:", allowedUrl)
         const normalizedAllowed = normalizeUrl(allowedUrl)
 
         // Skip malformed allowed URLs

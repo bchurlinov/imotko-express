@@ -10,10 +10,12 @@ export const attachAgencyFromReferer = asyncHandler(async (req, res, next) => {
     const result = await getAgencyWebsiteConfiguration(referer, origin, userAgent, ip)
 
     if (!result.success) {
-        return res.status(result.error.code).json({
+        const code = result.error?.code ?? 403
+        const message = result.error?.message ?? result.data?.message ?? "forbiddenReferer"
+        return res.status(code).json({
             data: undefined,
-            code: result.error.code,
-            message: result.error.message,
+            code,
+            message,
         })
     }
 

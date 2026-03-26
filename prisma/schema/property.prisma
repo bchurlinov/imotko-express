@@ -107,9 +107,11 @@ model Property {
   bumpedAt                      DateTime?                  @db.Timestamptz(3)
 
   @@index([propertyLocationId, listingType])
-  @@index([propertyLocationId])
   @@index([agencyId])
   @@index([bumpedAt])
+  @@index([featured])
+  @@index([categoryId])
+  @@index([subcategoryId])
 }
 
 model PropertyCategory {
