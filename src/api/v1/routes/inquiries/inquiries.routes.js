@@ -27,52 +27,56 @@ router.post(
     [
         body("helpType")
             .isString()
-            .withMessage("helpType must be a string")
+            .withMessage("Невалиден тип на помош.")
             .customSanitizer(normalizeSingleLine)
             .notEmpty()
-            .withMessage("helpType is required"),
+            .withMessage("Тип на помош е задолжителна."),
         body("category")
             .isString()
-            .withMessage("category must be a string")
+            .withMessage("Невалидна категорија.")
             .customSanitizer(normalizeSingleLine)
             .notEmpty()
-            .withMessage("category is required"),
-        body("price")
-            .custom(value => Number.isFinite(normalizePrice(value)))
-            .withMessage("price must be a valid number")
-            .customSanitizer(normalizePrice),
+            .withMessage("Категорија е задолжителна."),
+        body("price").isString().withMessage("Невалидна цена.").customSanitizer(normalizePrice),
+        body("size")
+            .isNumeric()
+            .withMessage("Невалидна големина.")
+            .customSanitizer(normalizeSingleLine)
+            .notEmpty()
+            .withMessage("Големина е задолжителна."),
         body("location")
             .isString()
-            .withMessage("location must be a string")
+            .withMessage("Невалидна локација.")
             .customSanitizer(normalizeSingleLine)
             .notEmpty()
-            .withMessage("location is required"),
+            .withMessage("Локација е задолжителна."),
         body("name")
             .isString()
-            .withMessage("name must be a string")
+            .withMessage("Невалидно име")
             .customSanitizer(normalizeSingleLine)
             .notEmpty()
-            .withMessage("name is required"),
+            .withMessage("Име е задолжително"),
         body("email")
-            .customSanitizer(value => String(value).trim())
-            .notEmpty()
-            .withMessage("email is required")
-            .isEmail()
-            .withMessage("email must be valid"),
+            .customSanitizer(value => (value ? String(value).trim() : ""))
+            .custom(value => {
+                if (value === "") return true
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+            })
+            .withMessage("Невалидна е-пошта."),
         body("phone")
             .isString()
-            .withMessage("phone must be a string")
+            .withMessage("Невалиден телефонски број.")
             .customSanitizer(normalizeSingleLine)
             .notEmpty()
-            .withMessage("phone is required")
+            .withMessage("Телефон е задолжително")
             .matches(phoneRegex)
-            .withMessage("Invalid phone number format"),
+            .withMessage("Невалиден формат на телефонски број."),
         body("message")
             .isString()
-            .withMessage("message must be a string")
+            .withMessage("Невалидна порака.")
             .customSanitizer(normalizeMultiline)
             .notEmpty()
-            .withMessage("message is required"),
+            .withMessage("Порака е задолжително."),
     ],
     inquiryRateLimit,
     validateRequest,

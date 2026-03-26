@@ -10,6 +10,6 @@ import createError from "http-errors"
  */
 export const validateRequest = (req, res, next) => {
     const errors = validationResult(req)
-    if (!errors.isEmpty()) throw createError(400, "Validation errors", { errors: errors.array() })
+    if (!errors.isEmpty()) throw createError(400, "Проблем со валидирање на податоците.", { errors: errors.array() })
     next()
 }
