@@ -26,7 +26,7 @@ const RECIPIENT_EMAIL = "contact@imotko.mk"
  */
 export async function postContactRequestService(body) {
     try {
-        const { helpType, category, price, location, name, email, phone, message, size } = body
+        const { helpType, category, price, location, name, email = "", phone, message, size } = body
         const safeHelpType = helpType.replace(/[\r\n]+/g, " ").trim()
         const htmlContent = createContactRequestEmailTemplate({
             helpType: safeHelpType,
@@ -65,23 +65,23 @@ export async function postContactRequestService(body) {
                     },
                     Text: {
                         Data: `
-Ново барање од мобилна апликација
-Потреба: ${safeHelpType}
-Категорија: ${category}
-Цена: ${formattedPrice}
-Големина: ${size}
-Локација: ${location}
-Име: ${name}
-Е-пошта: ${email}
-Телефон: ${phone}
-Порака: ${message}
-Примено на: ${receivedAt}
+                            Ново барање од мобилна апликација
+                            Потреба: ${safeHelpType}
+                            Категорија: ${category}
+                            Цена: ${formattedPrice}
+                            Големина: ${size}
+                            Локација: ${location}
+                            Име: ${name}
+                            Е-пошта: ${email}
+                            Телефон: ${phone}
+                            Порака: ${message}
+                            Примено на: ${receivedAt}
                         `.trim(),
                         Charset: "UTF-8",
                     },
                 },
             },
-            ReplyToAddresses: [email],
+            ...(email && { ReplyToAddresses: [email] }),
         })
 
         const response = await emailClient.send(sendEmailCommand)
