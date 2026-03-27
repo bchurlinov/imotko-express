@@ -72,7 +72,7 @@ export const getPriceTrendsService = async (params = {}) => {
         let paramIndex = 2
 
         if (resolvedLocationId) {
-            joinConditions.push(`mt."propertyLocationId" = $${paramIndex}`)
+            joinConditions.push(`(mt."propertyLocationId" = $${paramIndex} OR mt."parentLocationId" = $${paramIndex})`)
             queryParams.push(resolvedLocationId)
             paramIndex++
         }
@@ -173,7 +173,9 @@ export const getPricePerSqmService = async (params = {}) => {
                 resolvedLocationId = location.id
             }
 
-            whereConditions.push(`mv."propertyLocationId" = $${queryParams.length + 1}`)
+            whereConditions.push(
+                `(mv."propertyLocationId" = $${queryParams.length + 1} OR mv."parentLocationId" = $${queryParams.length + 1})`
+            )
             queryParams.push(resolvedLocationId)
         }
         if (listingType) {
@@ -265,7 +267,7 @@ export const getDemandAnalyticsService = async (params = {}) => {
 
         // Build WHERE clause based on filters
         if (resolvedLocationId) {
-            whereConditions.push(`mv."propertyLocationId" = $${paramIndex}`)
+            whereConditions.push(`(mv."propertyLocationId" = $${paramIndex} OR mv."parentLocationId" = $${paramIndex})`)
             queryParams.push(resolvedLocationId)
             paramIndex++
         }
