@@ -67,6 +67,7 @@ export const getPropertiesService = async (params = {}) => {
         const locale = stringValue(params.locale) ?? DEFAULT_LOCALE
 
         const includePending = booleanValue(params.includePending) && params.agency
+        const featuredOnly = booleanValue(params.featured) === true
         let filters = {
             status: includePending
                 ? { in: [PropertyStatus.PUBLISHED, PropertyStatus.PENDING] }
@@ -76,7 +77,7 @@ export const getPropertiesService = async (params = {}) => {
         const andConditions = []
         const orGroups = []
 
-        if (params?.featured) filters.featured = true
+        if (featuredOnly) filters.featured = true
         const ids = stringValues(params.ids)
         if (ids.length) filters.id = { in: ids }
         if (params.agency) filters.agencyId = stringValue(params.agency)
@@ -148,6 +149,7 @@ export const getPropertiesService = async (params = {}) => {
         }
 
         const sortParam = stringValue(params.sortBy)
+        const shouldShuffleFeatured = featuredOnly && !sortParam
         const orderBy = sortParam && isPropertySort(sortParam) ? ORDER_BY_MAP[sortParam] : DEFAULT_ORDER_BY
 
         const searchQuery = stringValue(params.query)
@@ -185,9 +187,7 @@ export const getPropertiesService = async (params = {}) => {
         let page = positiveInt(params.page) ?? 1
         page = Math.max(1, Math.min(page, totalPages || 1))
 
-        const properties = await prisma.property.findMany({
-            where: filters,
-            orderBy,
+        const propertyQueryOptions = {
             include: {
                 propertyLocation: true,
                 category: true,
@@ -218,9 +218,45 @@ export const getPropertiesService = async (params = {}) => {
                 video: true,
                 yearBuilt: true,
             },
-            take: safeLimit,
-            skip: (page - 1) * safeLimit,
-        })
+        }
+
+        let properties
+
+        if (shouldShuffleFeatured) {
+            const featuredPropertyIds = await prisma.property.findMany({
+                where: filters,
+                select: {
+                    id: true,
+                },
+            })
+
+            const shuffledIds = shuffleArray(featuredPropertyIds.map(property => property.id))
+            const paginatedIds = shuffledIds.slice((page - 1) * safeLimit, page * safeLimit)
+
+            if (paginatedIds.length === 0) {
+                properties = []
+            } else {
+                const shuffledProperties = await prisma.property.findMany({
+                    where: {
+                        id: {
+                            in: paginatedIds,
+                        },
+                    },
+                    ...propertyQueryOptions,
+                })
+
+                const propertiesById = new Map(shuffledProperties.map(property => [property.id, property]))
+                properties = paginatedIds.map(id => propertiesById.get(id)).filter(Boolean)
+            }
+        } else {
+            properties = await prisma.property.findMany({
+                where: filters,
+                orderBy,
+                ...propertyQueryOptions,
+                take: safeLimit,
+                skip: (page - 1) * safeLimit,
+            })
+        }
 
         return {
             data: properties,
@@ -266,4 +302,15 @@ export const getPropertyService = async propertyId => {
         console.error("Error loading property:", err)
         throw new Error("Failed to load property")
     }
+}
+
+const shuffleArray = array => {
+    const shuffled = [...array]
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+
+    return shuffled
 }
