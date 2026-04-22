@@ -46,3 +46,50 @@ model ExternalListing {
   @@index([createdAt])
   @@map("listings")
 }
+
+enum LeadIntent {
+  SELLING
+  BUYING
+  LAND_INVESTMENT
+}
+
+model Lead {
+  id           String       @id @default(cuid())
+  intent       LeadIntent
+  teaserDesc   String
+  fullDesc     String
+  firstName    String
+  fullName     String
+  email        String
+  phone        String?
+  location     String
+  propertyType String
+  priceFrom    Int?
+  priceTo      Int?
+  sizeFrom     Int?
+  sizeTo       Int?
+  size         Int?
+  source       String?
+  isActive     Boolean      @default(true)
+  reveals      LeadReveal[]
+  createdAt    DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime     @updatedAt @db.Timestamptz(3)
+
+  @@index([intent])
+  @@index([location])
+  @@index([isActive])
+  @@index([createdAt])
+  @@index([isActive, createdAt(sort: Desc)])
+}
+
+model LeadReveal {
+  id        String   @id @default(cuid())
+  leadId    String
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  agencyId  String
+  agency    Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@unique([leadId, agencyId])
+  @@index([agencyId])
+}

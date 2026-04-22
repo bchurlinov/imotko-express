@@ -49,6 +49,7 @@ model Property {
   name                          Json
   latitude                      Float
   address                       String
+  district                      String?
   longitude                     Float
   agencyId                      String?
   status                        PropertyStatus             @default(PENDING)

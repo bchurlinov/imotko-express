@@ -41,6 +41,7 @@ model Agency {
   social                 Json?
   logo                   Json?
   credits                Int                     @default(0)
+  leadReveals            LeadReveal[]
   owner                  String
   users                  User[]
   ratings                AgencyReview[]
