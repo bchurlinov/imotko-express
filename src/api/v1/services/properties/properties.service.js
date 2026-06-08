@@ -31,6 +31,7 @@ import prisma from "#database/client.js"
  * @typedef {Object} PropertyQueryParams
  * @property {PrimitiveParam} [in_development]
  * @property {PrimitiveParam} [location]
+ * @property {PrimitiveParam} [district]
  * @property {PrimitiveParam} [subCategory]
  * @property {PrimitiveParam} [category]
  * @property {PrimitiveParam} [listingType]
@@ -97,6 +98,9 @@ export const getPropertiesService = async (params = {}) => {
 
         if (params.subCategory) filters.subcategoryId = stringValue(params.subCategory)
         if (params.category) filters.categoryId = stringValue(params.category)
+
+        const district = stringValue(params.district)
+        if (district) filters.district = district
 
         const listingType = stringValue(params.listingType)
         if (listingType) filters.listingType = listingType

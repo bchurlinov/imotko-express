@@ -12,6 +12,13 @@ enum PropertyListingType {
   for_sale
 }
 
+enum PropertyCountry {
+  macedonia
+  serbia
+  albania
+  greece
+}
+
 enum PropertyOrientation {
   north
   south
@@ -50,6 +57,7 @@ model Property {
   latitude                      Float
   address                       String
   district                      String?
+  country                       PropertyCountry             @default(macedonia)
   longitude                     Float
   agencyId                      String?
   status                        PropertyStatus             @default(PENDING)
@@ -108,6 +116,7 @@ model Property {
   bumpedAt                      DateTime?                  @db.Timestamptz(3)
 
   @@index([propertyLocationId, listingType])
+  @@index([country, propertyLocationId, listingType])
   @@index([agencyId])
   @@index([bumpedAt])
   @@index([featured])
