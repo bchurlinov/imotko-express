@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "AgencyEntitlementOverride" ALTER COLUMN "startsAt" SET DATA TYPE TIMESTAMP(3),
+ALTER COLUMN "endsAt" SET DATA TYPE TIMESTAMP(3);

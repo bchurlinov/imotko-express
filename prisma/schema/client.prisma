@@ -34,6 +34,8 @@ model ClientSearch {
   clientPropertySubscription ClientPropertySubscription?
   receiveOffers              Boolean                     @default(false)
   agencyIdsJson              Json?
+  unsubscribeToken           String?                     @unique
+  unsubscribedAt             DateTime?                   @db.Timestamptz(3)
 }
 
 model ClientPropertySubscription {

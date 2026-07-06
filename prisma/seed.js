@@ -39,7 +39,7 @@ async function main() {
             ownerId: systemUser.id,
             status: "APPROVED",
             imotkoApproved: true,
-            plan: "BASIC",
+            plan: "FREE",
             description: {
                 mk: "Автоматски увезени огласи",
                 en: "Automatically imported listings",
@@ -52,9 +52,7 @@ async function main() {
     console.log("\n📋 Environment variable values:");
     console.log(`IMPORT_SYSTEM_USER_ID=${systemUser.id}`);
     console.log(`IMPORT_DEFAULT_AGENCY_ID=${importAgency.id}`);
-    console.log(
-        "\n💡 Copy these values to your .env file to complete the setup."
-    );
+    console.log("\n💡 Copy these values to your .env file to complete the setup.");
 }
 
 main()

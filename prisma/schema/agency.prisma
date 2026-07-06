@@ -1,4 +1,5 @@
 enum AgencyPlan {
+  FREE
   BASIC
   PREMIUM
 }
@@ -25,10 +26,10 @@ enum AgencyRole {
 }
 
 model Agency {
-  id                     String                  @id @default(cuid())
-  status                 AgencyApprovalStatus    @default(PENDING)
-  imotkoApproved         Boolean                 @default(false)
-  plan                   AgencyPlan              @default(BASIC)
+  id                     String                      @id @default(cuid())
+  status                 AgencyApprovalStatus        @default(PENDING)
+  imotkoApproved         Boolean                     @default(false)
+  plan                   AgencyPlan                  @default(FREE)
   planUntil              DateTime?
   email                  String?
   taxNumber              String?
@@ -40,7 +41,7 @@ model Agency {
   location               String?
   social                 Json?
   logo                   Json?
-  credits                Int                     @default(0)
+  credits                Int                         @default(0)
   leadReveals            LeadReveal[]
   owner                  String
   users                  User[]
@@ -53,18 +54,36 @@ model Agency {
   websiteSettings        AgencyWebsiteSettings?
   testimonials           AgencyTestimonial[]
   partners               AgencyPartner[]
+  entitlementOverrides   AgencyEntitlementOverride[]
   //
-  ownerId                String?                 @unique
-  agencyOwner            User?                   @relation("AgencyOwner", fields: [ownerId], references: [id])
+  ownerId                String?                     @unique
+  agencyOwner            User?                       @relation("AgencyOwner", fields: [ownerId], references: [id])
   agencyMembers          AgencyMember[]
   agencyInvitation       AgencyInvitation[]
-  agencyClient           AgencyClient[]          @relation("AgencyClient")
+  agencyClient           AgencyClient[]              @relation("AgencyClient")
   //
-  createdAt              DateTime                @default(now()) @db.Timestamptz(3)
-  updatedAt              DateTime                @updatedAt @db.Timestamptz(3)
+  createdAt              DateTime                    @default(now()) @db.Timestamptz(3)
+  updatedAt              DateTime                    @updatedAt @db.Timestamptz(3)
 
   @@index([location])
   @@index([name])
+}
+
+model AgencyEntitlementOverride {
+  id        String    @id @default(cuid())
+  agencyId  String
+  agency    Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  key       String
+  value     Json
+  enabled   Boolean   @default(true)
+  note      String?
+  startsAt  DateTime?
+  endsAt    DateTime?
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(3)
+
+  @@unique([agencyId, key])
+  @@index([agencyId])
 }
 
 model AgencyClientNotes {

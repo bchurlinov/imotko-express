@@ -57,7 +57,7 @@ model Property {
   latitude                      Float
   address                       String
   district                      String?
-  country                       PropertyCountry             @default(macedonia)
+  country                       PropertyCountry            @default(macedonia)
   longitude                     Float
   agencyId                      String?
   status                        PropertyStatus             @default(PENDING)
