@@ -24,9 +24,9 @@ app.use(morgan("dev"))
 // credentials middleware
 app.use(credentials)
 
-app.get("/debug-ip-test-imotko", (req, res) => {
-    res.json({ ip: req.ip, ips: req.ips, xff: req.headers["x-forwarded-for"] })
-})
+// app.get("/debug-ip-test-imotko", (req, res) => {
+//     res.json({ ip: req.ip, ips: req.ips, xff: req.headers["x-forwarded-for"] })
+// })
 
 // Rate limiting - only apply in production, skip in development
 const limiter =
