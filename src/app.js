@@ -24,6 +24,10 @@ app.use(morgan("dev"))
 // credentials middleware
 app.use(credentials)
 
+app.get("/debug-ip-test-imotko", (req, res) => {
+    res.json({ ip: req.ip, ips: req.ips, xff: req.headers["x-forwarded-for"] })
+})
+
 // Rate limiting - only apply in production, skip in development
 const limiter =
     process.env.ENV === "production"
@@ -40,7 +44,7 @@ const limiter =
           })
         : (req, res, next) => next()
 
-app.set("trust proxy", false)
+app.set("trust proxy", 1)
 app.use(limiter)
 app.use(helmet())
 app.use(cors())
