@@ -44,7 +44,7 @@ const limiter =
           })
         : (req, res, next) => next()
 
-app.set("trust proxy", 1)
+app.set("trust proxy", 2)
 app.use(limiter)
 app.use(helmet())
 app.use(cors())
