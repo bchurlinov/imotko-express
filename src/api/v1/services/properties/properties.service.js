@@ -282,9 +282,12 @@ export const getPropertiesService = async (params = {}) => {
 /**
  * Get single property by property ID
  * @param {string} propertyId - Property ID
+ * @param {Object} [viewContext] - Context used to record a PropertyView
+ * @param {string} [viewContext.ip] - Requester IP address
+ * @param {string|null} [viewContext.clientId] - Client ID, if known
  * @returns {Promise<ApiResponse<PropertyWithRelations[]>>}
  */
-export const getPropertyService = async propertyId => {
+export const getPropertyService = async (propertyId, viewContext = {}) => {
     try {
         const property = await prisma.property.findUnique({
             where: { id: propertyId },
@@ -298,6 +301,21 @@ export const getPropertyService = async propertyId => {
                 },
             },
         })
+
+        if (property) {
+            try {
+                await prisma.propertyView.create({
+                    data: {
+                        propertyId: property.id,
+                        clientId: viewContext.clientId ?? null,
+                        additionalInfo: { ip: viewContext.ip ?? "Unknown" },
+                    },
+                })
+            } catch (viewErr) {
+                console.error("Error recording property view:", viewErr)
+            }
+        }
+
         return {
             data: property,
             message: "Property loaded successfully",

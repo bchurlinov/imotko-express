@@ -11,10 +11,11 @@ import createError from "http-errors"
  * Service to add a property to user's favorites
  * @param {string} userId - The ID of the user
  * @param {string} propertyId - The ID of the property to favorite
+ * @param {string} [ip] - Requester IP address
  * @returns {Promise<ApiResponse<User>>} The created favorite and engagement records
  * @throws {Error} If user's client profile doesn't exist or property doesn't exist
  */
-const usersCreatePropertiesFavoriteService = async (userId, propertyId) => {
+const usersCreatePropertiesFavoriteService = async (userId, propertyId, ip) => {
     // Find the client associated with this user
     const client = await prisma.client.findUnique({
         where: { userId },
@@ -51,6 +52,7 @@ const usersCreatePropertiesFavoriteService = async (userId, propertyId) => {
                 propertyId,
                 clientId: client.id,
                 type: EngagementType.FAVORITE,
+                additionalInfo: { ip: ip ?? "Unknown" },
             },
         }),
     ])

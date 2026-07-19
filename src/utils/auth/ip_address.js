@@ -3,12 +3,10 @@
  * @param {import('express').Request} request - The Express request object
  * @returns {string} The IP address or "Unknown" if not found
  */
-export const getIpAddress = (request) => {
+export const getIpAddress = request => {
     // Access headers and ensure type safety
-    const xForwardedFor =
-        request.get("x-forwarded-for") || request.headers["x-forwarded-for"]
-    const connectionRemoteAddress =
-        request.get("x-real-ip") || request.headers["x-real-ip"]
+    const xForwardedFor = request.get("x-forwarded-for") || request.headers["x-forwarded-for"]
+    const connectionRemoteAddress = request.get("x-real-ip") || request.headers["x-real-ip"]
 
     // Access IP directly from the Express `request` object
     const ip = request.ip || request.socket?.remoteAddress

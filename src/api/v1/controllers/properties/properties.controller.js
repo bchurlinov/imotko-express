@@ -1,5 +1,6 @@
 import { asyncHandler } from "#utils/helpers/async_handler.js"
 import { getPropertiesService, getPropertyService } from "#services/properties/properties.service.js"
+import { getIpAddress } from "#utils/auth/ip_address.js"
 
 /**
  * Controller to get properties
@@ -21,6 +22,9 @@ export const getPropertiesController = asyncHandler(async (req, res) => {
  * @returns {Promise<void>}
  */
 export const getPropertyByIdController = async (req, res) => {
-    const property = await getPropertyService(req.params.id)
+    const property = await getPropertyService(req.params.id, {
+        ip: getIpAddress(req),
+        clientId: req.user?.clientId ?? null,
+    })
     return res.status(200).json(property)
 }

@@ -18,6 +18,7 @@ import {
     getPropertiesFavoritesService,
 } from "#services/users/users_properties_favorites.service.js"
 import createError from "http-errors"
+import { getIpAddress } from "#utils/auth/ip_address.js"
 
 /**
  * Controller to find or create user from Supabase auth data
@@ -177,7 +178,7 @@ export const deleteNotificationController = asyncHandler(async (req, res) => {
  */
 export const propertyFavoriteController = asyncHandler(async (req, res) => {
     const { id: userId, propertyId } = req.params
-    const result = await usersCreatePropertiesFavoriteService(userId, propertyId)
+    const result = await usersCreatePropertiesFavoriteService(userId, propertyId, getIpAddress(req))
     return res.status(201).json(result)
 })
 
