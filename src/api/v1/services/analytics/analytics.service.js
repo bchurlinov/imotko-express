@@ -36,6 +36,17 @@ const getStartDate = range => {
     }
 }
 
+const getYearWindow = year => {
+    const parsed = Number(year)
+    if (!Number.isInteger(parsed)) return null
+
+    const now = new Date()
+    const start = new Date(Date.UTC(parsed, 0, 1))
+    const end = parsed === now.getUTCFullYear() ? now : new Date(Date.UTC(parsed, 11, 31, 23, 59, 59))
+
+    return { start, end }
+}
+
 /**
  * Get price trends with YoY comparison
  * @param {Object} params - Query parameters
@@ -43,13 +54,16 @@ const getStartDate = range => {
  * @param {string} [params.listingType] - Listing type filter ('for_rent' or 'for_sale')
  * @param {string} [params.propertyType] - Property type filter ('flat', 'house', etc.)
  * @param {TimeRange} [params.range='1y'] - Time range for data
+ * @param {number} [params.year] - Calendar year for data
  * @returns {Promise<{success: boolean, data?: PriceTrendItem[], error?: string}>}
  */
 export const getPriceTrendsService = async (params = {}) => {
     try {
-        const { locationId: rawLocationId, listingType, propertyType, range = "1y" } = params
+        const { locationId: rawLocationId, listingType, propertyType, range = "1y", year } = params
         const locationId = normalizeLocationId(rawLocationId)
-        const startDate = getStartDate(range)
+        const yearWindow = getYearWindow(year)
+        const startDate = yearWindow ? yearWindow.start : getStartDate(range)
+        const endDate = yearWindow ? yearWindow.end : new Date()
 
         // Get start date for YoY comparison (1 year before the range start)
         const yoyStartDate = new Date(startDate)
@@ -68,11 +82,11 @@ export const getPriceTrendsService = async (params = {}) => {
         }
 
         let joinConditions = []
-        const queryParams = [yoyStartDate]
-        let paramIndex = 2
+        const queryParams = [yoyStartDate, endDate]
+        let paramIndex = 3
 
         if (resolvedLocationId) {
-            joinConditions.push(`(mt."propertyLocationId" = $${paramIndex} OR mt."parentLocationId" = $${paramIndex})`)
+            joinConditions.push(`mt."propertyLocationId" = $${paramIndex}`)
             queryParams.push(resolvedLocationId)
             paramIndex++
         }
@@ -94,13 +108,13 @@ export const getPriceTrendsService = async (params = {}) => {
             WITH month_series AS (
                 SELECT DATE_TRUNC('month', generate_series(
                     $1::timestamp,
-                    NOW(),
+                    $2::timestamp,
                     '1 month'::interval
                 )) AS month
             )
             SELECT
                 ms.month,
-                COALESCE(SUM(mt.listing_count::BIGINT), 0) AS listing_count,
+                COALESCE(SUM(mt.listing_count)::INTEGER, 0) AS listing_count,
                 COALESCE((SUM(mt.avg_price * mt.listing_count) / NULLIF(SUM(mt.listing_count), 0))::INTEGER, 0) AS avg_price,
                 COALESCE((SUM(mt.avg_price_per_sqm * mt.listing_count) / NULLIF(SUM(mt.listing_count), 0))::INTEGER, 0) AS avg_price_per_sqm
             FROM month_series ms

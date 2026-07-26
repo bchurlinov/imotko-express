@@ -18,6 +18,24 @@ enum AgencyInvitationStatus {
   expired
 }
 
+enum AgencyFacebookConnectionStatus {
+  CONNECTED
+  EXPIRING
+  EXPIRED
+  REVOKED
+  ERROR
+  DISCONNECTED
+}
+
+enum AgencyFacebookConnectionAttemptStatus {
+  AUTHORIZATION_PENDING
+  PAGE_SELECTION_PENDING
+  COMPLETED
+  CANCELLED
+  EXPIRED
+  FAILED
+}
+
 enum AgencyRole {
   OWNER
   ADMIN
@@ -26,47 +44,132 @@ enum AgencyRole {
 }
 
 model Agency {
-  id                     String                      @id @default(cuid())
-  status                 AgencyApprovalStatus        @default(PENDING)
-  imotkoApproved         Boolean                     @default(false)
-  plan                   AgencyPlan                  @default(FREE)
-  planUntil              DateTime?
-  email                  String?
-  taxNumber              String?
-  name                   String
-  description            Json?
-  slug                   String?
-  address                String
-  phone                  String?
-  location               String?
-  social                 Json?
-  logo                   Json?
-  credits                Int                         @default(0)
-  leadReveals            LeadReveal[]
-  owner                  String
-  users                  User[]
-  ratings                AgencyReview[]
-  properties             Property[]
-  propertySale           PropertySale[]
-  agencyView             AgencyView[]
-  proposalOffer          ProposalOffer[]
-  AgencySubmissionReview AgencySubmissionReview?
-  websiteSettings        AgencyWebsiteSettings?
-  testimonials           AgencyTestimonial[]
-  partners               AgencyPartner[]
-  entitlementOverrides   AgencyEntitlementOverride[]
+  id                         String                            @id @default(cuid())
+  status                     AgencyApprovalStatus              @default(PENDING)
+  imotkoApproved             Boolean                           @default(false)
+  plan                       AgencyPlan                        @default(FREE)
+  planUntil                  DateTime?
+  email                      String?
+  taxNumber                  String?
+  name                       String
+  description                Json?
+  slug                       String?
+  address                    String
+  phone                      String?
+  location                   String?
+  social                     Json?
+  logo                       Json?
+  credits                    Int                               @default(0)
+  leadReveals                LeadReveal[]
+  owner                      String
+  users                      User[]
+  ratings                    AgencyReview[]
+  properties                 Property[]
+  propertySale               PropertySale[]
+  agencyView                 AgencyView[]
+  proposalOffer              ProposalOffer[]
+  AgencySubmissionReview     AgencySubmissionReview?
+  websiteSettings            AgencyWebsiteSettings?
+  testimonials               AgencyTestimonial[]
+  partners                   AgencyPartner[]
+  entitlementOverrides       AgencyEntitlementOverride[]
   //
-  ownerId                String?                     @unique
-  agencyOwner            User?                       @relation("AgencyOwner", fields: [ownerId], references: [id])
-  agencyMembers          AgencyMember[]
-  agencyInvitation       AgencyInvitation[]
-  agencyClient           AgencyClient[]              @relation("AgencyClient")
+  ownerId                    String?                           @unique
+  agencyOwner                User?                             @relation("AgencyOwner", fields: [ownerId], references: [id])
+  agencyMembers              AgencyMember[]
+  agencyInvitation           AgencyInvitation[]
+  agencyClient               AgencyClient[]                    @relation("AgencyClient")
+  facebookConnection         AgencyFacebookConnection?
+  facebookConnectionAttempts AgencyFacebookConnectionAttempt[]
   //
-  createdAt              DateTime                    @default(now()) @db.Timestamptz(3)
-  updatedAt              DateTime                    @updatedAt @db.Timestamptz(3)
+  createdAt                  DateTime                          @default(now()) @db.Timestamptz(3)
+  updatedAt                  DateTime                          @updatedAt @db.Timestamptz(3)
 
   @@index([location])
   @@index([name])
+}
+
+model AgencyFacebookConnection {
+  id                        String                         @id @default(cuid())
+  agencyId                  String                         @unique
+  agency                    Agency                         @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  status                    AgencyFacebookConnectionStatus @default(DISCONNECTED)
+  revision                  Int                            @default(0)
+  facebookUserId            String?
+  facebookUserName          String?
+  pageId                    String?
+  pageName                  String?
+  pageCategory              String?
+  pagePictureUrl            String?
+  pageTasks                 String[]                       @default([])
+  grantedScopes             String[]                       @default([])
+  declinedScopes            String[]                       @default([])
+  granularScopes            Json?
+  encryptedUserToken        String?
+  encryptedPageToken        String?
+  userTokenExpiresAt        DateTime?                      @db.Timestamptz(3)
+  pageTokenExpiresAt        DateTime?                      @db.Timestamptz(3)
+  dataAccessExpiresAt       DateTime?                      @db.Timestamptz(3)
+  graphApiVersion           String?
+  connectedByUserId         String?
+  connectedAt               DateTime?                      @db.Timestamptz(3)
+  replacedByUserId          String?
+  replacedAt                DateTime?                      @db.Timestamptz(3)
+  disconnectedByUserId      String?
+  disconnectedAt            DateTime?                      @db.Timestamptz(3)
+  lastValidatedAt           DateTime?                      @db.Timestamptz(3)
+  lastErrorCode             String?
+  lastErrorAt               DateTime?                      @db.Timestamptz(3)
+  expiryNotifiedAt          DateTime?                      @db.Timestamptz(3)
+  invalidNotifiedAt         DateTime?                      @db.Timestamptz(3)
+  metaRevocationConfirmedAt DateTime?                      @db.Timestamptz(3)
+  purgeAt                   DateTime?                      @db.Timestamptz(3)
+  createdAt                 DateTime                       @default(now()) @db.Timestamptz(3)
+  updatedAt                 DateTime                       @updatedAt @db.Timestamptz(3)
+
+  @@index([facebookUserId])
+  @@index([status])
+  @@index([userTokenExpiresAt])
+  @@index([pageTokenExpiresAt])
+  @@index([dataAccessExpiresAt])
+  @@index([purgeAt])
+}
+
+model AgencyFacebookConnectionAttempt {
+  id                          String                                @id @default(cuid())
+  agencyId                    String
+  agency                      Agency                                @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  initiatingUserId            String
+  stateHash                   String                                @unique
+  status                      AgencyFacebookConnectionAttemptStatus @default(AUTHORIZATION_PENDING)
+  locale                      String
+  returnPath                  String
+  expectedActiveRevision      Int                                   @default(0)
+  encryptedTemporaryUserToken String?
+  facebookUserId              String?
+  facebookUserName            String?
+  grantedScopes               String[]                              @default([])
+  declinedScopes              String[]                              @default([])
+  granularScopes              Json?
+  debugMetadata               Json?
+  authorizationExpiresAt      DateTime                              @db.Timestamptz(3)
+  pageSelectionExpiresAt      DateTime?                             @db.Timestamptz(3)
+  usedAt                      DateTime?                             @db.Timestamptz(3)
+  errorCode                   String?
+  errorAt                     DateTime?                             @db.Timestamptz(3)
+  createdAt                   DateTime                              @default(now()) @db.Timestamptz(3)
+  updatedAt                   DateTime                              @updatedAt @db.Timestamptz(3)
+
+  @@index([agencyId, initiatingUserId])
+  @@index([status, authorizationExpiresAt])
+  @@index([status, pageSelectionExpiresAt])
+}
+
+model AgencyFacebookDataDeletionConfirmation {
+  id                   String   @id @default(cuid())
+  confirmationCodeHash String   @unique
+  completedAt          DateTime @default(now()) @db.Timestamptz(3)
+  createdAt            DateTime @default(now()) @db.Timestamptz(3)
 }
 
 model AgencyEntitlementOverride {

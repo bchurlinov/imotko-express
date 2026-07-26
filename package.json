@@ -3,6 +3,9 @@
     "version": "1.0.0",
     "main": "src/app.js",
     "type": "module",
+    "engines": {
+        "node": "22.x"
+    },
     "scripts": {
         "start": "node --experimental-transform-types src/app.js",
         "dev": "dotenv -e .env.development -- nodemon",
@@ -11,7 +14,12 @@
         "start:dev": "dotenv -e .env.development -- node --experimental-transform-types src/app.js",
         "start:stage": "dotenv -e .env.stage -- node --experimental-transform-types src/app.js",
         "start:prod": "dotenv -e .env.production -- node --experimental-transform-types src/app.js",
-        "postinstall": "prisma generate"
+        "postinstall": "prisma generate",
+        "worker": "node --experimental-transform-types workers/index.js",
+        "worker:dev": "dotenv -e .env.development -- nodemon --watch workers --ext js --ignore 'workers/**/*.spec.js' --exec 'node --experimental-transform-types workers/index.js'",
+        "worker:stage": "dotenv -e .env.stage -- node --experimental-transform-types workers/index.js",
+        "worker:facebook": "node --experimental-transform-types workers/facebook-property-publication/index.js",
+        "test:facebook-worker": "node --experimental-transform-types --test workers/facebook-property-publication/*.spec.js"
     },
     "prisma": {
         "seed": "node prisma/seed.js"
@@ -27,6 +35,7 @@
         "@supabase/supabase-js": "^2.81.1",
         "ai": "^4.3.19",
         "bcryptjs": "^2.4.3",
+        "bullmq": "^5.80.10",
         "chalk": "^5.3.0",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
@@ -37,7 +46,9 @@
         "express-validator": "^7.2.0",
         "handlebars": "^4.7.8",
         "helmet": "^8.0.0",
+        "html-to-text": "^9.0.5",
         "http-errors": "^2.0.0",
+        "ioredis": "^5.11.1",
         "jose": "^6.1.2",
         "jsonwebtoken": "^9.0.2",
         "lru-cache": "^11.2.4",
@@ -45,6 +56,7 @@
         "node-cron": "^3.0.3",
         "pg": "^8.16.3",
         "prisma": "^7.2.0",
+        "rate-limit-redis": "^4.3.1",
         "sharp": "^0.34.5",
         "uuid": "^11.0.3"
     },

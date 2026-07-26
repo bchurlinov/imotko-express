@@ -30,10 +30,18 @@ const propertyTypeValidation = query("propertyType")
 
 const groupByValidation = query("groupBy").optional().isIn(["city", "type"]).withMessage("groupBy must be city or type")
 
+const yearValidation = query("year").optional().isInt({ min: 1900, max: 9999 }).withMessage("year must be a valid year")
+
 // GET /api/v1/analytics/price-trends
 router.get(
     "/price-trends",
-    [rangeValidation, listingTypeValidation, propertyTypeValidation, query("locationId").optional().isString().trim()],
+    [
+        rangeValidation,
+        yearValidation,
+        listingTypeValidation,
+        propertyTypeValidation,
+        query("locationId").optional().isString().trim(),
+    ],
     validateRequest,
     getPriceTrendsController
 )

@@ -1,18 +1,5 @@
-import { jwtVerify } from "jose"
-import { getSupabaseJwtSecret, getSupabaseUrl } from "#supabase"
 import createError from "http-errors"
-
-const BEARER_PREFIX = "Bearer "
-
-/**
- * Normalize base URL by removing trailing slash
- * @param {string} url - URL to normalize
- * @returns {string} Normalized URL
- */
-const normalizeBaseUrl = url => url.replace(/\/$/, "")
-
-const hmacSecret = new TextEncoder().encode(getSupabaseJwtSecret())
-const supabaseIssuer = `${normalizeBaseUrl(getSupabaseUrl())}/auth/v1`
+import { extractBearerToken, verifySupabaseJwt } from "#utils/auth/supabaseJwt.js"
 
 /**
  * Check if value is a record (plain object)
@@ -38,13 +25,6 @@ const ensureRole = payload => {
 }
 
 /**
- * Verify JWT token using HS256
- * @param {string} token - JWT token to verify
- * @returns {Promise<object>} Verification result
- */
-const verifyJwt = async token => jwtVerify(token, hmacSecret, { issuer: supabaseIssuer })
-
-/**
  * Middleware to verify Supabase JWT token
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -53,20 +33,10 @@ const verifyJwt = async token => jwtVerify(token, hmacSecret, { issuer: supabase
  */
 export const verifySupabaseToken = async (req, res, next) => {
     try {
-        const rawAuthHeader = Array.isArray(req.headers.authorization)
-            ? req.headers.authorization[0]
-            : req.headers.authorization
+        const token = extractBearerToken(req)
+        if (!token) return next(createError(401, "Недостасува или е невалиден токенот."))
 
-        if (!rawAuthHeader?.startsWith(BEARER_PREFIX)) {
-            return next(createError(401, "Недостасува или е невалиден токенот."))
-        }
-
-        const token = rawAuthHeader.slice(BEARER_PREFIX.length).trim()
-        if (!token) return next(createError(401, "Недостасува токенот за верификација."))
-
-        const { payload } = await verifyJwt(token)
-
-        const supabasePayload = payload
+        const supabasePayload = await verifySupabaseJwt(token)
 
         if (typeof supabasePayload.sub !== "string" || supabasePayload.sub.length === 0) {
             return next(createError(401, "Проблем при верификација на токенот."))

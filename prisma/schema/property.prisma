@@ -61,6 +61,8 @@ model Property {
   longitude                     Float
   agencyId                      String?
   status                        PropertyStatus             @default(PENDING)
+  publishToFacebook             Boolean                    @default(false)
+  facebookPublishedAt           DateTime?                   @db.Timestamptz(3)
   price                         Int
   hasApproximatePrice           Boolean?                   @default(false)
   approximatePrice              Int?

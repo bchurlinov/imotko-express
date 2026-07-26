@@ -14,17 +14,17 @@ import {
  */
 export const getPriceTrendsController = async (req, res, next) => {
     try {
-        const { locationId, listingType, propertyType, range } = req.query
+        const { locationId, listingType, propertyType, range, year } = req.query
         const result = await getPriceTrendsService({
             locationId,
             listingType,
             propertyType,
             range,
+            year,
         })
 
-        if (!result.success) return res.status(500).json({ error: result.error })
-
-        res.json(result.data)
+        if (!result.success) return res.status(500).json({ success: false, error: result.error })
+        res.json(result)
     } catch (error) {
         next(error)
     }

@@ -1,0 +1,5 @@
+-- RenameIndex
+ALTER INDEX "AgencyFacebookConnectionAttempt_status_authorizationExpiresAt_i" RENAME TO "AgencyFacebookConnectionAttempt_status_authorizationExpires_idx";
+
+-- RenameIndex
+ALTER INDEX "AgencyFacebookConnectionAttempt_status_pageSelectionExpiresAt_i" RENAME TO "AgencyFacebookConnectionAttempt_status_pageSelectionExpires_idx";

@@ -1,4 +1,5 @@
 import rateLimit from "express-rate-limit"
+import { createRateLimitStore, sharedRateLimitOptions } from "#config/rateLimit.config.js"
 
 /**
  * IP-based rate limiter for public inquiry submissions
@@ -6,8 +7,10 @@ import rateLimit from "express-rate-limit"
  * @type {import('express').RequestHandler}
  */
 export const inquiryRateLimit = rateLimit({
+    ...sharedRateLimitOptions,
     windowMs: 15 * 60 * 1000,
     max: 10,
+    store: createRateLimitStore("inquiry"),
     standardHeaders: true,
     legacyHeaders: false,
     handler: (req, res) => {

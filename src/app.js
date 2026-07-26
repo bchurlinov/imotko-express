@@ -11,7 +11,12 @@ import initializeRoutes from "./api/v1/routes/index.js"
 
 // Middlewares
 import { errorMiddleware } from "./api/v1/middlewares/errorMiddleware.js"
-import { credentials } from "./api/v1/middlewares/credentials.js"
+import { attachRateLimitKey } from "./api/v1/middlewares/rateLimitKey.js"
+
+// Config
+import { corsOptions } from "./config/cors.config.js"
+import { createRateLimitStore, sharedRateLimitOptions } from "./config/rateLimit.config.js"
+import { closeRedisClient } from "./config/redis.js"
 
 // Database
 import prisma from "./database/client.js"
@@ -21,19 +26,25 @@ const app = express()
 // Log middleware - filter out Chrome DevTools inspector requests
 app.use(morgan("dev"))
 
-// credentials middleware
-app.use(credentials)
-
 // app.get("/debug-ip-test-imotko", (req, res) => {
 //     res.json({ ip: req.ip, ips: req.ips, xff: req.headers["x-forwarded-for"] })
 // })
 
 // Rate limiting - only apply in production, skip in development
+// Authenticated requests are bucketed per Supabase user id, so mobile clients
+// sharing a carrier NAT address do not exhaust each other's budget. Anonymous
+// traffic still falls back to a (IPv6 /64 normalized) IP bucket.
+const AUTHENTICATED_REQUEST_LIMIT = 500
+const ANONYMOUS_REQUEST_LIMIT = 100
+
 const limiter =
     process.env.ENV === "production"
         ? rateLimit({
+              ...sharedRateLimitOptions,
               windowMs: 15 * 60 * 1000,
-              limit: 100,
+              limit: req => (req.rateLimitKey?.kind === "user" ? AUTHENTICATED_REQUEST_LIMIT : ANONYMOUS_REQUEST_LIMIT),
+              keyGenerator: req => req.rateLimitKey?.key ?? `ip:${req.ip}`,
+              store: createRateLimitStore("global"),
               standardHeaders: "draft-7",
               legacyHeaders: false,
               message: {
@@ -45,9 +56,13 @@ const limiter =
         : (req, res, next) => next()
 
 app.set("trust proxy", 2)
-app.use(limiter)
+
+// CORS runs before the rate limiter so 429 responses still carry CORS headers
+// and the browser surfaces the real status instead of a generic CORS error
+app.use(cors(corsOptions))
 app.use(helmet())
-app.use(cors())
+app.use(attachRateLimitKey)
+app.use(limiter)
 
 app.use(express.json())
 app.use(cookieParser(process.env.JWT_SECRET))
@@ -99,6 +114,9 @@ const shutdown = async (signal, code = 0) => {
         console.log("🔌 Closing database connections...")
         await prisma.$disconnect()
         console.log("✅ Database connections closed")
+
+        await closeRedisClient()
+        console.log("✅ Redis connection closed")
 
         console.log("👋 Graceful shutdown complete")
         clearTimeout(forceExitTimeout)

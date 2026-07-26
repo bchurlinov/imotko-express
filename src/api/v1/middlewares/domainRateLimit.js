@@ -1,4 +1,5 @@
 import rateLimit from "express-rate-limit"
+import { createRateLimitStore, sharedRateLimitOptions } from "#config/rateLimit.config.js"
 
 /**
  * Per-IP rate limiter for public website endpoints
@@ -13,8 +14,10 @@ import rateLimit from "express-rate-limit"
  * @type {import('express').RequestHandler}
  */
 export const domainRateLimit = rateLimit({
+    ...sharedRateLimitOptions,
     windowMs: 60 * 1000, // 1 minute
     max: 200, // 200 requests per window per IP
+    store: createRateLimitStore("domain"),
     standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 
