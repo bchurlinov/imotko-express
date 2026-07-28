@@ -4,7 +4,8 @@
       "Bash(pnpm add:*)",
       "Bash(claude *)",
       "Bash(rg --files workers/)",
-      "Bash(rg --files src/config/)"
+      "Bash(rg --files src/config/)",
+      "Bash(rg -n \"Worker|Queue|QueueEvents|new IORedis|connection|drainDelay|stalledInterval|maxStalledCount|lockDuration|repeat|concurrency\" workers/facebook-property-publication/*.js)"
     ]
   }
 }

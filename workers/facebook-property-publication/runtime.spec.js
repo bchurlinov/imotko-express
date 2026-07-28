@@ -44,7 +44,11 @@ test("starts the exact Facebook queue, reports lifecycle events, and shuts down 
 
     const runtime = await startFacebookWorker({ WorkerClass, connection, processor, logger })
     const worker = WorkerClass.instances[0]
-    assert.deepEqual(worker.args, ["facebook-property-publication", processor, { connection, concurrency: 1 }])
+    assert.deepEqual(worker.args, [
+        "facebook-property-publication",
+        processor,
+        { connection, concurrency: 1, drainDelay: 50, stalledInterval: 300_000 },
+    ])
     assert.deepEqual(lifecycle, ["ready"])
 
     worker.emit("completed", { id: "job-1", name: "publish-approved-property" })

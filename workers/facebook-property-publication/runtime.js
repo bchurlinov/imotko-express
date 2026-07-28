@@ -2,6 +2,20 @@ export async function startFacebookWorker({ WorkerClass, connection, processor, 
     const worker = new WorkerClass("facebook-property-publication", processor, {
         connection,
         concurrency: 1,
+        // BullMQ's defaults (5s block, 30s stalled sweep) assume Redis commands are
+        // free. Upstash bills per command, and an idle worker still polls: measured
+        // at ~81 ops/min on the defaults, which is 3.5M/month against a 500k quota.
+        //
+        // Long blocks cost nothing in pickup latency - `Queue.add` writes the marker
+        // key the worker is already blocked on, so a queued job is picked up in ~5ms
+        // regardless of drainDelay. Delayed jobs cap the block at 10s on their own.
+        // 50s keeps the block under Upstash's 60s idle-connection timeout, so it is
+        // never cut mid-flight.
+        drainDelay: 50,
+        // Only guards against this process dying mid-job. With concurrency 1 and a
+        // single worker, 5 minutes to recover a stalled job is an acceptable trade
+        // for 10x fewer sweeps.
+        stalledInterval: 300_000,
     })
 
     worker.on("completed", job => {
