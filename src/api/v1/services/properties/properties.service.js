@@ -17,6 +17,7 @@ import {
     DEFAULT_LOCALE,
 } from "./utils/index.js"
 import prisma from "#database/client.js"
+import { HIDDEN_AGENCY_IDS, isHiddenAgency } from "#config/hiddenAgencies.config.js"
 
 /**
  * @typedef {import('#types/api.js').ApiResponse} ApiResponse
@@ -61,10 +62,13 @@ import prisma from "#database/client.js"
 /**
  * Get properties with filtering, sorting, and pagination
  * @param {PropertyQueryParams} params - Query parameters
+ * @param {Object} [options] - Internal options (never derived from query params)
+ * @param {boolean} [options.includeHiddenAgencies] - Bypass the hidden agency exclusion
  * @returns {Promise<ApiResponse<PropertyWithRelations[]>>}
  */
-export const getPropertiesService = async (params = {}) => {
+export const getPropertiesService = async (params = {}, options = {}) => {
     try {
+        const { includeHiddenAgencies = false } = options
         const locale = stringValue(params.locale) ?? DEFAULT_LOCALE
 
         const includePending = booleanValue(params.includePending) && params.agency
@@ -82,6 +86,14 @@ export const getPropertiesService = async (params = {}) => {
         const ids = stringValues(params.ids)
         if (ids.length) filters.id = { in: ids }
         if (params.agency) filters.agencyId = stringValue(params.agency)
+
+        // Hidden agencies are never exposed through the public API. agencyId is nullable,
+        // so the null branch keeps properties without an agency in the result set.
+        if (!includeHiddenAgencies && HIDDEN_AGENCY_IDS.length) {
+            andConditions.push({
+                OR: [{ agencyId: null }, { agencyId: { notIn: HIDDEN_AGENCY_IDS } }],
+            })
+        }
 
         const inDevelopment = booleanValue(params.in_development)
         if (typeof inDevelopment === "boolean") filters.inDevelopment = inDevelopment
@@ -285,10 +297,14 @@ export const getPropertiesService = async (params = {}) => {
  * @param {Object} [viewContext] - Context used to record a PropertyView
  * @param {string} [viewContext.ip] - Requester IP address
  * @param {string|null} [viewContext.clientId] - Client ID, if known
+ * @param {Object} [options] - Internal options (never derived from query params)
+ * @param {boolean} [options.includeHiddenAgencies] - Bypass the hidden agency exclusion
  * @returns {Promise<ApiResponse<PropertyWithRelations[]>>}
  */
-export const getPropertyService = async (propertyId, viewContext = {}) => {
+export const getPropertyService = async (propertyId, viewContext = {}, options = {}) => {
     try {
+        const { includeHiddenAgencies = false } = options
+
         const property = await prisma.property.findUnique({
             where: { id: propertyId },
             include: {
@@ -301,6 +317,13 @@ export const getPropertyService = async (propertyId, viewContext = {}) => {
                 },
             },
         })
+
+        if (!includeHiddenAgencies && isHiddenAgency(property?.agencyId)) {
+            return {
+                data: null,
+                message: "Property loaded successfully",
+            }
+        }
 
         if (property) {
             try {

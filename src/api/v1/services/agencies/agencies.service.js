@@ -1,5 +1,6 @@
 import { AgencyApprovalStatus } from "#generated/prisma/enums.ts"
 import prisma from "#database/client.js"
+import { HIDDEN_AGENCY_IDS, isHiddenAgency } from "#config/hiddenAgencies.config.js"
 
 /**
  *  @typedef {import('#types/api.js').ApiResponse} ApiResponse
@@ -19,6 +20,13 @@ import prisma from "#database/client.js"
  */
 export const getAgencyService = async agencyId => {
     try {
+        if (isHiddenAgency(agencyId)) {
+            return {
+                data: null,
+                message: "Agency details loaded successfully.",
+            }
+        }
+
         const agency = await prisma.agency.findUnique({
             where: { id: agencyId },
         })
@@ -44,6 +52,7 @@ export const getAgenciesService = async (params = {}) => {
         const queryParams = {
             where: {
                 status: AgencyApprovalStatus.APPROVED,
+                ...(HIDDEN_AGENCY_IDS.length ? { id: { notIn: HIDDEN_AGENCY_IDS } } : {}),
             },
             take: parseInt(limit, 10),
             orderBy: {

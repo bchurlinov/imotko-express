@@ -39,7 +39,9 @@ export const getWebsiteAgencyPropertiesController = asyncHandler(async (req, res
     }
 
     const queryParams = { agency: req.agencyId, ...otherParams, ...decodedFilters }
-    const agencyProperties = await getPropertiesService(queryParams)
+    // Agency websites are scoped to their own agency by the referer middleware,
+    // so hidden-agency exclusion (public API only) does not apply here.
+    const agencyProperties = await getPropertiesService(queryParams, { includeHiddenAgencies: true })
     return res.status(200).json(agencyProperties)
 })
 
