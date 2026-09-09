@@ -1,0 +1,2 @@
+ALTER TABLE "Property"
+ADD COLUMN "verifiedByAgency" BOOLEAN NOT NULL DEFAULT false;

@@ -1,0 +1,1 @@
+ALTER TYPE "LeadIntent" ADD VALUE 'RENTING';

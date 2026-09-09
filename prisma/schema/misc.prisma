@@ -50,6 +50,7 @@ model ExternalListing {
 enum LeadIntent {
   SELLING
   BUYING
+  RENTING
   LAND_INVESTMENT
 }
 

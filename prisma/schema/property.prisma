@@ -17,6 +17,7 @@ enum PropertyCountry {
   serbia
   albania
   greece
+  bulgaria
 }
 
 enum PropertyOrientation {
@@ -62,7 +63,8 @@ model Property {
   agencyId                      String?
   status                        PropertyStatus             @default(PENDING)
   publishToFacebook             Boolean                    @default(false)
-  facebookPublishedAt           DateTime?                   @db.Timestamptz(3)
+  facebookPublishedAt           DateTime?                  @db.Timestamptz(3)
+  verifiedByAgency              Boolean                    @default(false)
   price                         Int
   hasApproximatePrice           Boolean?                   @default(false)
   approximatePrice              Int?
