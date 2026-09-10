@@ -7,7 +7,7 @@ const validId = value => typeof value === "string" && value.trim().length > 0
 
 const connectionStatuses = new Set(["ERROR", "EXPIRED", "REVOKED"])
 
-const persistenceSucceeded = outcome => ["recorded", "already-recorded", "deleted"].includes(outcome)
+const persistenceSucceeded = outcome => ["recorded", "deleted"].includes(outcome)
 
 export function createFacebookPropertyProcessor({
     repository,

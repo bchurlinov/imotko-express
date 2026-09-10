@@ -10,7 +10,7 @@ const future = new Date("2030-01-01T00:00:00.000Z")
 const makeProperty = (overrides = {}) => ({
     id: "property-1",
     agencyId: "agency-1",
-    status: "PUBLISHED",
+    status: "PENDING",
     publishToFacebook: true,
     facebookPublishedAt: null,
     slug: "stan",
@@ -205,21 +205,133 @@ describe("Facebook property processor", () => {
         assert.equal(harness.calls.loadPublicationGuard, 1)
     })
 
-    test("skips an already-published property before decrypting or calling Facebook", async () => {
-        const property = makeProperty({ facebookPublishedAt: new Date("2026-07-22T11:00:00.000Z") })
+    test("publishes a PENDING property queued at creation", async () => {
+        const property = makeProperty({ status: "PENDING", facebookPublishedAt: null })
         const harness = createHarness({ property })
 
         assert.deepEqual(await harness.processor(makeJob()), {
+            published: true,
+            propertyId: "property-1",
+            facebookPostId: "page-1_post-1",
+        })
+        assert.equal(harness.calls.createPagePost, 1)
+        assert.deepEqual(harness.events.at(-1), ["record", "property-1", checkedAt])
+    })
+
+    test("republishes a PENDING property that already has a post after an opted-in edit", async () => {
+        const property = makeProperty({
+            status: "PENDING",
+            facebookPublishedAt: new Date("2026-07-01T08:00:00.000Z"),
+            description: { mk: "<p>Изменет опис</p>" },
+        })
+        const harness = createHarness({ property })
+
+        assert.deepEqual(await harness.processor(makeJob({ id: "facebook-property-property-1-edit-2" })), {
+            published: true,
+            propertyId: "property-1",
+            facebookPostId: "page-1_post-1",
+        })
+        assert.equal(harness.calls.createPagePost, 1)
+        assert.equal(harness.calls.recordPublished, 1)
+        // The post carries the freshly loaded text, not whatever was published before.
+        assert.match(harness.events.find(([event]) => event === "post")[1].message, /Изменет опис/)
+        // The timestamp advances to this publication rather than staying at the earlier one.
+        assert.deepEqual(harness.events.at(-1), ["record", "property-1", checkedAt])
+    })
+
+    test("creates a separate post for every distinct job over the same property", async () => {
+        let counter = 0
+        const property = makeProperty({ facebookPublishedAt: new Date("2026-07-01T08:00:00.000Z") })
+        const harness = createHarness({
+            property,
+            postImpl: async () => {
+                counter += 1
+                return `page-1_post-${counter}`
+            },
+        })
+
+        const first = await harness.processor(makeJob({ id: "job-1" }))
+        const second = await harness.processor(makeJob({ id: "job-2" }))
+
+        assert.equal(first.facebookPostId, "page-1_post-1")
+        assert.equal(second.facebookPostId, "page-1_post-2")
+        assert.equal(harness.calls.createPagePost, 2)
+        assert.equal(harness.calls.recordPublished, 2)
+    })
+
+    test("skips a missing property before decrypting or calling Facebook", async () => {
+        const harness = createHarness({ loadImpl: async () => null })
+
+        assert.deepEqual(await harness.processor(makeJob()), {
             skipped: true,
-            reason: "already-published",
+            reason: "property-not-found",
             propertyId: "property-1",
         })
         assert.equal(harness.calls.decryptToken, 0)
         assert.equal(harness.calls.uploadUnpublishedPhoto, 0)
         assert.equal(harness.calls.createPagePost, 0)
-        assert.equal(harness.calls.loadPublicationGuard, 0)
         assert.equal(harness.calls.recordPublished, 0)
+        assert.equal(harness.calls.invalidateConnection, 0)
     })
+
+    test("skips a property owned by a different agency than the job claims", async () => {
+        const harness = createHarness({ property: makeProperty({ agencyId: "agency-2" }) })
+
+        assert.deepEqual(await harness.processor(makeJob()), {
+            skipped: true,
+            reason: "agency-mismatch",
+            propertyId: "property-1",
+        })
+        assert.equal(harness.calls.decryptToken, 0)
+        assert.equal(harness.calls.uploadUnpublishedPhoto, 0)
+        assert.equal(harness.calls.createPagePost, 0)
+        assert.equal(harness.calls.recordPublished, 0)
+        // A mismatched job is a bad request, not a broken connection.
+        assert.equal(harness.calls.invalidateConnection, 0)
+    })
+
+    for (const [label, agency] of [
+        [
+            "a disconnected Page",
+            { facebookConnection: { ...makeProperty().agency.facebookConnection, status: "DISCONNECTED" } },
+        ],
+        ["a connection that was removed entirely", { facebookConnection: null }],
+        [
+            "a connection with no selected Page",
+            { facebookConnection: { ...makeProperty().agency.facebookConnection, pageId: "" } },
+        ],
+    ]) {
+        test(`skips ${label} without touching Facebook`, async () => {
+            const expectedReason =
+                agency.facebookConnection?.status === "CONNECTED" ? "missing-page-credentials" : "page-disconnected"
+            const harness = createHarness({ property: makeProperty({ agency }) })
+
+            assert.deepEqual(await harness.processor(makeJob()), {
+                skipped: true,
+                reason: expectedReason,
+                propertyId: "property-1",
+            })
+            assert.equal(harness.calls.decryptToken, 0)
+            assert.equal(harness.calls.uploadUnpublishedPhoto, 0)
+            assert.equal(harness.calls.createPagePost, 0)
+            assert.equal(harness.calls.recordPublished, 0)
+        })
+    }
+
+    for (const status of ["DRAFT", "DECLINED", "UNPUBLISHED", "DELETED"]) {
+        test(`skips a ${status} property without touching Facebook`, async () => {
+            const harness = createHarness({ property: makeProperty({ status }) })
+
+            assert.deepEqual(await harness.processor(makeJob()), {
+                skipped: true,
+                reason: "property-not-publishable",
+                propertyId: "property-1",
+            })
+            assert.equal(harness.calls.uploadUnpublishedPhoto, 0)
+            assert.equal(harness.calls.createPagePost, 0)
+            assert.equal(harness.calls.recordPublished, 0)
+        })
+    }
 
     test("skips HTML that converts to empty content before decrypting or calling Facebook", async () => {
         const property = makeProperty({ description: { mk: "<div><br></div>" } })
@@ -357,21 +469,19 @@ describe("Facebook property processor", () => {
         assert.equal(harness.calls.createPagePost, 0)
     })
 
-    for (const persistenceOutcome of ["already-recorded", "deleted"]) {
-        test(`accepts ${persistenceOutcome} persistence after Facebook confirmed the post`, async () => {
-            const harness = createHarness({ recordImpl: async () => ({ outcome: persistenceOutcome }) })
+    test("accepts deleted persistence after Facebook confirmed the post", async () => {
+        const harness = createHarness({ recordImpl: async () => ({ outcome: "deleted" }) })
 
-            assert.deepEqual(await harness.processor(makeJob()), {
-                published: true,
-                propertyId: "property-1",
-                facebookPostId: "page-1_post-1",
-            })
-            assert.equal(harness.calls.createPagePost, 1)
-            assert.equal(harness.calls.recordPublished, 1)
-            const publishedLog = harness.logs.find(([, event]) => event === "facebook_post_published")
-            assert.equal(publishedLog[2].persistenceOutcome, persistenceOutcome)
+        assert.deepEqual(await harness.processor(makeJob()), {
+            published: true,
+            propertyId: "property-1",
+            facebookPostId: "page-1_post-1",
         })
-    }
+        assert.equal(harness.calls.createPagePost, 1)
+        assert.equal(harness.calls.recordPublished, 1)
+        const publishedLog = harness.logs.find(([, event]) => event === "facebook_post_published")
+        assert.equal(publishedLog[2].persistenceOutcome, "deleted")
+    })
 
     test("emits a critical sanitized event when a confirmed post can no longer be tracked", async () => {
         const harness = createHarness({ recordImpl: async () => ({ outcome: "deleted" }) })
@@ -483,6 +593,58 @@ describe("Facebook property processor", () => {
         await assert.rejects(persistenceHarness.processor(makeJob()), error => error === persistenceDatabaseError)
         assert.equal(persistenceHarness.calls.createPagePost, 1)
         assert.equal(persistenceHarness.calls.recordPublished, 1)
+    })
+
+    test("leaves no timestamp on a failed attempt and publishes on the BullMQ retry", async () => {
+        const transientError = new RetryablePublicationError("rate limited", { errorCode: "meta-4" })
+        let attempt = 0
+        const harness = createHarness({
+            postImpl: async () => {
+                attempt += 1
+                if (attempt === 1) throw transientError
+                return "page-1_post-1"
+            },
+        })
+
+        // Attempt 1: the error stays retryable, so BullMQ re-runs the job.
+        await assert.rejects(harness.processor(makeJob({ attemptsMade: 0 })), error => {
+            assert.equal(error instanceof UnrecoverableError, false)
+            return error === transientError
+        })
+        assert.equal(harness.calls.recordPublished, 0)
+        assert.equal(harness.calls.invalidateConnection, 0)
+
+        // Attempt 2: same job, and the timestamp is written only now.
+        assert.deepEqual(await harness.processor(makeJob({ attemptsMade: 1 })), {
+            published: true,
+            propertyId: "property-1",
+            facebookPostId: "page-1_post-1",
+        })
+        assert.equal(harness.calls.createPagePost, 2)
+        assert.equal(harness.calls.recordPublished, 1)
+        assert.deepEqual(harness.events.at(-1), ["record", "property-1", checkedAt])
+    })
+
+    test("leaves no timestamp on a skipped job", async () => {
+        for (const property of [
+            makeProperty({ status: "DELETED" }),
+            makeProperty({ agencyId: "agency-2" }),
+            makeProperty({ publishToFacebook: false }),
+        ]) {
+            const harness = createHarness({ property })
+
+            assert.equal((await harness.processor(makeJob())).skipped, true)
+            assert.equal(harness.calls.recordPublished, 0)
+        }
+    })
+
+    test("reports the retry attempt number BullMQ has already incremented", async () => {
+        const harness = createHarness({ property: makeProperty({ status: "DELETED" }) })
+
+        await harness.processor(makeJob({ attemptsMade: 2 }))
+
+        const startedLog = harness.logs.find(([, event]) => event === "facebook_job_started")
+        assert.equal(startedLog[2].attempt, 3)
     })
 
     test("keeps sensitive token, description, and image URL values out of every log call", async () => {

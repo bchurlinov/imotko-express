@@ -14,6 +14,12 @@ const getExpiryState = (value, now) => {
     return value <= now ? "expired" : "current"
 }
 
+// Jobs are enqueued the moment an agency creates a property or saves an opted-in
+// edit, long before moderation runs, so PENDING is the normal state at processing
+// time. PUBLISHED stays publishable for jobs that outlive an approval; every other
+// status (DRAFT, DECLINED, UNPUBLISHED, DELETED) must never reach the Page.
+const publishableStatuses = new Set(["PENDING", "PUBLISHED"])
+
 const invalidConnection = (reason, connectionStatus) => ({
     eligible: false,
     reason,
@@ -24,9 +30,11 @@ const invalidConnection = (reason, connectionStatus) => ({
 export function evaluatePublicationEligibility(property, agencyId, now = new Date()) {
     if (!isRecord(property)) return { eligible: false, reason: "property-not-found" }
     if (property.agencyId !== agencyId) return { eligible: false, reason: "agency-mismatch" }
-    if (property.status !== "PUBLISHED") return { eligible: false, reason: "property-not-published" }
+    if (!publishableStatuses.has(property.status)) return { eligible: false, reason: "property-not-publishable" }
     if (property.publishToFacebook !== true) return { eligible: false, reason: "consent-removed" }
-    if (property.facebookPublishedAt !== null) return { eligible: false, reason: "already-published" }
+    // facebookPublishedAt is deliberately not consulted. Each queued job is a distinct
+    // publication request - an opted-in edit republishes a property that already has a
+    // post - so a prior timestamp must not suppress a new one.
     if (!hasNonEmptyString(property.slug)) return { eligible: false, reason: "missing-slug" }
     if (!hasMk(property.name)) return { eligible: false, reason: "missing-macedonian-name" }
     if (!hasMk(property.description)) return { eligible: false, reason: "missing-macedonian-description" }

@@ -7,7 +7,7 @@ const now = new Date("2026-07-22T12:00:00.000Z")
 const eligibleProperty = {
     id: "property-1",
     agencyId: "agency-1",
-    status: "PUBLISHED",
+    status: "PENDING",
     publishToFacebook: true,
     facebookPublishedAt: null,
     slug: "stan",
@@ -38,9 +38,8 @@ describe("evaluatePublicationEligibility", () => {
     for (const [reason, change] of [
         ["property-not-found", () => null],
         ["agency-mismatch", value => ({ ...value, agencyId: "other" })],
-        ["property-not-published", value => ({ ...value, status: "UNPUBLISHED" })],
+        ["property-not-publishable", value => ({ ...value, status: "UNPUBLISHED" })],
         ["consent-removed", value => ({ ...value, publishToFacebook: false })],
-        ["already-published", value => ({ ...value, facebookPublishedAt: now })],
         ["missing-slug", value => ({ ...value, slug: null })],
         ["missing-macedonian-name", value => ({ ...value, name: {} })],
         ["missing-macedonian-description", value => ({ ...value, description: {} })],
@@ -76,18 +75,30 @@ describe("evaluatePublicationEligibility", () => {
         })
     })
 
-    test("skips a corrupt or missing publication timestamp", () => {
-        const corruptProperty = { ...eligibleProperty, facebookPublishedAt: "corrupt" }
-        const missingProperty = { ...eligibleProperty, facebookPublishedAt: undefined }
+    test("publishes a PENDING property and keeps PUBLISHED publishable", () => {
+        for (const status of ["PENDING", "PUBLISHED"]) {
+            assert.deepEqual(evaluatePublicationEligibility({ ...eligibleProperty, status }, "agency-1", now), {
+                eligible: true,
+            })
+        }
+    })
 
-        assert.deepEqual(evaluatePublicationEligibility(corruptProperty, "agency-1", now), {
-            eligible: false,
-            reason: "already-published",
+    for (const status of ["DRAFT", "DECLINED", "UNPUBLISHED", "DELETED", "UNKNOWN", null]) {
+        test(`refuses to publish a ${status} property`, () => {
+            assert.deepEqual(evaluatePublicationEligibility({ ...eligibleProperty, status }, "agency-1", now), {
+                eligible: false,
+                reason: "property-not-publishable",
+            })
         })
-        assert.deepEqual(evaluatePublicationEligibility(missingProperty, "agency-1", now), {
-            eligible: false,
-            reason: "already-published",
-        })
+    }
+
+    test("republishes regardless of any existing publication timestamp", () => {
+        for (const facebookPublishedAt of [new Date("2026-07-01T00:00:00.000Z"), undefined, "corrupt"]) {
+            assert.deepEqual(
+                evaluatePublicationEligibility({ ...eligibleProperty, facebookPublishedAt }, "agency-1", now),
+                { eligible: true }
+            )
+        }
     })
 
     test("accepts null expiry timestamps but invalidates malformed stored expiry values", () => {
@@ -166,5 +177,12 @@ describe("evaluatePublicationEligibility", () => {
         assert.equal(isPublicationGuardCurrent(initial, changedRevision, "agency-1", now), false)
         assert.equal(isPublicationGuardCurrent(initial, changedPage, "agency-1", now), false)
         assert.equal(isPublicationGuardCurrent(null, eligibleProperty, "agency-1", now), false)
+    })
+
+    test("final guard admits a republication of an already-posted property", () => {
+        const initial = eligibleProperty.agency.facebookConnection
+        const republished = { ...eligibleProperty, facebookPublishedAt: new Date("2026-07-01T00:00:00.000Z") }
+
+        assert.equal(isPublicationGuardCurrent(initial, republished, "agency-1", now), true)
     })
 })

@@ -30,7 +30,6 @@ export function createPropertyRepository(prisma) {
                     agencyId: true,
                     status: true,
                     publishToFacebook: true,
-                    facebookPublishedAt: true,
                     slug: true,
                     name: true,
                     description: true,
@@ -54,7 +53,6 @@ export function createPropertyRepository(prisma) {
                     agencyId: true,
                     status: true,
                     publishToFacebook: true,
-                    facebookPublishedAt: true,
                     slug: true,
                     name: true,
                     description: true,
@@ -70,20 +68,22 @@ export function createPropertyRepository(prisma) {
                 data: { status, lastErrorCode: errorCode, lastErrorAt: errorAt },
             }),
 
+        // Republication overwrites an existing timestamp: the write is unconditional so
+        // that a second post for the same property records when it actually happened.
+        // updateMany keeps a concurrently deleted property from throwing after Facebook
+        // has already accepted the post.
         async recordPublished(propertyId, publishedAt) {
             const result = await prisma.property.updateMany({
-                where: { id: propertyId, facebookPublishedAt: null },
+                where: { id: propertyId },
                 data: { facebookPublishedAt: publishedAt },
             })
             if (result.count === 1) return { outcome: "recorded" }
 
             const property = await prisma.property.findUnique({
                 where: { id: propertyId },
-                select: { facebookPublishedAt: true },
+                select: { id: true },
             })
-            if (!property) return { outcome: "deleted" }
-            if (property.facebookPublishedAt) return { outcome: "already-recorded" }
-            return { outcome: "not-recorded" }
+            return property ? { outcome: "not-recorded" } : { outcome: "deleted" }
         },
     }
 }

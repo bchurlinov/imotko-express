@@ -35,7 +35,6 @@ describe("property repository", () => {
             "approximatePrice",
             "description",
             "district",
-            "facebookPublishedAt",
             "hasApproximatePrice",
             "id",
             "listingType",
@@ -72,7 +71,6 @@ describe("property repository", () => {
             "agency",
             "agencyId",
             "description",
-            "facebookPublishedAt",
             "id",
             "listingType",
             "name",
@@ -87,7 +85,7 @@ describe("property repository", () => {
         )
     })
 
-    test("records a publication only while the timestamp is null", async () => {
+    test("records a publication without conditioning on the stored timestamp", async () => {
         const calls = []
         const prisma = {
             property: {
@@ -101,24 +99,29 @@ describe("property repository", () => {
         const publishedAt = new Date("2026-07-22T12:00:00.000Z")
 
         assert.deepEqual(await repository.recordPublished("property-1", publishedAt), { outcome: "recorded" })
-        assert.deepEqual(calls[0].where, { id: "property-1", facebookPublishedAt: null })
+        assert.deepEqual(calls[0].where, { id: "property-1" })
         assert.deepEqual(calls[0].data, { facebookPublishedAt: publishedAt })
     })
 
-    test("reports an existing publication timestamp after a conditional write loses a race", async () => {
+    test("overwrites an earlier publication timestamp when a property is republished", async () => {
+        const calls = []
         const prisma = {
             property: {
-                updateMany: async () => ({ count: 0 }),
-                findUnique: async () => ({ facebookPublishedAt: new Date("2026-07-22T12:00:00.000Z") }),
+                updateMany: async args => {
+                    calls.push(args)
+                    return { count: 1 }
+                },
             },
         }
+        const repository = createPropertyRepository(prisma)
+        const republishedAt = new Date("2026-08-01T09:00:00.000Z")
 
-        assert.deepEqual(await createPropertyRepository(prisma).recordPublished("property-1", new Date()), {
-            outcome: "already-recorded",
-        })
+        assert.deepEqual(await repository.recordPublished("property-1", republishedAt), { outcome: "recorded" })
+        assert.equal("facebookPublishedAt" in calls[0].where, false)
+        assert.deepEqual(calls[0].data, { facebookPublishedAt: republishedAt })
     })
 
-    test("reports deleted and still-unrecorded outcomes after a conditional write changes no row", async () => {
+    test("reports deleted and still-unrecorded outcomes after a write changes no row", async () => {
         const deletedPrisma = {
             property: {
                 updateMany: async () => ({ count: 0 }),
@@ -128,7 +131,7 @@ describe("property repository", () => {
         const unrecordedPrisma = {
             property: {
                 updateMany: async () => ({ count: 0 }),
-                findUnique: async () => ({ facebookPublishedAt: null }),
+                findUnique: async () => ({ id: "property-1" }),
             },
         }
 
