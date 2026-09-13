@@ -54,43 +54,55 @@ enum LeadIntent {
   LAND_INVESTMENT
 }
 
+enum LeadUnlockType {
+  PLAN_PREMIUM
+  FREE_MONTHLY
+  CREDITS
+}
+
 model Lead {
-  id           String       @id @default(cuid())
-  intent       LeadIntent
-  teaserDesc   String
-  fullDesc     String
-  firstName    String
-  fullName     String
-  email        String
-  phone        String?
-  location     String
-  propertyType String
-  priceFrom    Int?
-  priceTo      Int?
-  sizeFrom     Int?
-  sizeTo       Int?
-  size         Int?
-  source       String?
-  isActive     Boolean      @default(true)
-  reveals      LeadReveal[]
-  createdAt    DateTime     @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime     @updatedAt @db.Timestamptz(3)
+  id              String       @id @default(cuid())
+  intent          LeadIntent
+  teaserDesc      String
+  fullDesc        String
+  firstName       String
+  fullName        String
+  email           String
+  phone           String?
+  location        String
+  propertyType    String
+  priceFrom       Int?
+  priceTo         Int?
+  sizeFrom        Int?
+  sizeTo          Int?
+  size            Int?
+  source          String?
+  isActive        Boolean      @default(true)
+  paidUnlockCount Int          @default(0)
+  reveals         LeadReveal[]
+  createdAt       DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime     @updatedAt @db.Timestamptz(3)
 
   @@index([intent])
   @@index([location])
   @@index([isActive])
   @@index([createdAt])
   @@index([isActive, createdAt(sort: Desc)])
+  @@index([isActive, paidUnlockCount])
 }
 
 model LeadReveal {
-  id        String   @id @default(cuid())
-  leadId    String
-  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  agencyId  String
-  agency    Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  id           String         @id @default(cuid())
+  leadId       String
+  lead         Lead           @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  agencyId     String
+  agency       Agency         @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  unlockType   LeadUnlockType
+  creditsSpent Int            @default(0)
+  freePeriod   String?
+  createdAt    DateTime       @default(now()) @db.Timestamptz(3)
 
   @@unique([leadId, agencyId])
+  @@unique([agencyId, freePeriod])
   @@index([agencyId])
 }
