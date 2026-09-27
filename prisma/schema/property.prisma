@@ -121,6 +121,7 @@ model Property {
   autoRenewEndDate              DateTime?
   lastAutoRenewedAt             DateTime?
   bumpedAt                      DateTime?                  @db.Timestamptz(3)
+  conversations                 Conversation[]
 
   @@index([propertyLocationId, listingType])
   @@index([country, propertyLocationId, listingType])

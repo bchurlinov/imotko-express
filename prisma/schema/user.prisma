@@ -57,6 +57,12 @@ model User {
   //
   agencyInvitationSender  AgencyInvitation[]    @relation("InvitingSender")
   leadMatchSendsSent      LeadClientMatchSend[]
+  messagingFlagged         Boolean                   @default(false)
+  messagingFlaggedAt       DateTime?                 @db.Timestamptz(3)
+  messagingFlagReason      MessagingFlagReason?
+  messagingFlaggedById     String?
+  conversationParticipants ConversationParticipant[]
+  sentMessages             Message[]                 @relation("MessageSender")
   createdAt               DateTime?             @default(now()) @db.Timestamptz(3)
   updatedAt               DateTime?             @updatedAt @db.Timestamptz(3)
 

@@ -1,0 +1,108 @@
+enum ConversationKind {
+  AGENCY_INQUIRY
+  PRIVATE_INQUIRY
+  AGENCY_OUTREACH
+}
+
+enum MessageStatus {
+  PENDING_REVIEW
+  DELIVERED
+  REJECTED
+}
+
+enum MessageKind {
+  USER
+  SYSTEM
+}
+
+enum MessagingFlagReason {
+  AUTO_THRESHOLD
+  ADMIN
+}
+
+model Conversation {
+  id               String                    @id @default(cuid())
+  kind             ConversationKind
+  dedupeKey        String                    @unique
+  propertyId       String?
+  property         Property?                 @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  propertySnapshot Json?
+  lastDeliveredAt  DateTime?                 @db.Timestamptz(3)
+  closedAt         DateTime?                 @db.Timestamptz(3)
+  participants     ConversationParticipant[]
+  messages         Message[]
+  reports          ConversationReport[]
+  createdAt        DateTime                  @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime                  @updatedAt @db.Timestamptz(3)
+
+  @@index([lastDeliveredAt])
+  @@index([propertyId])
+}
+
+model ConversationParticipant {
+  id                 String               @id @default(cuid())
+  conversationId     String
+  conversation       Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId             String?
+  user               User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  agencyId           String?
+  agency             Agency?              @relation(fields: [agencyId], references: [id], onDelete: SetNull)
+  assignedMemberId   String?
+  assignedMember     AgencyMember?        @relation("ConversationAssignedMember", fields: [assignedMemberId], references: [id], onDelete: SetNull)
+  displayName        String
+  unreadCount        Int                  @default(0)
+  firstUnreadAt      DateTime?            @db.Timestamptz(3)
+  reminderCount      Int                  @default(0)
+  lastRemindedAt     DateTime?            @db.Timestamptz(3)
+  lastReadAt         DateTime?            @db.Timestamptz(3)
+  lastReadByMemberId String?
+  lastReadByMember   AgencyMember?        @relation("ConversationLastReadByMember", fields: [lastReadByMemberId], references: [id], onDelete: SetNull)
+  blockedAt          DateTime?            @db.Timestamptz(3)
+  deletedAt          DateTime?            @db.Timestamptz(3)
+  messages           Message[]
+  reports            ConversationReport[]
+  createdAt          DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime             @updatedAt @db.Timestamptz(3)
+
+  @@unique([conversationId, userId])
+  @@unique([conversationId, agencyId])
+  @@index([userId, unreadCount])
+  @@index([agencyId, unreadCount])
+  @@index([unreadCount, reminderCount, firstUnreadAt])
+}
+
+model Message {
+  id                  String                  @id @default(cuid())
+  conversationId      String
+  conversation        Conversation            @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderParticipantId String
+  senderParticipant   ConversationParticipant @relation(fields: [senderParticipantId], references: [id], onDelete: Cascade)
+  senderUserId        String?
+  senderUser          User?                   @relation("MessageSender", fields: [senderUserId], references: [id], onDelete: SetNull)
+  kind                MessageKind             @default(USER)
+  bodyHtml            String
+  bodyText            String
+  status              MessageStatus           @default(DELIVERED)
+  deliveredAt         DateTime?               @db.Timestamptz(3)
+  reviewedById        String?
+  reviewedAt          DateTime?               @db.Timestamptz(3)
+  createdAt           DateTime                @default(now()) @db.Timestamptz(3)
+
+  @@index([conversationId, createdAt])
+  @@index([status, createdAt])
+  @@index([senderUserId, createdAt])
+}
+
+model ConversationReport {
+  id                    String                  @id @default(cuid())
+  conversationId        String
+  conversation          Conversation            @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  reporterParticipantId String
+  reporterParticipant   ConversationParticipant @relation(fields: [reporterParticipantId], references: [id], onDelete: Cascade)
+  reason                String?
+  resolvedAt            DateTime?               @db.Timestamptz(3)
+  resolvedById          String?
+  createdAt             DateTime                @default(now()) @db.Timestamptz(3)
+
+  @@index([resolvedAt])
+}

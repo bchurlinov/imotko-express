@@ -83,6 +83,7 @@ model Agency {
   facebookConnection         AgencyFacebookConnection?
   facebookConnectionAttempts AgencyFacebookConnectionAttempt[]
   hommexConnection           AgencyHommexConnection?
+  conversationParticipants   ConversationParticipant[]
   //
   createdAt                  DateTime                          @default(now()) @db.Timestamptz(3)
   updatedAt                  DateTime                          @updatedAt @db.Timestamptz(3)
@@ -320,6 +321,8 @@ model AgencyMember {
   agencyClient           AgencyClient[]           @relation("ClientCreatedBy")
   AgencyClientPreference AgencyClientPreference[] @relation("ClientPreferenceCreatedBy")
   reminders              AgentReminder[]
+  assignedConversations  ConversationParticipant[] @relation("ConversationAssignedMember")
+  readConversations      ConversationParticipant[] @relation("ConversationLastReadByMember")
   createdAt              DateTime?                @default(now()) @db.Timestamptz(3)
   updatedAt              DateTime?                @updatedAt @db.Timestamptz(3)
 }
