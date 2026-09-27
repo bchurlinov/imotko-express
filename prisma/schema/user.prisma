@@ -25,37 +25,40 @@ model Admin {
 }
 
 model User {
-  id                     String               @id @default(cuid())
-  supabaseUserId         String?              @unique
-  name                   String
-  lastName               String?
-  email                  String               @unique
-  location               String?
-  emailVerified          DateTime?
-  image                  String?
-  hashedPassword         String?
-  phone                  String?
-  accessToken            String?
-  refreshToken           String?
-  language               UserLanguage?        @default(MK)
-  role                   UserRole             @default(CLIENT)
-  account                Account?
-  clientId               String?
-  client                 Client?
-  notifications          Notification[]
-  agencyId               String?
-  agency                 Agency?              @relation(fields: [agencyId], references: [id])
-  adminId                String?
-  admin                  Admin?
-  ipAddress              String?
-  UserFeatureRequest     UserFeatureRequest[]
+  id                      String                @id @default(cuid())
+  supabaseUserId          String?               @unique
+  name                    String
+  lastName                String?
+  email                   String                @unique
+  location                String?
+  emailVerified           DateTime?
+  image                   String?
+  hashedPassword          String?
+  phone                   String?
+  accessToken             String?
+  refreshToken            String?
+  language                UserLanguage?         @default(MK)
+  role                    UserRole              @default(CLIENT)
+  account                 Account?
+  clientId                String?
+  client                  Client?
+  notifications           Notification[]
+  agencyId                String?
+  agency                  Agency?               @relation(fields: [agencyId], references: [id])
+  adminId                 String?
+  admin                   Admin?
+  ipAddress               String?
+  leadPopupShownAt        DateTime?             @db.Timestamptz(3)
+  externalAdsPopupShownAt DateTime?             @db.Timestamptz(3)
+  UserFeatureRequest      UserFeatureRequest[]
   //
-  agencyMember           AgencyMember?        @relation("AgencyMember")
-  ownedAgency            Agency?              @relation("AgencyOwner")
+  agencyMember            AgencyMember?         @relation("AgencyMember")
+  ownedAgency             Agency?               @relation("AgencyOwner")
   //
-  agencyInvitationSender AgencyInvitation[]   @relation("InvitingSender")
-  createdAt              DateTime?            @default(now()) @db.Timestamptz(3)
-  updatedAt              DateTime?            @updatedAt @db.Timestamptz(3)
+  agencyInvitationSender  AgencyInvitation[]    @relation("InvitingSender")
+  leadMatchSendsSent      LeadClientMatchSend[]
+  createdAt               DateTime?             @default(now()) @db.Timestamptz(3)
+  updatedAt               DateTime?             @updatedAt @db.Timestamptz(3)
 
   @@index([agencyId])
   @@index([clientId])

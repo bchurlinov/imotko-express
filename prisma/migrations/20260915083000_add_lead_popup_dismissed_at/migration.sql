@@ -1,0 +1,2 @@
+ALTER TABLE "User"
+ADD COLUMN "leadPopupDismissedAt" TIMESTAMPTZ(3);

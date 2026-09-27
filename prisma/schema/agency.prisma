@@ -82,6 +82,7 @@ model Agency {
   agencyClient               AgencyClient[]                    @relation("AgencyClient")
   facebookConnection         AgencyFacebookConnection?
   facebookConnectionAttempts AgencyFacebookConnectionAttempt[]
+  hommexConnection           AgencyHommexConnection?
   //
   createdAt                  DateTime                          @default(now()) @db.Timestamptz(3)
   updatedAt                  DateTime                          @updatedAt @db.Timestamptz(3)
@@ -134,6 +135,21 @@ model AgencyFacebookConnection {
   @@index([pageTokenExpiresAt])
   @@index([dataAccessExpiresAt])
   @@index([purgeAt])
+}
+
+model AgencyHommexConnection {
+  id                String    @id @default(cuid())
+  agencyId          String    @unique
+  agency            Agency    @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  enabled           Boolean   @default(true)
+  encryptedApiKey   String
+  // Hommex agent per contact person, sent as contact.agent_id: { [agencyMemberId | "agency"]: { uuid, details } }.
+  agents            Json?
+  connectedByUserId String?
+  connectedAt       DateTime  @default(now()) @db.Timestamptz(3)
+  disconnectedAt    DateTime? @db.Timestamptz(3)
+  createdAt         DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime  @updatedAt @db.Timestamptz(3)
 }
 
 model AgencyFacebookConnectionAttempt {
@@ -388,23 +404,25 @@ model AgentReminder {
 }
 
 model AgencyWebsiteSettings {
-  id             String   @id @default(cuid())
-  agencyId       String   @unique
-  agency         Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  enableRentals  Boolean  @default(true)
-  serviceAreas   String[]
-  analyticsCode  String?
-  template       String   @default("default")
-  primaryColor   String?
-  accentColor    String?
-  secondaryColor String?
-  heroImage      Json?
-  siteTitle      String?
-  tagline        String?
-  heroTitle      String?
-  heroSubtitle   String?
-  createdAt      DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+  id               String   @id @default(cuid())
+  agencyId         String   @unique
+  agency           Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  enableRentals    Boolean  @default(true)
+  serviceAreas     String[]
+  analyticsCode    String?
+  template         String   @default("default")
+  primaryColor     String?
+  accentColor      String?
+  secondaryColor   String?
+  heroImage        Json?
+  siteTitle        String?
+  tagline          String?
+  heroTitle        String?
+  heroSubtitle     String?
+  heroTitleI18n    Json?
+  heroSubtitleI18n Json?
+  createdAt        DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime @updatedAt @db.Timestamptz(3)
 }
 
 model AgencyTestimonial {

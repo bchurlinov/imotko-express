@@ -18,6 +18,7 @@ model Client {
   Proposal              Proposal[]
   ProposalCollaboration ProposalCollaboration[]
   preferences           Json?
+  leadMatchSends        LeadClientMatchSend[]
 
   @@index([userId])
 }
@@ -54,4 +55,6 @@ model ClientPropertySubscription {
   client         Client?              @relation(fields: [clientId], references: [id], onDelete: Cascade)
   clientSearchId String?              @unique()
   clientSearch   ClientSearch?        @relation(fields: [clientSearchId], references: [id], onDelete: Cascade)
+
+  @@index([listingType, category, location])
 }

@@ -77,11 +77,13 @@ model Lead {
   sizeTo          Int?
   size            Int?
   source          String?
-  isActive        Boolean      @default(true)
-  paidUnlockCount Int          @default(0)
-  reveals         LeadReveal[]
-  createdAt       DateTime     @default(now()) @db.Timestamptz(3)
-  updatedAt       DateTime     @updatedAt @db.Timestamptz(3)
+  isActive           Boolean               @default(true)
+  paidUnlockCount    Int                   @default(0)
+  sharedWithAgencies Boolean               @default(true)
+  reveals            LeadReveal[]
+  clientMatchSends   LeadClientMatchSend[]
+  createdAt          DateTime              @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime              @updatedAt @db.Timestamptz(3)
 
   @@index([intent])
   @@index([location])
@@ -89,6 +91,7 @@ model Lead {
   @@index([createdAt])
   @@index([isActive, createdAt(sort: Desc)])
   @@index([isActive, paidUnlockCount])
+  @@index([isActive, sharedWithAgencies, createdAt(sort: Desc)])
 }
 
 model LeadReveal {
@@ -105,4 +108,26 @@ model LeadReveal {
   @@unique([leadId, agencyId])
   @@unique([agencyId, freePeriod])
   @@index([agencyId])
+}
+
+model LeadClientMatchSend {
+  id             String    @id @default(cuid())
+  leadId         String
+  lead           Lead      @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  clientId       String
+  client         Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientSearchId String?
+  subscriptionId String?
+  matchScore     Int
+  note           String?
+  sentByUserId   String
+  sentBy         User      @relation(fields: [sentByUserId], references: [id])
+  emailSentAt    DateTime?
+  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
+
+  // Enforces "never send the same lead to the same client twice" in the database, so a
+  // double submit or a second admin fails closed instead of double-emailing.
+  @@unique([leadId, clientId])
+  @@index([leadId])
+  @@index([clientId])
 }

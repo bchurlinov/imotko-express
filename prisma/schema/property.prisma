@@ -64,6 +64,9 @@ model Property {
   status                        PropertyStatus             @default(PENDING)
   publishToFacebook             Boolean                    @default(false)
   facebookPublishedAt           DateTime?                  @db.Timestamptz(3)
+  publishToHommex               Boolean                    @default(false)
+  hommexPublishedAt             DateTime?                  @db.Timestamptz(3)
+  hommexSync                    Json?
   verifiedByAgency              Boolean                    @default(false)
   price                         Int
   hasApproximatePrice           Boolean?                   @default(false)
@@ -173,7 +176,7 @@ model PropertySale {
   propertyId   String   @unique
   property     Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
   agencyId     String
-  propertyDeed String
+  propertyDeed String?
   agency       Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   soldAt       DateTime @default(now()) @db.Timestamptz(3)
   soldFor      Int
