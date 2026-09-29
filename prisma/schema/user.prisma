@@ -61,6 +61,7 @@ model User {
   messagingFlaggedAt       DateTime?                 @db.Timestamptz(3)
   messagingFlagReason      MessagingFlagReason?
   messagingFlaggedById     String?
+  messagingUnflaggedAt     DateTime?                 @db.Timestamptz(3)
   conversationParticipants ConversationParticipant[]
   sentMessages             Message[]                 @relation("MessageSender")
   createdAt               DateTime?             @default(now()) @db.Timestamptz(3)

@@ -83,6 +83,7 @@ model Message {
   bodyHtml            String
   bodyText            String
   status              MessageStatus           @default(DELIVERED)
+  requiresAdminReview Boolean                 @default(false)
   deliveredAt         DateTime?               @db.Timestamptz(3)
   reviewedById        String?
   reviewedAt          DateTime?               @db.Timestamptz(3)
