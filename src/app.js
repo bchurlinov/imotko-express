@@ -48,9 +48,9 @@ const limiter =
               standardHeaders: "draft-7",
               legacyHeaders: false,
               message: {
-                  data: undefined,
+                  data: null,
                   code: 429,
-                  message: "Too many requests, please try again later.",
+                  message: "rateLimited",
               },
           })
         : (req, res, next) => next()

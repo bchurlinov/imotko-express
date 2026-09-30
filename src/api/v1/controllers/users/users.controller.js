@@ -19,6 +19,7 @@ import {
 } from "#services/users/users_properties_favorites.service.js"
 import createError from "http-errors"
 import { getIpAddress } from "#utils/auth/ip_address.js"
+import { chatResponse } from "#controllers/chat/chat_response.js"
 
 /**
  * Controller to find or create user from Supabase auth data
@@ -107,8 +108,7 @@ export const createUserController = async (req, res, next) => {
  */
 export const deleteUserController = asyncHandler(async (req, res) => {
     const { id } = req.params
-    const { sessionId } = req.body
-    const response = await deleteUserService(id, sessionId)
+    const response = await deleteUserService(id, req.chatViewer, req.supabaseUser?.id)
     return res.status(200).json(response)
 })
 /**
@@ -127,8 +127,8 @@ export const updateUserController = asyncHandler(async (req, res) => {
         location: req.body.location,
     }
 
-    const updatedUser = await updateUserService(id, payload)
-    return res.status(200).json(updatedUser)
+    const updatedUser = await updateUserService(id, payload, req.chatViewer)
+    return chatResponse(res, 200, null, updatedUser.data)
 })
 
 /**
@@ -139,7 +139,7 @@ export const updateUserController = asyncHandler(async (req, res) => {
  * @returns {Promise<void>}
  */
 export const getUserNotificationsController = asyncHandler(async (req, res) => {
-    const notifications = await getUserNotificationsService(req.params.id)
+    const notifications = await getUserNotificationsService(req.params.id, req.chatViewer)
     return res.status(200).json(notifications)
 })
 
@@ -152,7 +152,9 @@ export const getUserNotificationsController = asyncHandler(async (req, res) => {
  */
 export const patchNotificationStatusController = asyncHandler(async (req, res) => {
     const { notificationIds, status } = req.body
-    const result = await patchNotificationStatusService(notificationIds, status)
+    if (req.chatViewer?.type !== "admin" && req.chatViewer?.userId !== req.params.id)
+        throw createError(403, "Forbidden")
+    const result = await patchNotificationStatusService(notificationIds, status, req.params.id)
     return res.status(200).json(result)
 })
 
@@ -165,7 +167,9 @@ export const patchNotificationStatusController = asyncHandler(async (req, res) =
  */
 export const deleteNotificationController = asyncHandler(async (req, res) => {
     const { notificationId } = req.params
-    const result = await deleteNotificationsService(notificationId)
+    if (req.chatViewer?.type !== "admin" && req.chatViewer?.userId !== req.params.id)
+        throw createError(403, "Forbidden")
+    const result = await deleteNotificationsService(notificationId, req.params.id)
     return res.status(200).json(result)
 })
 

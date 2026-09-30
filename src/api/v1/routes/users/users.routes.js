@@ -1,5 +1,6 @@
 import { Router } from "express"
-import { body } from "express-validator"
+import rateLimit from "express-rate-limit"
+import { body, param } from "express-validator"
 import {
     checkUserRoleController,
     createUserController,
@@ -21,11 +22,41 @@ import {
 } from "#controllers/users/users_search.controller.js"
 import { validateRequest } from "#middlewares/validate_request.js"
 import { verifySupabaseToken } from "#middlewares/verifySupabaseToken.js"
+import { resolveChatViewer } from "#middlewares/resolveChatViewer.js"
+import { chatErrorResponder } from "#controllers/chat/chat_response.js"
+import {
+    registerPushTokenController,
+    unregisterPushTokenController,
+} from "#controllers/users/push_tokens.controller.js"
+import { EXPO_PUSH_TOKEN_PATTERN } from "#services/chat/chat_push.service.js"
+import { CHAT_LOCALES } from "#services/chat/chat_constants.js"
+import { createRateLimitStore, sharedRateLimitOptions } from "#config/rateLimit.config.js"
 
 const router = Router()
+const handle = handler => (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next)
 
-const ALLOWED_LANGUAGES = ["EN", "MK", "AL", "SQ"]
+// Token registration is normally called once on app launch, on token rotation,
+// or after a locale change. This protects the API when a mobile effect/listener
+// accidentally re-registers the same token on every render.
+const pushTokenRegistrationLimiter = rateLimit({
+    ...sharedRateLimitOptions,
+    windowMs: 60 * 1000,
+    limit: 6,
+    keyGenerator: req => req.chatViewer.userId,
+    store: createRateLimitStore("push-token-registration"),
+    standardHeaders: "draft-7",
+    legacyHeaders: false,
+    handler: (req, res) => chatResponse(res, 429, "rateLimited"),
+})
+
+const ALLOWED_LANGUAGES = ["EN", "MK", "AL", "SQ", "TR"]
 const ALLOWED_ROLES = ["CLIENT", "AGENCY", "ADMIN"]
+const phone = body("phone")
+    .optional()
+    .isString()
+    .customSanitizer(value => (typeof value === "string" ? value.trim().replace(/\s+/g, " ") : value))
+    .custom(value => value === "" || (/^[+\d ()-]{6,20}$/.test(value) && (value.match(/\d/g)?.length || 0) >= 6))
+    .withMessage("Invalid phone")
 
 router.get("/", verifySupabaseToken, validateRequest, getUserController)
 
@@ -84,32 +115,56 @@ router.post(
     createUserController
 )
 
+router.post(
+    "/push-tokens",
+    resolveChatViewer,
+    pushTokenRegistrationLimiter,
+    [
+        body("token").isString().matches(EXPO_PUSH_TOKEN_PATTERN),
+        body("platform").isIn(["ios", "android"]),
+        body("locale").isIn(CHAT_LOCALES),
+    ],
+    validateRequest,
+    handle(registerPushTokenController),
+    chatErrorResponder
+)
+
+router.delete(
+    "/push-tokens/:token",
+    resolveChatViewer,
+    [param("token").isString().matches(EXPO_PUSH_TOKEN_PATTERN)],
+    validateRequest,
+    handle(unregisterPushTokenController),
+    chatErrorResponder
+)
+
 router.patch(
     "/:id",
     [
         body("name").optional().isString().withMessage("Invalid name"),
         body("lastName").optional().isString().withMessage("Invalid last name"),
-        body("phone").optional().isString().withMessage("Invalid phone"),
+        phone,
         body("location").optional().isString().withMessage("Invalid location"),
     ],
-    verifySupabaseToken,
+    resolveChatViewer,
     validateRequest,
-    updateUserController
+    updateUserController,
+    chatErrorResponder
 )
 
-router.delete("/:id", verifySupabaseToken, deleteUserController)
+router.delete("/:id", resolveChatViewer, deleteUserController)
 
-router.get("/:id/notifications", verifySupabaseToken, getUserNotificationsController)
+router.get("/:id/notifications", resolveChatViewer, getUserNotificationsController)
 
 router.patch(
     "/:id/notifications/status",
     [body("notificationIds").isArray({ min: 1 }).withMessage("notificationIds must be a non-empty array")],
-    verifySupabaseToken,
+    resolveChatViewer,
     validateRequest,
     patchNotificationStatusController
 )
 
-router.delete("/:id/notifications/:notificationId", verifySupabaseToken, deleteNotificationController)
+router.delete("/:id/notifications/:notificationId", resolveChatViewer, deleteNotificationController)
 
 router.post("/:id/favorites/:propertyId", verifySupabaseToken, propertyFavoriteController)
 

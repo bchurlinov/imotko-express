@@ -9,6 +9,19 @@ enum UserLanguage {
   MK
   AL
   SQ
+  TR
+}
+
+enum PushPlatform {
+  ios
+  android
+}
+
+enum PushLocale {
+  mk
+  en
+  sq
+  tr
 }
 
 enum NotificationStatus {
@@ -43,6 +56,7 @@ model User {
   clientId                String?
   client                  Client?
   notifications           Notification[]
+  pushTokens              UserPushToken[]
   agencyId                String?
   agency                  Agency?               @relation(fields: [agencyId], references: [id])
   adminId                 String?
@@ -69,6 +83,35 @@ model User {
 
   @@index([agencyId])
   @@index([clientId])
+}
+
+model UserPushToken {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token       String           @unique
+  platform    PushPlatform
+  locale      PushLocale
+  lastSeenAt  DateTime         @default(now()) @db.Timestamptz(3)
+  createdAt   DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime         @updatedAt @db.Timestamptz(3)
+  pushTickets ExpoPushTicket[]
+
+  @@index([userId])
+}
+
+model ExpoPushTicket {
+  id             String        @id @default(cuid())
+  tokenId        String
+  token          UserPushToken @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  messageId      String
+  conversationId String
+  ticketId       String        @unique
+  receiptCheckedAt DateTime?   @db.Timestamptz(3)
+  createdAt      DateTime      @default(now()) @db.Timestamptz(3)
+
+  @@index([receiptCheckedAt, createdAt])
+  @@index([messageId])
 }
 
 model Account {

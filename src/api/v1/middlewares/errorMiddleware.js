@@ -14,6 +14,12 @@ morgan.token("errorMessage", (req, res) => res.locals.errorMessage || "No Error 
  * @returns {Promise<void>}
  */
 export const errorMiddleware = async (error, req, res, next) => {
+    // `express.json()` reports these when the client disconnects before its
+    // request body has arrived. There is no response channel left to use and
+    // recording them as 500s turns a client-side cancellation loop into noisy
+    // server errors.
+    if (req.destroyed || res.destroyed || error?.type === "request.aborted") return
+
     const status = error.status || 500 // Default to 500 if no status provided
     const message = error.message || "Something went wrong" // Default error message
     const errors = error.errors || null // Details for validation or specific errors

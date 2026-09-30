@@ -4,6 +4,8 @@ import agencyRouter from "./agencies/agencies.routes.js"
 import analyticsRouter from "./analytics/analytics.routes.js"
 import websiteRouter from "./website/website.routes.js"
 import inquiriesRouter from "./inquiries/inquiries.routes.js"
+import chatRouter from "./chat/chat.routes.js"
+import adminChatRouter from "./admin/chat.routes.js"
 
 /**
  * Initialize API routes
@@ -17,4 +19,6 @@ export default app => {
     app.use("/api/v1/analytics", analyticsRouter)
     app.use("/api/v1/website", websiteRouter)
     app.use("/api/v1/inquiries", inquiriesRouter)
+    app.use("/api/v1/chat", chatRouter)
+    app.use("/api/v1/admin/chat", adminChatRouter)
 }

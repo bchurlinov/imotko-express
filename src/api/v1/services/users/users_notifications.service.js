@@ -1,4 +1,5 @@
 import prisma from "#database/client.js"
+import createError from "http-errors"
 
 /**
  * Get all notifications for a specific user
@@ -6,8 +7,9 @@ import prisma from "#database/client.js"
  * @returns {Promise<{data: import('@prisma/client').Notification[], message: string}>} Promise resolving to an object containing the notifications array and success message
  * @throws {Error} Throws any database errors that occur during the query
  */
-export const getUserNotificationsService = async userId => {
+export const getUserNotificationsService = async (userId, actor) => {
     try {
+        if (actor?.type !== "admin" && actor?.userId !== userId) throw createError(403, "Forbidden")
         const notifications = await prisma.notification.findMany({
             where: { recipientId: userId },
             orderBy: { createdAt: "desc" },
@@ -28,10 +30,10 @@ export const getUserNotificationsService = async userId => {
  * @returns {Promise<{data: {count: number}, message: string}>} Promise resolving to an object containing the update count and success message
  * @throws {Error} Throws any database errors that occur during the query
  */
-export const patchNotificationStatusService = async (notificationIds, status) => {
+export const patchNotificationStatusService = async (notificationIds, status, recipientId) => {
     try {
         const result = await prisma.notification.updateMany({
-            where: { id: { in: notificationIds } },
+            where: { id: { in: notificationIds }, recipientId },
             data: { status },
         })
         return {
@@ -49,11 +51,9 @@ export const patchNotificationStatusService = async (notificationIds, status) =>
  * @returns {Promise<{message: string}>} Promise resolving to an object containing success message
  * @throws {Error} Throws any database errors that occur during the query
  */
-export const deleteNotificationsService = async notificationId => {
+export const deleteNotificationsService = async (notificationId, recipientId) => {
     try {
-        await prisma.notification.delete({
-            where: { id: notificationId },
-        })
+        await prisma.notification.deleteMany({ where: { id: notificationId, recipientId } })
         return {
             data: null,
             message: "Notification deleted successfully.",

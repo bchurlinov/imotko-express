@@ -1363,3 +1363,117 @@ An operation failed because it depends on one or more records that were required
 20260118	14:51:17	52710f1f-4550-4529-9eb8-0383b5e1076a	UnauthorizedError: Invalid or expired Supabase token
 20260118	14:51:17	d5feb5e1-a53c-438d-a47a-17835fe04c15	UnauthorizedError: Invalid or expired Supabase token
 20260118	14:51:17	46c5c80e-7aca-4bd6-8a6b-e27a3e6f76c3	UnauthorizedError: Invalid or expired Supabase token
+20260930	15:39:24	24f2a6f7-7cff-4a18-a7bb-988f16ed7845	UnauthorizedError: Проблем при верификација на токенот.
+20260930	15:39:24	0755b954-189e-4ab3-a935-c2313d099f2a	UnauthorizedError: Проблем при верификација на токенот.
+20260930	15:40:42	3b61696a-e377-440b-90f5-79df16de9d6d	UnauthorizedError: Проблем при верификација на токенот.
+20260930	15:40:43	ad29d6b1-5a95-4fc0-9fd8-02ed4f403d96	UnauthorizedError: Проблем при верификација на токенот.
+20260930	15:43:16	f3da3209-d909-427a-8b00-f813f9e4c029	NotFoundError: User not found
+20260930	15:44:47	58127521-52f1-4b5b-93d4-8df09146f00a	InternalServerError: stream is not readable
+20260930	15:44:47	906a487c-a670-4e5b-a294-3ae4ee062ad0	InternalServerError: stream is not readable
+20260930	15:44:47	ca54fe7d-c29c-4fae-b2fd-1a3293a39e66	BadRequestError: request aborted
+20260930	15:44:48	2e09f9e1-9ad8-438a-b67c-35359d3a71b3	BadRequestError: request aborted
+20260930	15:44:48	bb335f86-0997-4c33-95cc-0d08169d5a22	BadRequestError: request aborted
+20260930	15:44:51	c72be46d-b2c0-4b68-b077-04c96210add2	BadRequestError: request aborted
+20260930	15:44:56	ebd997dc-615e-41fc-9abe-62b346d71ccf	BadRequestError: request aborted
+20260930	15:44:56	ea77a37a-d651-4d8c-ae14-dc5e5f3b4b45	BadRequestError: request aborted
+20260930	15:44:56	17b222c5-dada-484f-8f42-93653353e7ec	BadRequestError: request aborted
+20260930	15:44:56	4cd5e9f2-ecde-4f4c-9ed3-45184d062aea	BadRequestError: request aborted
+20260930	15:44:56	126d1881-5501-4bf6-8c54-c557080129ea	BadRequestError: request aborted
+20260930	15:44:56	b3f76483-3c3f-488c-b445-f1354e3911cd	BadRequestError: request aborted
+20260930	15:44:57	b4abc482-a680-4382-920f-f25bb7e89ff3	BadRequestError: request aborted
+20260930	15:44:57	3b818b5b-88af-4a57-abdd-7e8956d4b835	BadRequestError: request aborted
+20260930	15:44:57	1ec620e2-1378-4c66-919c-fad13fc05f98	BadRequestError: request aborted
+20260930	15:44:57	1f1e2e62-1479-4e04-bb2d-bd77312a9a2c	BadRequestError: request aborted
+20260930	15:44:58	6b49440b-9df3-499d-b3ca-8764365eb3f2	BadRequestError: request aborted
+20260930	15:44:58	5ff30ad2-7a28-483c-8e8e-34c6446fd617	BadRequestError: request aborted
+20260930	15:44:58	cb7174c9-6388-4096-ae44-0a2589b7e839	InternalServerError: stream is not readable
+20260930	15:44:58	124968df-0505-4166-b7e9-5b65eec81e38	BadRequestError: request aborted
+20260930	15:44:58	0ec24954-0d01-400b-b7b3-72e154c3bb34	BadRequestError: request aborted
+20260930	15:44:58	e0505a89-e54e-4936-a9af-df488de6f871	BadRequestError: request aborted
+20260930	15:44:59	3c2ca104-505c-4883-a265-3ffc54be0709	BadRequestError: request aborted
+20260930	15:45:00	ed469276-384e-49ef-aaac-2a7993434010	BadRequestError: request aborted
+20260930	15:45:00	c79527c9-414c-464a-bf70-db9d844a6c75	BadRequestError: request aborted
+20260930	15:45:00	5a2b7a46-2579-48d5-876d-570ecaed42ae	BadRequestError: request aborted
+20260930	15:45:00	725540ce-fc8f-4bdc-9480-f0b92d0192ae	BadRequestError: request aborted
+20260930	15:45:00	975ed299-fddc-4d8c-a561-6f92739e5104	BadRequestError: request aborted
+20260930	15:45:01	e903c91c-82ed-484a-b1fe-9cf99fbd7b5d	BadRequestError: request aborted
+20260930	15:45:01	536af735-35a0-4afc-8310-9c1535fafc99	BadRequestError: request aborted
+20260930	15:45:02	780d32d9-d04d-4024-9661-cc5b041ed7d2	InternalServerError: stream is not readable
+20260930	15:45:02	e195c21d-7ef8-48fb-8f80-64a06172fc80	InternalServerError: stream is not readable
+20260930	15:45:02	97798d03-6f2d-4084-9037-c3d23d0b06e2	BadRequestError: request aborted
+20260930	15:45:02	e7bc1a33-1086-42c3-ba4c-c5345044be93	InternalServerError: stream is not readable
+20260930	15:45:02	549488db-3e35-45ac-a8a7-59cfc539e286	BadRequestError: request aborted
+20260930	15:45:02	456a44d2-0c75-4243-a04f-67f52b67e236	BadRequestError: request aborted
+20260930	15:45:02	63d23a71-ae92-48bd-ad69-a2323b0e628c	BadRequestError: request aborted
+20260930	15:45:02	12d69d22-ca93-4a37-adfa-2cccf44f5355	BadRequestError: request aborted
+20260930	15:45:02	8c11e4c8-f440-4c0d-893c-23806bec2c58	BadRequestError: request aborted
+20260930	15:45:02	de0505bf-9ec4-4574-bd32-055030a2ff47	BadRequestError: request aborted
+20260930	15:45:02	7721c9d1-94cd-4947-a887-a346d22f3683	BadRequestError: request aborted
+20260930	15:45:03	aa8d9ec2-95da-4457-a950-0482f40f99e1	BadRequestError: request aborted
+20260930	15:45:03	c90f85c5-4556-40b5-b1e3-de77d8e5ac81	InternalServerError: stream is not readable
+20260930	15:45:03	dae3efc1-ed07-4b5f-a28a-267f33050da4	BadRequestError: request aborted
+20260930	15:45:04	208eade8-e1b3-4229-bda6-a590804d8cc7	BadRequestError: request aborted
+20260930	15:45:04	6f16b3dc-3bff-4715-b946-c35a5f23e3b5	InternalServerError: stream is not readable
+20260930	15:45:04	aadbe557-3b0a-4895-abab-887d409a3fa9	InternalServerError: stream is not readable
+20260930	15:45:04	5721a3c6-0848-4594-a953-0ef972f7de79	InternalServerError: stream is not readable
+20260930	15:45:04	de04600c-14eb-4515-b02b-611607a42f9e	BadRequestError: request aborted
+20260930	15:45:04	245fa2b1-1c30-41bf-bdb3-a658738bc148	BadRequestError: request aborted
+20260930	15:45:04	21bdfa4d-fcc1-4015-95c0-546c473a8ce6	InternalServerError: stream is not readable
+20260930	15:45:04	1d4fd641-ddf3-40b7-942f-99b9f6f0d483	InternalServerError: stream is not readable
+20260930	15:45:04	91f39123-d5e8-468b-b564-de8fd31935eb	BadRequestError: request aborted
+20260930	15:45:04	e0d6fd28-1965-4673-a295-a4a6e85fbda1	BadRequestError: request aborted
+20260930	15:45:04	f53eb2c7-1e74-4793-9cba-301c19402c66	InternalServerError: stream is not readable
+20260930	15:45:04	9d20b0b8-7702-478c-9bd4-e978649cdbe2	InternalServerError: stream is not readable
+20260930	15:45:04	c0012160-4efd-432d-bde9-3887834dda03	BadRequestError: request aborted
+20260930	15:45:04	aee6b2cc-c291-4dff-b691-8fcc64d47a25	InternalServerError: stream is not readable
+20260930	16:56:31	7ab0cbfd-7a55-458c-beb4-b6a72a57033a	NotFoundError: User not found
+20260930	16:56:31	7e7ef6b9-eebd-492b-8c15-9fc20ff80ce3	NotFoundError: User not found
+20260930	17:15:22	b1c24c7c-ed79-4bef-a76e-234675005c92	ChatError: unauthorized
+20260930	17:15:23	fb6e8d27-01e9-4c45-9a3c-bd1b54d02d60	ChatError: unauthorized
+20260930	17:15:27	c14681cb-1c09-4e48-971e-372b88c353b9	UnauthorizedError: Проблем при верификација на токенот.
+20260930	17:15:48	d7c7eff2-f6f6-4870-adca-a1bb153080c3	UnauthorizedError: Проблем при верификација на токенот.
+20260930	17:15:48	5b947843-755c-40e3-8469-549202c72cb9	UnauthorizedError: Проблем при верификација на токенот.
+20260930	17:16:11	76ac2482-9d4b-4992-bb3b-0aad7fab7570	UnauthorizedError: Проблем при верификација на токенот.
+20260930	17:16:12	06dff044-7ed0-4482-943d-ee092879d9a1	UnauthorizedError: Проблем при верификација на токенот.
+20260930	17:16:23	e9f32b02-2489-4663-bc4d-1b07e43edaab	ChatError: unauthorized
+20260930	17:16:24	2d840ac0-3b12-49a3-9f11-208368ac5b80	ChatError: unauthorized
+20260930	17:17:24	00de856b-2c90-4a00-b3b1-95201eb1659b	ChatError: unauthorized
+20260930	17:17:26	228e07ab-d838-41e0-b85c-f92fe5bed6c4	ChatError: unauthorized
+20260930	17:18:09	df162b26-5766-47e5-8449-5bbc23df7a16	UnauthorizedError: Проблем при верификација на токенот.
+20260930	17:18:09	f0560c51-a71d-47ba-b686-5b4593cc1f17	UnauthorizedError: Проблем при верификација на токенот.
+20260930	17:18:26	7d4f3364-e6c5-4937-b281-821dfd83106c	ChatError: unauthorized
+20260930	17:18:27	d77c8dd8-40c0-4314-a6fe-835c3f7b165e	ChatError: unauthorized
+20260930	17:19:27	1c391dc9-c8df-4aee-ba3f-51d7cb8efaf7	ChatError: unauthorized
+20260930	17:19:28	02bdd579-7f1d-4f4f-a8de-83a607bc6527	ChatError: unauthorized
+20260930	17:20:29	aa25c9b3-3fbf-4891-a6e3-28b370b58966	ChatError: unauthorized
+20260930	17:20:30	1df2141c-9cb6-409d-a253-bdfd81bda90f	ChatError: unauthorized
+20260930	17:20:40	e798cdc9-89b3-4759-b844-1f942400e22c	UnauthorizedError: Проблем при верификација на токенот.
+20260930	17:20:40	21eaf958-8abe-41c3-8a1c-ea9c44553193	UnauthorizedError: Проблем при верификација на токенот.
+20260930	17:21:30	960bf9c9-d0b7-403e-a75d-2259732c2418	ChatError: unauthorized
+20260930	17:21:31	a6d86845-9601-4f27-8026-6b44b0bdd3c0	ChatError: unauthorized
+20260930	17:22:31	baf5a203-ce27-47bc-ac2c-35ec4f880c1a	ChatError: unauthorized
+20260930	17:22:33	5ce2922c-6199-4de5-9824-a601568f5383	ChatError: unauthorized
+20260930	17:23:33	29a67410-ad94-4292-9c8e-68e79323ce46	ChatError: unauthorized
+20260930	17:23:34	d3d39608-607a-4924-8874-6510a4083996	ChatError: unauthorized
+20260930	17:24:34	d602eeb2-880c-4ace-93ab-1eea09e48acf	ChatError: unauthorized
+20260930	17:24:35	e68cb991-9652-4f1f-a555-a328272b11d6	ChatError: unauthorized
+20260930	17:25:36	293cd850-abfb-44ec-96fc-11ab77e1d23e	ChatError: unauthorized
+20260930	17:25:37	eac6666d-f9fd-4684-8f6e-3f4c0ac5a456	ChatError: unauthorized
+20260930	17:26:56	924ce493-c5b1-4636-8e8b-4e7eea836927	ChatError: unauthorized
+20260930	17:26:57	8b35aead-da66-457b-ac81-fd9cdf4bd1d0	ChatError: unauthorized
+20260930	17:28:45	73b4c064-858d-41b6-b13b-fbcd861b650c	ChatError: unauthorized
+20260930	17:28:46	c67b87a6-555b-41da-8405-fdd41c46ce1b	ChatError: unauthorized
+20260930	17:29:46	1cfad90b-f1d1-4127-8c44-f1fe3d5e754a	ChatError: unauthorized
+20260930	17:29:48	2b0e551a-7902-436b-802e-6e40e4037378	ChatError: unauthorized
+20260930	17:36:20	369ca5f3-b91e-48cb-b527-2cefbfc2dce7	ChatError: unauthorized
+20260930	17:36:21	97135168-00f6-4ce3-a9f9-b6a233564d63	ChatError: unauthorized
+20260930	17:37:21	e1441e8b-2627-4730-b720-7153fe48e7ad	ChatError: unauthorized
+20260930	17:37:22	f8c1a56f-4212-45bb-801a-860d160a60c7	ChatError: unauthorized
+20260930	17:38:22	9013aefc-b0ab-483e-bbed-05d85b77866e	ChatError: unauthorized
+20260930	17:38:23	036f93f3-390d-4e9d-ac6a-48cd9319fe68	ChatError: unauthorized
+20260930	17:55:52	f677a454-49b4-45e0-b816-6b38b7ad5d01	UnauthorizedError: Проблем при верификација на токенот.
+20260930	17:55:52	5b49e818-3cbd-4d70-b9f2-b34c1831fe2b	ChatError: unauthorized
+20260930	19:39:39	3aa07099-9bc9-4a8f-8097-3555c62baca5	NotFoundError: User not found
+20260930	19:39:39	ca5dd1aa-e10b-4ddd-82d1-033096a16cd8	NotFoundError: User not found
+20260930	19:42:32	232a02c6-4928-4ca0-959b-00017acf8430	NotFoundError: User not found
+20260930	19:42:32	022e0ff4-eaaf-4859-8307-9d59a13e132d	NotFoundError: User not found

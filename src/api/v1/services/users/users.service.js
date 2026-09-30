@@ -1,9 +1,9 @@
 import { supabaseAdmin } from "#utils/supabaseClient.js"
 import { UserLanguage, UserRole } from "#generated/prisma/enums.ts"
-import { asyncHandler } from "#utils/helpers/async_handler.js"
 import createError from "http-errors"
 import prisma from "#database/client.js"
 import { v4 as uuidv4 } from "uuid"
+import { closeConversationsForDeletedUser } from "#services/chat/chat_lifecycle.service.js"
 
 /**
  * @typedef {import("@prisma/client").User} User
@@ -270,15 +270,16 @@ export const createUserService = async ({
  * @param {string} [updateData.location] - User location
  * @returns {Promise<{data: import('@prisma/client').User, message: string}>}
  */
-export const updateUserService = asyncHandler(async (userId, updateData) => {
+export const updateUserService = async (userId, updateData, actor) => {
     if (!userId) {
         throw createError(400, "User ID is required")
     }
+    if (actor?.type !== "admin" && actor?.userId !== userId) throw createError(403, "Forbidden")
 
     const updatePayload = removeUndefined({
         name: updateData.name,
         lastName: updateData.lastName,
-        phone: updateData.phone,
+        phone: updateData.phone === "" ? null : updateData.phone,
         location: updateData.location,
     })
 
@@ -288,7 +289,7 @@ export const updateUserService = asyncHandler(async (userId, updateData) => {
     })
 
     return { data: nextUser, message: "User updated successfully." }
-})
+}
 
 /**
  * Delete existing user
@@ -296,11 +297,21 @@ export const updateUserService = asyncHandler(async (userId, updateData) => {
  * @param {string} sessionId - Session ID
  * @returns {Promise<{data: null, message: string}>}
  */
-export const deleteUserService = async (userId, sessionId) => {
+export const deleteUserService = async (userId, actor, authenticatedSupabaseUserId) => {
     let supabaseDeleted = false
 
     try {
-        const { error: supabaseError } = await supabaseAdmin.auth.admin.deleteUser(sessionId)
+        const target = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { id: true, supabaseUserId: true },
+        })
+        if (!target) throw createError(404, "User not found")
+        if (actor?.type !== "admin" && actor?.userId !== userId) throw createError(403, "Forbidden")
+        const supabaseUserId = actor?.type === "admin" ? target.supabaseUserId : authenticatedSupabaseUserId
+        if (!supabaseUserId || (actor?.type !== "admin" && target.supabaseUserId !== supabaseUserId)) {
+            throw createError(403, "Forbidden")
+        }
+        const { error: supabaseError } = await supabaseAdmin.auth.admin.deleteUser(supabaseUserId)
         if (supabaseError) {
             console.error("[deleteUserService] Supabase deletion failed:", supabaseError)
             throw createError(500, `Failed to delete user from authentication service: ${supabaseError.message}`)
@@ -309,11 +320,7 @@ export const deleteUserService = async (userId, sessionId) => {
         supabaseDeleted = true
 
         await prisma.$transaction(async tx => {
-            await tx.client.delete({
-                where: {
-                    userId,
-                },
-            })
+            await closeConversationsForDeletedUser(tx, userId)
             await tx.user.delete({
                 where: {
                     id: userId,
@@ -331,6 +338,7 @@ export const deleteUserService = async (userId, sessionId) => {
             )
         }
 
+        if (err?.status) throw err
         throw createError(500, "Failed to delete user.")
     }
 }
