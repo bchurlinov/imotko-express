@@ -1,4 +1,4 @@
-import { PropertyStatus } from "#generated/prisma/enums.ts"
+import { PropertyCountry, PropertyStatus } from "#generated/prisma/enums.ts"
 import {
     stringValue,
     stringValues,
@@ -11,10 +11,15 @@ import {
     buildPropertyFeaturesFilter,
     isPropertySort,
     resolveLocationIds,
+    resolveCityLocationIds,
     ORDER_BY_MAP,
     DEFAULT_ORDER_BY,
     PAGE_SIZE,
     DEFAULT_LOCALE,
+    FEATURED_PER_PAGE,
+    featuredIdsForPage,
+    activeFeaturedCondition,
+    inactiveFeaturedCondition,
 } from "./utils/index.js"
 import prisma from "#database/client.js"
 import { HIDDEN_AGENCY_IDS, isHiddenAgency } from "#config/hiddenAgencies.config.js"
@@ -57,6 +62,11 @@ import { HIDDEN_AGENCY_IDS, isHiddenAgency } from "#config/hiddenAgencies.config
  * @property {PrimitiveParam} [page]
  * @property {PrimitiveParam} [locale]
  * @property {PrimitiveParam} [ids]
+ * @property {PrimitiveParam} [agency]
+ * @property {PrimitiveParam} [country]
+ * @property {PrimitiveParam} [featured]
+ * @property {PrimitiveParam} [includePending]
+ * @property {PrimitiveParam} [showMap]
  */
 
 /**
@@ -64,15 +74,18 @@ import { HIDDEN_AGENCY_IDS, isHiddenAgency } from "#config/hiddenAgencies.config
  * @param {PropertyQueryParams} params - Query parameters
  * @param {Object} [options] - Internal options (never derived from query params)
  * @param {boolean} [options.includeHiddenAgencies] - Bypass the hidden agency exclusion
+ * @param {boolean} [options.promoteFeatured] - Mix promoted properties into paginated results
  * @returns {Promise<ApiResponse<PropertyWithRelations[]>>}
  */
 export const getPropertiesService = async (params = {}, options = {}) => {
     try {
-        const { includeHiddenAgencies = false } = options
+        const { includeHiddenAgencies = false, promoteFeatured = true } = options
         const locale = stringValue(params.locale) ?? DEFAULT_LOCALE
 
         const includePending = booleanValue(params.includePending) && params.agency
         const featuredOnly = booleanValue(params.featured) === true
+        const country = normalizeCountry(params.country)
+        const now = new Date()
         let filters = {
             status: includePending
                 ? { in: [PropertyStatus.PUBLISHED, PropertyStatus.PENDING] }
@@ -82,7 +95,8 @@ export const getPropertiesService = async (params = {}, options = {}) => {
         const andConditions = []
         const orGroups = []
 
-        if (featuredOnly) filters.featured = true
+        if (featuredOnly) andConditions.push(activeFeaturedCondition(now))
+        if (country) filters.country = country
         const ids = stringValues(params.ids)
         if (ids.length) filters.id = { in: ids }
         if (params.agency) filters.agencyId = stringValue(params.agency)
@@ -98,13 +112,19 @@ export const getPropertiesService = async (params = {}, options = {}) => {
         const inDevelopment = booleanValue(params.in_development)
         if (typeof inDevelopment === "boolean") filters.inDevelopment = inDevelopment
 
-        if (params.location) {
-            const locationIds = await resolveLocationIds(params.location)
+        let promotedLocationIds = []
+        const location = stringValue(params.location)
+        if (location) {
+            const [locationIds, cityLocationIds] = await Promise.all([
+                resolveLocationIds(location),
+                promoteFeatured && !featuredOnly ? resolveCityLocationIds(location) : [],
+            ])
+            promotedLocationIds = cityLocationIds
+
             if (locationIds.length) {
                 filters.propertyLocationId = { in: locationIds }
             } else {
-                const fallbackLocation = stringValue(params.location)
-                if (fallbackLocation) filters.propertyLocationId = fallbackLocation
+                filters.propertyLocationId = location
             }
         }
 
@@ -197,12 +217,6 @@ export const getPropertiesService = async (params = {}, options = {}) => {
         const maxLimit = 500
         const safeLimit = Math.min(limit, maxLimit)
 
-        const total = await prisma.property.count({ where: filters })
-        const totalPages = safeLimit > 0 ? Math.ceil(total / safeLimit) : 0
-
-        let page = positiveInt(params.page) ?? 1
-        page = Math.max(1, Math.min(page, totalPages || 1))
-
         const propertyQueryOptions = {
             include: {
                 propertyLocation: true,
@@ -237,17 +251,104 @@ export const getPropertiesService = async (params = {}, options = {}) => {
         }
 
         let properties
+        let total
+        let totalPages
+        let page
+        const isMapView = Object.prototype.hasOwnProperty.call(params, "showMap")
+        const shouldMixFeatured =
+            promoteFeatured &&
+            !featuredOnly &&
+            !includePending &&
+            ids.length === 0 &&
+            !isMapView &&
+            safeLimit > FEATURED_PER_PAGE
 
-        if (shouldShuffleFeatured) {
+        if (shouldMixFeatured) {
+            const normalFilters = appendAndCondition(filters, inactiveFeaturedCondition(now))
+            const promotedAndConditions = [activeFeaturedCondition(now)]
+
+            if (!includeHiddenAgencies && HIDDEN_AGENCY_IDS.length) {
+                promotedAndConditions.unshift({
+                    OR: [{ agencyId: null }, { agencyId: { notIn: HIDDEN_AGENCY_IDS } }],
+                })
+            }
+
+            const promotedFilters = {
+                status: PropertyStatus.PUBLISHED,
+                AND: promotedAndConditions,
+            }
+
+            if (country) promotedFilters.country = country
+            if (params.agency) promotedFilters.agencyId = stringValue(params.agency)
+            if (inDevelopment === true) promotedFilters.inDevelopment = true
+            if (params.category) promotedFilters.categoryId = stringValue(params.category)
+            if (listingType) promotedFilters.listingType = listingType
+            if (location) {
+                promotedFilters.propertyLocationId = promotedLocationIds.length ? { in: promotedLocationIds } : location
+            }
+
+            const [strictTotal, featuredRows, normalTotal] = await Promise.all([
+                prisma.property.count({ where: filters }),
+                prisma.property.findMany({
+                    where: promotedFilters,
+                    select: { id: true },
+                    orderBy: { id: "asc" },
+                }),
+                prisma.property.count({ where: normalFilters }),
+            ])
+
+            total = strictTotal
+            const featuredIds = featuredRows.map(property => property.id)
+            const normalPageSize = featuredIds.length ? safeLimit - FEATURED_PER_PAGE : safeLimit
+            totalPages = Math.max(Math.ceil(normalTotal / normalPageSize), featuredIds.length ? 1 : 0)
+
+            page = positiveInt(params.page) ?? 1
+            if (page > totalPages && totalPages > 0) page = 1
+
+            const pageFeaturedIds = featuredIdsForPage(featuredIds, page, now.getTime())
+            const [featuredProperties, normalProperties] = await Promise.all([
+                pageFeaturedIds.length
+                    ? prisma.property.findMany({
+                          where: { id: { in: pageFeaturedIds } },
+                          ...propertyQueryOptions,
+                      })
+                    : [],
+                prisma.property.findMany({
+                    where: normalFilters,
+                    orderBy,
+                    ...propertyQueryOptions,
+                    take: normalPageSize,
+                    skip: (page - 1) * normalPageSize,
+                }),
+            ])
+
+            const featuredById = new Map(featuredProperties.map(property => [property.id, property]))
+            properties = [
+                ...pageFeaturedIds.map(id => featuredById.get(id)).filter(Boolean),
+                ...normalProperties.map(property => ({ ...property, featured: false })),
+            ]
+        } else {
+            total = await prisma.property.count({ where: filters })
+            totalPages = safeLimit > 0 ? Math.ceil(total / safeLimit) : 0
+            page = positiveInt(params.page) ?? 1
+            page = Math.max(1, Math.min(page, totalPages || 1))
+        }
+
+        if (!shouldMixFeatured && shouldShuffleFeatured) {
             const featuredPropertyIds = await prisma.property.findMany({
                 where: filters,
                 select: {
                     id: true,
                 },
+                orderBy: { id: "asc" },
             })
 
-            const shuffledIds = shuffleArray(featuredPropertyIds.map(property => property.id))
-            const paginatedIds = shuffledIds.slice((page - 1) * safeLimit, page * safeLimit)
+            const paginatedIds = featuredIdsForPage(
+                featuredPropertyIds.map(property => property.id),
+                page,
+                now.getTime(),
+                safeLimit
+            )
 
             if (paginatedIds.length === 0) {
                 properties = []
@@ -264,7 +365,7 @@ export const getPropertiesService = async (params = {}, options = {}) => {
                 const propertiesById = new Map(shuffledProperties.map(property => [property.id, property]))
                 properties = paginatedIds.map(id => propertiesById.get(id)).filter(Boolean)
             }
-        } else {
+        } else if (!shouldMixFeatured) {
             properties = await prisma.property.findMany({
                 where: filters,
                 orderBy,
@@ -349,13 +450,12 @@ export const getPropertyService = async (propertyId, viewContext = {}, options =
     }
 }
 
-const shuffleArray = array => {
-    const shuffled = [...array]
-
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1))
-        ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-    }
-
-    return shuffled
+const normalizeCountry = value => {
+    const country = stringValue(value)?.toLowerCase()
+    return country && Object.values(PropertyCountry).includes(country) ? country : undefined
 }
+
+const appendAndCondition = (where, condition) => ({
+    ...where,
+    AND: [...(Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : []), condition],
+})

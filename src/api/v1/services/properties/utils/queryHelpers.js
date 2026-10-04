@@ -66,3 +66,30 @@ export async function resolveLocationIds(locationName) {
 
     return getAllLocationIds(location.id)
 }
+
+/**
+ * Resolve the city and all its municipalities for promoted search results.
+ * A municipality search therefore gives every promoted property in that city a fair chance.
+ * @param {PrimitiveParam} locationName
+ * @returns {Promise<string[]>}
+ */
+export async function resolveCityLocationIds(locationName) {
+    const rawLocation = stringValues(locationName)[0]
+    if (!rawLocation) return []
+
+    const { city, municipality } = parseLocation(rawLocation)
+    const location = await prisma.propertyLocation.findFirst({
+        where: { name: municipality ?? city },
+        select: { id: true, parentId: true },
+    })
+
+    if (!location) return []
+
+    const cityId = location.parentId ?? location.id
+    const municipalities = await prisma.propertyLocation.findMany({
+        where: { parentId: cityId },
+        select: { id: true },
+    })
+
+    return [cityId, ...municipalities.map(entry => entry.id)]
+}
