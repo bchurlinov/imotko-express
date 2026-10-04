@@ -245,7 +245,7 @@ Expected:
 
 ## 4. Flow B — client removes a conversation from their own inbox
 
-This is the chat "delete" operation. It does **not** delete the conversation or its messages from the database, and it does not delete the other participant's history. It adds a system event, blocks the remover's side, clears their relevant notifications, rejects still-pending messages, and removes the conversation from that viewer's inbox.
+This is the chat "delete" operation. It does **not** delete the conversation or its messages from the database, and it does not delete the other participant's history. It adds a system event, blocks the remover's side, clears their relevant notifications, rejects still-pending messages, and removes the conversation from that viewer's inbox. The remover's `ConversationParticipant.removed` is set to `true`; inbox, unread count, push badge and thread access all filter on that flag. The `clientRemovedConversation` / `agencyRemovedConversation` system message is still added as the visible line for the other side.
 
 Use a fresh, open Flow A conversation if you want to test remove before closing it.
 

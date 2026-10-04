@@ -3,7 +3,7 @@ import prisma from "#database/client.js"
 import { CHAT_ERRORS } from "./chat_constants.js"
 import { ChatError } from "./chat_error.js"
 import { findViewerParticipant } from "./conversation.service.js"
-import { canRemoveConversation, removalEventFor } from "./chat_policy.js"
+import { canRemoveConversation, removalEventFor, removalParticipantData } from "./chat_policy.js"
 
 const removerNotificationsWhere = (viewer, participant, participants, conversationId) => {
     const base = { metadata: { path: ["conversationId"], equals: conversationId } }
@@ -24,12 +24,11 @@ export const removeConversation = async ({ conversationId, viewer, now = new Dat
                 id: true,
                 dedupeKey: true,
                 participants: true,
-                messages: { where: { kind: MessageKind.SYSTEM, bodyText: event }, select: { id: true }, take: 1 },
             },
         })
         const participant = conversation ? findViewerParticipant(conversation.participants, viewer) : null
         if (!participant) throw new ChatError(CHAT_ERRORS.NOT_FOUND, 404)
-        if (conversation.messages.length) return { removed: true }
+        if (participant.removed) return { removed: true }
 
         await tx.message.create({
             data: {
@@ -45,7 +44,7 @@ export const removeConversation = async ({ conversationId, viewer, now = new Dat
         })
         await tx.conversationParticipant.update({
             where: { id: participant.id },
-            data: { blockedAt: participant.blockedAt || now, unreadCount: 0, firstUnreadAt: null, reminderCount: 0 },
+            data: removalParticipantData(participant, now),
         })
         await tx.message.updateMany({
             where: { conversationId, status: MessageStatus.PENDING_REVIEW },

@@ -59,6 +59,8 @@ model ConversationParticipant {
   lastReadByMember   AgencyMember?        @relation("ConversationLastReadByMember", fields: [lastReadByMemberId], references: [id], onDelete: SetNull)
   blockedAt          DateTime?            @db.Timestamptz(3)
   deletedAt          DateTime?            @db.Timestamptz(3)
+  // Side removed the conversation from its own list; the row stays for the other side and admins.
+  removed            Boolean              @default(false)
   messages           Message[]
   reports            ConversationReport[]
   createdAt          DateTime             @default(now()) @db.Timestamptz(3)

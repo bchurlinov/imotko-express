@@ -1,7 +1,13 @@
 import assert from "node:assert/strict"
 import test from "node:test"
 import { MessageStatus } from "#generated/prisma/enums.ts"
-import { buildDedupeKey, userLanguageToLocale, visibleMessageWhere } from "./chat_policy.js"
+import {
+    buildDedupeKey,
+    inboxParticipantWhere,
+    removalParticipantData,
+    userLanguageToLocale,
+    visibleMessageWhere,
+} from "./chat_policy.js"
 
 test("dedupe keys are stable per agency inquiry", () => {
     assert.equal(
@@ -21,4 +27,39 @@ test("client visibility includes own held messages while agency visibility requi
 
 test("Turkish user language resolves to the Turkish chat locale", () => {
     assert.equal(userLanguageToLocale("TR"), "tr")
+})
+
+test("client inbox scope keeps only the viewer's own non-removed participant rows", () => {
+    assert.deepEqual(inboxParticipantWhere({ type: "client", userId: "u1" }), { userId: "u1", removed: false })
+})
+
+test("agency inbox scope keeps non-removed rows of delivered conversations", () => {
+    assert.deepEqual(inboxParticipantWhere({ type: "agency", agencyId: "a1", userId: "u2" }), {
+        agencyId: "a1",
+        removed: false,
+        conversation: { lastDeliveredAt: { not: null } },
+    })
+})
+
+test("client inbox search can merge its OR into a scope without a conversation key", () => {
+    const scope = inboxParticipantWhere({ type: "client", userId: "u1" })
+    const where = { ...scope, conversation: { ...scope.conversation, OR: [{ id: "x" }] } }
+    assert.deepEqual(where, { userId: "u1", removed: false, conversation: { OR: [{ id: "x" }] } })
+})
+
+test("removal marks the side removed, locks it, and clears its counters", () => {
+    const now = new Date(Date.UTC(2026, 9, 4, 12, 0))
+    assert.deepEqual(removalParticipantData({ blockedAt: null }, now), {
+        removed: true,
+        blockedAt: now,
+        unreadCount: 0,
+        firstUnreadAt: null,
+        reminderCount: 0,
+    })
+})
+
+test("removal keeps an earlier block time", () => {
+    const earlier = new Date(Date.UTC(2026, 8, 20))
+    const now = new Date(Date.UTC(2026, 9, 4, 12, 0))
+    assert.equal(removalParticipantData({ blockedAt: earlier }, now).blockedAt, earlier)
 })

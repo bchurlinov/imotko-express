@@ -2,7 +2,7 @@ import { AgencyApprovalStatus, MessageKind, MessageStatus, PropertyStatus } from
 import prisma from "#database/client.js"
 import { escapeHtml, fullName, isoOrNull, pickLocalized } from "./chat_format.js"
 import { buildPropertySnapshot, findViewerParticipant } from "./conversation.service.js"
-import { canRemoveConversation, notRemovedWhere, removalEventFor, visibleMessageWhere } from "./chat_policy.js"
+import { canRemoveConversation, inboxParticipantWhere, visibleMessageWhere } from "./chat_policy.js"
 import { CHAT_PERMISSION, hasChatPermission } from "./chat_permissions.js"
 import { chatSystemEventText } from "./chat_locales.js"
 
@@ -16,11 +16,6 @@ const messagePreview = (message, locale) =>
         .replace(/\s+/g, " ")
         .trim()
         .slice(0, 140)
-const participantScope = viewer =>
-    viewer.type === "client"
-        ? { userId: viewer.userId, conversation: notRemovedWhere("client") }
-        : { agencyId: viewer.agencyId, conversation: { lastDeliveredAt: { not: null }, ...notRemovedWhere("agency") } }
-
 const inboxItem = (row, locale) => {
     const counterpart = row.conversation.participants.find(participant => participant.id !== row.id)
     const agency = row.conversation.participants.find(participant => participant.agencyId)
@@ -63,7 +58,7 @@ const inboxItem = (row, locale) => {
 export const getInbox = async (viewer, { search = "", locale = "mk", limit = INBOX_PAGE_SIZE } = {}) => {
     if (viewer?.type !== "client" && viewer?.type !== "agency") return { items: [], hasMore: false }
     const query = search.trim()
-    const scope = participantScope(viewer)
+    const scope = inboxParticipantWhere(viewer)
     const counterpart = viewer.type === "agency" ? { agencyId: null } : { agencyId: { not: null } }
     const where = query
         ? {
@@ -292,6 +287,7 @@ export const getThread = async (viewer, conversationId, locale = "mk") => {
                     displayName: true,
                     blockedAt: true,
                     deletedAt: true,
+                    removed: true,
                     unreadCount: true,
                     lastReadAt: true,
                     user: {
@@ -326,15 +322,11 @@ export const getThread = async (viewer, conversationId, locale = "mk") => {
         },
     })
     if (!conversation) return null
-    if (viewer.type !== "admin" && !findViewerParticipant(conversation.participants, viewer)) return null
+    if (viewer.type !== "admin") {
+        const own = findViewerParticipant(conversation.participants, viewer)
+        if (!own || own.removed) return null
+    }
     if (viewer.type === "agency" && !conversation.lastDeliveredAt) return null
-    if (
-        viewer.type !== "admin" &&
-        conversation.messages.some(
-            message => message.kind === MessageKind.SYSTEM && message.bodyText === removalEventFor(viewer.type)
-        )
-    )
-        return null
     const thread = shapeThread({ conversation, viewer, locale })
     if (viewer.type !== "agency") return thread
     const clientUser = conversation.participants.find(participant => participant.userId)?.user || null
@@ -366,7 +358,9 @@ const findCrmClient = async (viewer, user, locale) => {
 
 export const getUnreadConversationCount = async viewer => {
     if (viewer?.type !== "client" && viewer?.type !== "agency") return 0
-    return prisma.conversationParticipant.count({ where: { ...participantScope(viewer), unreadCount: { gt: 0 } } })
+    return prisma.conversationParticipant.count({
+        where: { ...inboxParticipantWhere(viewer), unreadCount: { gt: 0 } },
+    })
 }
 
 export const getChatContext = async viewer => {

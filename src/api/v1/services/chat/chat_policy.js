@@ -1,4 +1,4 @@
-import { MessageKind, MessageStatus, UserRole } from "#generated/prisma/enums.ts"
+import { MessageStatus, UserRole } from "#generated/prisma/enums.ts"
 import { CHAT_LIMITS, CHAT_SYSTEM_EVENTS, DAY_MS } from "./chat_constants.js"
 import { canRemoveConversation } from "./chat_permissions.js"
 
@@ -54,8 +54,19 @@ export const localeToUserLanguage = locale => ({ en: "EN", sq: "SQ", tr: "TR" })
 export const removalEventFor = viewerType =>
     viewerType === "client" ? CHAT_SYSTEM_EVENTS.CLIENT_REMOVED : CHAT_SYSTEM_EVENTS.AGENCY_REMOVED
 
-export const notRemovedWhere = viewerType => ({
-    messages: { none: { kind: MessageKind.SYSTEM, bodyText: removalEventFor(viewerType) } },
+// Inbox rows for a viewer: only their own side, and only if that side has not removed the conversation.
+export const inboxParticipantWhere = viewer =>
+    viewer.type === "client"
+        ? { userId: viewer.userId, removed: false }
+        : { agencyId: viewer.agencyId, removed: false, conversation: { lastDeliveredAt: { not: null } } }
+
+// Participant update for the side that removes a conversation. An existing block time is kept.
+export const removalParticipantData = (participant, now) => ({
+    removed: true,
+    blockedAt: participant.blockedAt || now,
+    unreadCount: 0,
+    firstUnreadAt: null,
+    reminderCount: 0,
 })
 
 export { canRemoveConversation }

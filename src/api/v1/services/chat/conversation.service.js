@@ -15,7 +15,7 @@ import { queueChatNewMessageEmail } from "./chat_email.service.js"
 import { queueChatPushNotification } from "./chat_push.service.js"
 import { deliverMessage } from "./message_delivery.service.js"
 import { enforceUnansweredLimit } from "./messaging_flag.service.js"
-import { buildDedupeKey, canStartAgencyInquiry, removalEventFor, resolveInitialStatus } from "./chat_policy.js"
+import { buildDedupeKey, canStartAgencyInquiry, resolveInitialStatus } from "./chat_policy.js"
 import { CHAT_PERMISSION, hasChatPermission } from "./chat_permissions.js"
 import { sanitizeMessage } from "./chat_sanitizer.js"
 
@@ -65,11 +65,6 @@ const loadViewerParticipant = async (conversationId, viewer) => {
             id: true,
             closedAt: true,
             participants: true,
-            messages: {
-                where: { kind: MessageKind.SYSTEM, bodyText: removalEventFor(viewer?.type) },
-                select: { id: true },
-                take: 1,
-            },
         },
     })
     const participant = conversation ? findViewerParticipant(conversation.participants, viewer) : null
@@ -306,7 +301,7 @@ export const markRead = async ({ conversationId, viewer, now = new Date() }) => 
 export const toggleBlock = async ({ conversationId, viewer }) => {
     assertAgencyWriter(viewer)
     const { conversation, participant } = await loadViewerParticipant(conversationId, viewer)
-    if (conversation.messages?.length) throw new ChatError(CHAT_ERRORS.CONVERSATION_BLOCKED, 409)
+    if (participant.removed) throw new ChatError(CHAT_ERRORS.CONVERSATION_BLOCKED, 409)
     const blockedByOther = conversation.participants.some(item => item.id !== participant.id && item.blockedAt)
     if (!participant.blockedAt && blockedByOther) throw new ChatError(CHAT_ERRORS.CONVERSATION_BLOCKED, 409)
     return prisma.conversationParticipant.update({

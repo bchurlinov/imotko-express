@@ -1,6 +1,6 @@
 import { MessageKind, MessageStatus, UserRole } from "#generated/prisma/enums.ts"
 import prisma from "#database/client.js"
-import { notRemovedWhere } from "./chat_policy.js"
+import { inboxParticipantWhere } from "./chat_policy.js"
 import { CHAT_ERRORS } from "./chat_constants.js"
 import { ChatError } from "./chat_error.js"
 
@@ -67,7 +67,7 @@ const loadPush = async messageId => {
     if (!recipient?.userId || recipient.user?.role !== UserRole.CLIENT || !recipient.user.pushTokens.length) return null
 
     const badge = await prisma.conversationParticipant.count({
-        where: { userId: recipient.userId, unreadCount: { gt: 0 }, conversation: notRemovedWhere("client") },
+        where: { ...inboxParticipantWhere({ type: "client", userId: recipient.userId }), unreadCount: { gt: 0 } },
     })
 
     return {
