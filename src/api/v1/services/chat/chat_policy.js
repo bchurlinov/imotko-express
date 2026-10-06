@@ -1,6 +1,8 @@
 import { MessageStatus, UserRole } from "#generated/prisma/enums.ts"
 import { CHAT_LIMITS, CHAT_SYSTEM_EVENTS, DAY_MS } from "./chat_constants.js"
+import { LEGACY_CAPABILITIES } from "#config/client_capabilities.js"
 import { canRemoveConversation } from "./chat_permissions.js"
+import { visibleConversationKinds } from "./chat_visibility.js"
 
 export const buildDedupeKey = ({ kind, userId, agencyId, propertyId }) =>
     `${kind}:u:${userId}:a:${agencyId}:p:${propertyId || "none"}`
@@ -51,14 +53,20 @@ export const userLanguageToLocale = language => {
 
 export const localeToUserLanguage = locale => ({ en: "EN", sq: "SQ", tr: "TR" })[locale] || "MK"
 
-export const removalEventFor = viewerType =>
-    viewerType === "client" ? CHAT_SYSTEM_EVENTS.CLIENT_REMOVED : CHAT_SYSTEM_EVENTS.AGENCY_REMOVED
+// In a buyer–seller thread both sides are clients, so the seller side gets a marker of its own.
+export const removalEventFor = (viewerType, participant = null) => {
+    if (participant?.isSeller) return CHAT_SYSTEM_EVENTS.SELLER_REMOVED
+    return viewerType === "client" ? CHAT_SYSTEM_EVENTS.CLIENT_REMOVED : CHAT_SYSTEM_EVENTS.AGENCY_REMOVED
+}
 
-// Inbox rows for a viewer: only their own side, and only if that side has not removed the conversation.
-export const inboxParticipantWhere = viewer =>
-    viewer.type === "client"
-        ? { userId: viewer.userId, removed: false }
-        : { agencyId: viewer.agencyId, removed: false, conversation: { lastDeliveredAt: { not: null } } }
+// Inbox rows for a viewer: only their own side, only kinds the caller can open, and only if that side has not removed
+// the conversation.
+export const inboxParticipantWhere = (viewer, capabilities = LEGACY_CAPABILITIES) => {
+    const kinds = { kind: { in: visibleConversationKinds(capabilities) } }
+    return viewer.type === "client"
+        ? { userId: viewer.userId, removed: false, conversation: kinds }
+        : { agencyId: viewer.agencyId, removed: false, conversation: { lastDeliveredAt: { not: null }, ...kinds } }
+}
 
 // Participant update for the side that removes a conversation. An existing block time is kept.
 export const removalParticipantData = (participant, now) => ({

@@ -4,6 +4,7 @@ import createError from "http-errors"
 import prisma from "#database/client.js"
 import { v4 as uuidv4 } from "uuid"
 import { closeConversationsForDeletedUser } from "#services/chat/chat_lifecycle.service.js"
+import { retireClientAccount } from "./retire_client_account.js"
 
 /**
  * @typedef {import("@prisma/client").User} User
@@ -228,6 +229,8 @@ export const createUserService = async ({
             if (resolvedLanguage) userData.language = resolvedLanguage
             const avatar = buildDefaultAvatar()
             if (avatar) userData.image = avatar
+            // The Supabase user above is created with email_confirm: true, so this address is confirmed; every other
+            // sign-in is Google or email OTP. Decision 120a: no unverified accounts come from this path.
             if (supabaseUser.email_confirmed_at) userData.emailVerified = new Date(supabaseUser.email_confirmed_at)
             else userData.emailVerified = new Date()
 
@@ -320,6 +323,9 @@ export const deleteUserService = async (userId, actor, authenticatedSupabaseUser
         supabaseDeleted = true
 
         await prisma.$transaction(async tx => {
+            // Decision 121a: order unchanged (Supabase first); private listings are retired in the same transaction.
+            const client = await tx.client.findUnique({ where: { userId }, select: { id: true } })
+            await retireClientAccount(tx, { userId, clientId: client?.id || null })
             await closeConversationsForDeletedUser(tx, userId)
             await tx.user.delete({
                 where: {

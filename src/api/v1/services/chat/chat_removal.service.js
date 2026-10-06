@@ -3,7 +3,9 @@ import prisma from "#database/client.js"
 import { CHAT_ERRORS } from "./chat_constants.js"
 import { ChatError } from "./chat_error.js"
 import { findViewerParticipant } from "./conversation.service.js"
+import { LEGACY_CAPABILITIES } from "#config/client_capabilities.js"
 import { canRemoveConversation, removalEventFor, removalParticipantData } from "./chat_policy.js"
+import { isConversationKindVisible } from "./chat_visibility.js"
 
 const removerNotificationsWhere = (viewer, participant, participants, conversationId) => {
     const base = { metadata: { path: ["conversationId"], equals: conversationId } }
@@ -12,9 +14,13 @@ const removerNotificationsWhere = (viewer, participant, participants, conversati
     return clientUserId ? { ...base, recipientId: { not: clientUserId } } : base
 }
 
-export const removeConversation = async ({ conversationId, viewer, now = new Date() }) => {
+export const removeConversation = async ({
+    conversationId,
+    viewer,
+    now = new Date(),
+    capabilities = LEGACY_CAPABILITIES,
+}) => {
     if (!canRemoveConversation(viewer)) throw new ChatError(CHAT_ERRORS.FORBIDDEN, 403)
-    const event = removalEventFor(viewer.type)
     return prisma.$transaction(async tx => {
         const locked = await tx.conversation.updateMany({ where: { id: conversationId }, data: { updatedAt: now } })
         if (!locked.count) throw new ChatError(CHAT_ERRORS.NOT_FOUND, 404)
@@ -22,13 +28,18 @@ export const removeConversation = async ({ conversationId, viewer, now = new Dat
             where: { id: conversationId },
             select: {
                 id: true,
+                kind: true,
                 dedupeKey: true,
                 participants: true,
             },
         })
-        const participant = conversation ? findViewerParticipant(conversation.participants, viewer) : null
+        const participant =
+            conversation && isConversationKindVisible(conversation.kind, capabilities)
+                ? findViewerParticipant(conversation.participants, viewer)
+                : null
         if (!participant) throw new ChatError(CHAT_ERRORS.NOT_FOUND, 404)
         if (participant.removed) return { removed: true }
+        const event = removalEventFor(viewer.type, participant)
 
         await tx.message.create({
             data: {

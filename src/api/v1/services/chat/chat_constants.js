@@ -34,6 +34,8 @@ export const CHAT_SYSTEM_EVENTS = Object.freeze({
     ACCOUNT_DELETED: "accountDeleted",
     AGENCY_REMOVED: "agencyRemovedConversation",
     CLIENT_REMOVED: "clientRemovedConversation",
+    SELLER_REMOVED: "sellerRemovedConversation",
+    ACCOUNT_CONVERTED: "accountConverted",
 })
 
 export const CHAT_LOCALES = Object.freeze(["mk", "en", "sq", "tr"])

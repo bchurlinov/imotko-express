@@ -20,6 +20,7 @@ import { enforceUnansweredLimit } from "./messaging_flag.service.js"
 import { buildDedupeKey, canStartAgencyInquiry, resolveInitialStatus } from "./chat_policy.js"
 import { CHAT_PERMISSION, hasChatPermission } from "./chat_permissions.js"
 import { sanitizeMessage } from "./chat_sanitizer.js"
+import { isConversationKindVisible } from "./chat_visibility.js"
 
 const PRISMA_UNIQUE_CONSTRAINT = "P2002"
 
@@ -60,16 +61,21 @@ const assertAgencyWriter = viewer => {
     }
 }
 
-const loadViewerParticipant = async (conversationId, viewer) => {
+const loadViewerParticipant = async (conversationId, viewer, capabilities = LEGACY_CAPABILITIES) => {
     const conversation = await prisma.conversation.findUnique({
         where: { id: conversationId },
         select: {
             id: true,
+            kind: true,
             closedAt: true,
             participants: true,
         },
     })
-    const participant = conversation ? findViewerParticipant(conversation.participants, viewer) : null
+    // A thread the caller's app cannot show answers exactly like a missing one.
+    const participant =
+        conversation && isConversationKindVisible(conversation.kind, capabilities)
+            ? findViewerParticipant(conversation.participants, viewer)
+            : null
     if (!participant) throw new ChatError(CHAT_ERRORS.NOT_FOUND, 404)
     return { conversation, participant }
 }
@@ -163,11 +169,17 @@ const appendMessage = async (
     }
 }
 
-export const sendMessage = async ({ conversationId, viewer, bodyHtml, requiresAdminReview = false }) => {
+export const sendMessage = async ({
+    conversationId,
+    viewer,
+    bodyHtml,
+    requiresAdminReview = false,
+    capabilities = LEGACY_CAPABILITIES,
+}) => {
     const sanitized = requireSanitized(bodyHtml)
     const user = await loadSender(viewer.userId)
     assertAgencyWriter(viewer)
-    const { conversation, participant } = await loadViewerParticipant(conversationId, viewer)
+    const { conversation, participant } = await loadViewerParticipant(conversationId, viewer, capabilities)
     if (conversation.closedAt) throw new ChatError(CHAT_ERRORS.CONVERSATION_CLOSED, 403)
     if (conversation.participants.some(item => item.blockedAt))
         throw new ChatError(CHAT_ERRORS.CONVERSATION_BLOCKED, 403)
@@ -202,8 +214,11 @@ export const sendMessage = async ({ conversationId, viewer, bodyHtml, requiresAd
     return result.message
 }
 
+// Threads a seller received about their own listings were not started by them.
 const countClientConversations = (userId, since) =>
-    prisma.conversationParticipant.count({ where: { userId, ...(since ? { createdAt: { gte: since } } : {}) } })
+    prisma.conversationParticipant.count({
+        where: { userId, isSeller: false, ...(since ? { createdAt: { gte: since } } : {}) },
+    })
 
 export const startAgencyInquiry = async ({
     userId,
@@ -293,8 +308,8 @@ export const startAgencyInquiry = async ({
     }
 }
 
-export const markRead = async ({ conversationId, viewer, now = new Date() }) => {
-    const { participant } = await loadViewerParticipant(conversationId, viewer)
+export const markRead = async ({ conversationId, viewer, now = new Date(), capabilities = LEGACY_CAPABILITIES }) => {
+    const { participant } = await loadViewerParticipant(conversationId, viewer, capabilities)
     return prisma.conversationParticipant.update({
         where: { id: participant.id },
         data: {
@@ -307,9 +322,9 @@ export const markRead = async ({ conversationId, viewer, now = new Date() }) => 
     })
 }
 
-export const toggleBlock = async ({ conversationId, viewer }) => {
+export const toggleBlock = async ({ conversationId, viewer, capabilities = LEGACY_CAPABILITIES }) => {
     assertAgencyWriter(viewer)
-    const { conversation, participant } = await loadViewerParticipant(conversationId, viewer)
+    const { conversation, participant } = await loadViewerParticipant(conversationId, viewer, capabilities)
     if (participant.removed) throw new ChatError(CHAT_ERRORS.CONVERSATION_BLOCKED, 409)
     const blockedByOther = conversation.participants.some(item => item.id !== participant.id && item.blockedAt)
     if (!participant.blockedAt && blockedByOther) throw new ChatError(CHAT_ERRORS.CONVERSATION_BLOCKED, 409)
@@ -319,8 +334,8 @@ export const toggleBlock = async ({ conversationId, viewer }) => {
     })
 }
 
-export const reportConversation = async ({ conversationId, viewer, reason }) => {
-    const { participant } = await loadViewerParticipant(conversationId, viewer)
+export const reportConversation = async ({ conversationId, viewer, reason, capabilities = LEGACY_CAPABILITIES }) => {
+    const { participant } = await loadViewerParticipant(conversationId, viewer, capabilities)
     const trimmed = typeof reason === "string" ? reason.trim().slice(0, CHAT_LIMITS.REPORT_REASON_MAX_LENGTH) : ""
     return prisma.conversationReport.create({
         data: { conversationId, reporterParticipantId: participant.id, reason: trimmed || null },

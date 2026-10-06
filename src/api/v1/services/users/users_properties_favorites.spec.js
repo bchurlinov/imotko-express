@@ -31,10 +31,10 @@ test("legacy callers do not get short-term favorites", async () => {
     await getPropertiesFavoritesService("user_1")
     assert.deepEqual(where, {
         clientId: "client_1",
-        property: { AND: [{ listingType: { not: "short_term_rent" } }] },
+        property: { AND: [{ listingType: { not: "short_term_rent" } }, { clientId: null }] },
     })
 
-    await getPropertiesFavoritesService("user_1", { shortTermRent: true })
+    await getPropertiesFavoritesService("user_1", { shortTermRent: true, clientListings: true })
     assert.deepEqual(where, { clientId: "client_1" })
 })
 
@@ -46,4 +46,10 @@ test("a legacy caller cannot favorite a short-term listing", async () => {
     }
 
     await assert.rejects(() => usersCreatePropertiesFavoriteService("user_1", "p1", "1.1.1.1"), { status: 404 })
+})
+
+test("legacy callers cannot favorite a private listing", async () => {
+    prisma.client.findUnique = async () => ({ id: "client_1" })
+    prisma.property.findUnique = async () => ({ id: "p1", listingType: "for_sale", clientId: "c9" })
+    await assert.rejects(() => usersCreatePropertiesFavoriteService("user_1", "p1", "127.0.0.1"), { status: 404 })
 })

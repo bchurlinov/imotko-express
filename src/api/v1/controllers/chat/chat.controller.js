@@ -74,6 +74,7 @@ export const sendMessageController = async (req, res) => {
         conversationId: req.params.id,
         viewer: req.chatViewer,
         bodyHtml: req.body.bodyHtml,
+        capabilities: req.capabilities,
     })
     return chatResponse(res, 201, "messageSent", { messageId: message.id })
 }
@@ -84,28 +85,46 @@ export const requestMessagePushController = async (req, res) => {
 }
 
 export const readConversationController = async (req, res) => {
-    await markRead({ conversationId: req.params.id, viewer: req.chatViewer })
+    await markRead({ conversationId: req.params.id, viewer: req.chatViewer, capabilities: req.capabilities })
     return chatResponse(res, 200, null)
 }
 
 export const blockConversationController = async (req, res) => {
-    const participant = await toggleBlock({ conversationId: req.params.id, viewer: req.chatViewer })
+    const participant = await toggleBlock({
+        conversationId: req.params.id,
+        viewer: req.chatViewer,
+        capabilities: req.capabilities,
+    })
     return chatResponse(res, 200, null, { blocked: Boolean(participant.blockedAt) })
 }
 
 export const reportConversationController = async (req, res) => {
-    await reportConversation({ conversationId: req.params.id, viewer: req.chatViewer, reason: req.body.reason })
+    await reportConversation({
+        conversationId: req.params.id,
+        viewer: req.chatViewer,
+        reason: req.body.reason,
+        capabilities: req.capabilities,
+    })
     return chatResponse(res, 201, "reportSent")
 }
 
 export const removeConversationController = async (req, res) =>
-    chatResponse(res, 200, null, await removeConversation({ conversationId: req.params.id, viewer: req.chatViewer }))
+    chatResponse(
+        res,
+        200,
+        null,
+        await removeConversation({
+            conversationId: req.params.id,
+            viewer: req.chatViewer,
+            capabilities: req.capabilities,
+        })
+    )
 
 export const unreadController = async (req, res) => {
     const count =
         req.chatViewer.type === "admin"
             ? await getPendingReviewCount()
-            : await getUnreadConversationCount(req.chatViewer)
+            : await getUnreadConversationCount(req.chatViewer, req.capabilities)
     return chatResponse(res, 200, null, { count })
 }
 

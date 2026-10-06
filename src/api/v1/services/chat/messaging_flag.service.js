@@ -15,6 +15,8 @@ export const countRecentUnanswered = async (db, userId, now = new Date(), unflag
             createdAt: { gte: since },
             status: { not: MessageStatus.REJECTED },
             kind: MessageKind.USER,
+            // Decision 114a: a seller answering buyers about their own listings is not "unanswered" spam.
+            senderParticipant: { isSeller: false },
         },
         select: { conversationId: true, senderParticipantId: true, createdAt: true },
     })

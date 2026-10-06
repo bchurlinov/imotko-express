@@ -19,6 +19,8 @@ model Client {
   ProposalCollaboration ProposalCollaboration[]
   preferences           Json?
   leadMatchSends        LeadClientMatchSend[]
+  credits               Int                          @default(150)
+  properties            Property[]                   @relation("ClientListings")
 
   @@index([userId])
 }

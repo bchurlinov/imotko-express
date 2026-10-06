@@ -35,7 +35,7 @@ export const isVersionAtLeast = (version, minimum) => {
  * Works out what a caller may see. No header, an unknown client, or an unparsable version → legacy.
  * @param {{ client?: string, appVersion?: string }} caller - Header values
  * @param {NodeJS.ProcessEnv} [env] - Environment to read the minimum versions from
- * @returns {{ shortTermRent: boolean }}
+ * @returns {{ shortTermRent: boolean, clientListings: boolean }}
  */
 export const resolveClientCapabilities = ({ client, appVersion } = {}, env = process.env) => {
     const caller = typeof client === "string" ? client.trim().toLowerCase() : ""

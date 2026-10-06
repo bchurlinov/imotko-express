@@ -6,7 +6,7 @@ import { canRemoveConversation, inboxParticipantWhere, visibleMessageWhere } fro
 import { CHAT_PERMISSION, hasChatPermission } from "./chat_permissions.js"
 import { chatSystemEventText } from "./chat_locales.js"
 import { LEGACY_CAPABILITIES } from "#config/client_capabilities.js"
-import { withoutHiddenProperty } from "./chat_visibility.js"
+import { isConversationKindVisible, withoutHiddenProperty } from "./chat_visibility.js"
 
 const THREAD_MESSAGE_LIMIT = 200
 export const INBOX_PAGE_SIZE = 30
@@ -63,7 +63,7 @@ export const getInbox = async (
 ) => {
     if (viewer?.type !== "client" && viewer?.type !== "agency") return { items: [], hasMore: false }
     const query = search.trim()
-    const scope = inboxParticipantWhere(viewer)
+    const scope = inboxParticipantWhere(viewer, capabilities)
     const counterpart = viewer.type === "agency" ? { agencyId: null } : { agencyId: { not: null } }
     const where = query
         ? {
@@ -334,6 +334,8 @@ export const getThread = async (viewer, conversationId, locale = "mk", capabilit
         },
     })
     if (!conversation) return null
+    // A thread the caller's app cannot show answers exactly like a missing one (admins see every kind).
+    if (viewer.type !== "admin" && !isConversationKindVisible(conversation.kind, capabilities)) return null
     if (viewer.type !== "admin") {
         const own = findViewerParticipant(conversation.participants, viewer)
         if (!own || own.removed) return null
@@ -368,10 +370,10 @@ const findCrmClient = async (viewer, user, locale) => {
     }
 }
 
-export const getUnreadConversationCount = async viewer => {
+export const getUnreadConversationCount = async (viewer, capabilities = LEGACY_CAPABILITIES) => {
     if (viewer?.type !== "client" && viewer?.type !== "agency") return 0
     return prisma.conversationParticipant.count({
-        where: { ...inboxParticipantWhere(viewer), unreadCount: { gt: 0 } },
+        where: { ...inboxParticipantWhere(viewer, capabilities), unreadCount: { gt: 0 } },
     })
 }
 

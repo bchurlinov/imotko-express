@@ -1,3 +1,4 @@
+import { ConversationKind } from "#generated/prisma/enums.ts"
 import { LEGACY_CAPABILITIES } from "#config/client_capabilities.js"
 import { isPropertyVisibleTo } from "#services/properties/utils/visibility.js"
 
@@ -13,3 +14,20 @@ export const withoutHiddenProperty = (conversation, capabilities = LEGACY_CAPABI
     if (!listingType || isPropertyVisibleTo({ listingType }, capabilities)) return conversation
     return { ...conversation, propertyId: null, property: null, propertySnapshot: null }
 }
+
+/**
+ * Conversation kinds a caller can open. Allow-list: apps before client listings know only agency inquiries, so
+ * buyer–seller threads (B) and agency outreach (C) stay hidden from them.
+ * @param {{ clientListings?: boolean }} [capabilities] - req.capabilities
+ * @returns {string[]}
+ */
+export const visibleConversationKinds = (capabilities = LEGACY_CAPABILITIES) =>
+    capabilities.clientListings ? Object.values(ConversationKind) : [ConversationKind.AGENCY_INQUIRY]
+
+/**
+ * @param {string} kind - Conversation.kind
+ * @param {{ clientListings?: boolean }} [capabilities] - req.capabilities
+ * @returns {boolean}
+ */
+export const isConversationKindVisible = (kind, capabilities = LEGACY_CAPABILITIES) =>
+    visibleConversationKinds(capabilities).includes(kind)

@@ -81,6 +81,18 @@ const systemEvents = {
         sq: "Klienti e hoqi këtë bisedë.",
         tr: "Müşteri bu görüşmeyi kaldırdı.",
     },
+    sellerRemovedConversation: {
+        mk: "Огласувачот го отстрани разговорот.",
+        en: "The seller removed this conversation.",
+        sq: "Shitësi e hoqi këtë bisedë.",
+        tr: "Satıcı bu görüşmeyi kaldırdı.",
+    },
+    accountConverted: {
+        mk: "Корисникот стана агенција.",
+        en: "The user became an agency.",
+        sq: "Përdoruesi u bë agjenci.",
+        tr: "Kullanıcı bir emlak ofisi oldu.",
+    },
 }
 
 export const chatSystemEventText = (locale, event) => systemEvents[event]?.[locale] || systemEvents[event]?.mk || event

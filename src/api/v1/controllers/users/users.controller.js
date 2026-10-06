@@ -139,7 +139,7 @@ export const updateUserController = asyncHandler(async (req, res) => {
  * @returns {Promise<void>}
  */
 export const getUserNotificationsController = asyncHandler(async (req, res) => {
-    const notifications = await getUserNotificationsService(req.params.id, req.chatViewer)
+    const notifications = await getUserNotificationsService(req.params.id, req.chatViewer, req.capabilities)
     return res.status(200).json(notifications)
 })
 

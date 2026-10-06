@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import { afterEach, test } from "node:test"
 import prisma from "#database/client.js"
-import { withoutHiddenProperty } from "./chat_visibility.js"
+import { isConversationKindVisible, visibleConversationKinds, withoutHiddenProperty } from "./chat_visibility.js"
 import { assertAgencyAvailable } from "./conversation.service.js"
 import { shapeThread } from "./chat_inbox.service.js"
 
@@ -68,7 +68,7 @@ test("a legacy caller cannot start a chat about a short-term listing", async () 
     await assert.rejects(() => assertAgencyAvailable({ agencyId: "agency_1", propertyId: "property_1" }), {
         status: 404,
     })
-    assert.deepEqual(propertyWhere.AND, [{ listingType: { not: "short_term_rent" } }])
+    assert.deepEqual(propertyWhere.AND, [{ listingType: { not: "short_term_rent" } }, { clientId: null }])
 
     prisma.property.findFirst = async query => {
         propertyWhere = query.where
@@ -77,7 +77,22 @@ test("a legacy caller cannot start a chat about a short-term listing", async () 
     await assertAgencyAvailable({
         agencyId: "agency_1",
         propertyId: "property_1",
-        capabilities: { shortTermRent: true },
+        capabilities: { shortTermRent: true, clientListings: true },
     })
     assert.deepEqual(propertyWhere.AND, [])
+})
+
+test("legacy callers only see agency inquiries", () => {
+    assert.deepEqual(visibleConversationKinds(), ["AGENCY_INQUIRY"])
+    assert.equal(isConversationKindVisible("PRIVATE_INQUIRY"), false)
+    assert.equal(isConversationKindVisible("AGENCY_OUTREACH"), false)
+    assert.equal(isConversationKindVisible("AGENCY_INQUIRY"), true)
+})
+
+test("callers with clientListings see every kind", () => {
+    assert.deepEqual(visibleConversationKinds({ clientListings: true }).sort(), [
+        "AGENCY_INQUIRY",
+        "AGENCY_OUTREACH",
+        "PRIVATE_INQUIRY",
+    ])
 })

@@ -61,6 +61,8 @@ model ConversationParticipant {
   deletedAt          DateTime?            @db.Timestamptz(3)
   // Side removed the conversation from its own list; the row stays for the other side and admins.
   removed            Boolean              @default(false)
+  // The private seller's side of a PRIVATE_INQUIRY. Kept on the participant: the listing can be deleted later.
+  isSeller           Boolean              @default(false)
   messages           Message[]
   reports            ConversationReport[]
   createdAt          DateTime             @default(now()) @db.Timestamptz(3)

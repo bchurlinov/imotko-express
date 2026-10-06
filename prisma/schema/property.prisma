@@ -81,7 +81,7 @@ model Property {
   minNights                     Int?
   checkInFrom                   String?
   checkOutUntil                 String?
-  hasApproximatePrice          Boolean?                   @default(false)
+  hasApproximatePrice           Boolean?                   @default(false)
   approximatePrice              Int?
   estimationPrice               Int?
   size                          Int
@@ -93,6 +93,8 @@ model Property {
   createdBy                     String
   createdByMemberId             String?
   createdByMember               AgencyMember?              @relation(fields: [createdByMemberId], references: [id])
+  clientId                      String?
+  client                        Client?                    @relation("ClientListings", fields: [clientId], references: [id], onDelete: Restrict)
   updatedAt                     DateTime                   @default(now()) @db.Timestamptz(3)
   attributes                    Json?
   yearBuilt                     DateTime?
@@ -138,6 +140,7 @@ model Property {
   @@index([propertyLocationId, listingType])
   @@index([country, propertyLocationId, listingType])
   @@index([agencyId])
+  @@index([clientId, listingType, status])
   @@index([bumpedAt])
   @@index([featured])
   @@index([categoryId])

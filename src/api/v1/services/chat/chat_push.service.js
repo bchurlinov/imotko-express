@@ -1,4 +1,4 @@
-import { MessageKind, MessageStatus, UserRole } from "#generated/prisma/enums.ts"
+import { ConversationKind, MessageKind, MessageStatus, UserRole } from "#generated/prisma/enums.ts"
 import prisma from "#database/client.js"
 import { inboxParticipantWhere } from "./chat_policy.js"
 import { CHAT_ERRORS } from "./chat_constants.js"
@@ -50,6 +50,7 @@ const loadPush = async messageId => {
             senderParticipant: { select: { displayName: true } },
             conversation: {
                 select: {
+                    kind: true,
                     participants: {
                         select: {
                             id: true,
@@ -62,6 +63,9 @@ const loadPush = async messageId => {
         },
     })
     if (!message || message.kind !== MessageKind.USER || message.status !== MessageStatus.DELIVERED) return null
+    // Apps before sub-project D only know agency threads; every caller (web request, admin release, Express send)
+    // goes through here, so this is the single gate. Email notifications still go out (roadmap rule 7).
+    if (message.conversation.kind !== ConversationKind.AGENCY_INQUIRY) return null
 
     const recipient = message.conversation.participants.find(item => item.id !== message.senderParticipantId)
     if (!recipient?.userId || recipient.user?.role !== UserRole.CLIENT || !recipient.user.pushTokens.length) return null

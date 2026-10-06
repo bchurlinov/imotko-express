@@ -4,6 +4,7 @@ import { MessageStatus } from "#generated/prisma/enums.ts"
 import {
     buildDedupeKey,
     inboxParticipantWhere,
+    removalEventFor,
     removalParticipantData,
     userLanguageToLocale,
     visibleMessageWhere,
@@ -29,22 +30,27 @@ test("Turkish user language resolves to the Turkish chat locale", () => {
     assert.equal(userLanguageToLocale("TR"), "tr")
 })
 
-test("client inbox scope keeps only the viewer's own non-removed participant rows", () => {
-    assert.deepEqual(inboxParticipantWhere({ type: "client", userId: "u1" }), { userId: "u1", removed: false })
-})
-
-test("agency inbox scope keeps non-removed rows of delivered conversations", () => {
-    assert.deepEqual(inboxParticipantWhere({ type: "agency", agencyId: "a1", userId: "u2" }), {
+test("inbox scope carries the visible kinds for both sides", () => {
+    assert.deepEqual(inboxParticipantWhere({ type: "client", userId: "u1" }), {
+        userId: "u1",
+        removed: false,
+        conversation: { kind: { in: ["AGENCY_INQUIRY"] } },
+    })
+    assert.deepEqual(inboxParticipantWhere({ type: "agency", agencyId: "a1" }), {
         agencyId: "a1",
         removed: false,
-        conversation: { lastDeliveredAt: { not: null } },
+        conversation: { lastDeliveredAt: { not: null }, kind: { in: ["AGENCY_INQUIRY"] } },
     })
 })
 
-test("client inbox search can merge its OR into a scope without a conversation key", () => {
+test("client inbox search can merge its OR into the scope's conversation filter", () => {
     const scope = inboxParticipantWhere({ type: "client", userId: "u1" })
     const where = { ...scope, conversation: { ...scope.conversation, OR: [{ id: "x" }] } }
-    assert.deepEqual(where, { userId: "u1", removed: false, conversation: { OR: [{ id: "x" }] } })
+    assert.deepEqual(where, {
+        userId: "u1",
+        removed: false,
+        conversation: { kind: { in: ["AGENCY_INQUIRY"] }, OR: [{ id: "x" }] },
+    })
 })
 
 test("removal marks the side removed, locks it, and clears its counters", () => {
@@ -62,4 +68,11 @@ test("removal keeps an earlier block time", () => {
     const earlier = new Date(Date.UTC(2026, 8, 20))
     const now = new Date(Date.UTC(2026, 9, 4, 12, 0))
     assert.equal(removalParticipantData({ blockedAt: earlier }, now).blockedAt, earlier)
+})
+
+test("the seller side of a buyer–seller thread has its own removal marker", () => {
+    assert.equal(removalEventFor("client", { isSeller: true }), "sellerRemovedConversation")
+    assert.equal(removalEventFor("client", { isSeller: false }), "clientRemovedConversation")
+    assert.equal(removalEventFor("client"), "clientRemovedConversation")
+    assert.equal(removalEventFor("agency"), "agencyRemovedConversation")
 })

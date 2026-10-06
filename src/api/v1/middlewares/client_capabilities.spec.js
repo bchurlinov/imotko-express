@@ -12,18 +12,25 @@ const ENV_UNSET = {}
 const ENV_1_1_0 = { MOBILE_MIN_VERSION_SHORT_TERM_RENT: "1.1.0" }
 
 test("callers without a header are legacy for every feature", () => {
-    assert.deepEqual(resolveClientCapabilities({}, ENV_1_1_0), { shortTermRent: false })
-    assert.deepEqual(LEGACY_CAPABILITIES, { shortTermRent: false })
+    assert.deepEqual(resolveClientCapabilities({}, ENV_1_1_0), { shortTermRent: false, clientListings: false })
+    assert.deepEqual(LEGACY_CAPABILITIES, { shortTermRent: false, clientListings: false })
 })
 
 test("agency websites get the templates features", () => {
-    assert.deepEqual(resolveClientCapabilities({ client: "templates" }, ENV_UNSET), { shortTermRent: true })
-    assert.deepEqual(resolveClientCapabilities({ client: " Templates " }, ENV_UNSET), { shortTermRent: true })
+    assert.deepEqual(resolveClientCapabilities({ client: "templates" }, ENV_UNSET), {
+        shortTermRent: true,
+        clientListings: false,
+    })
+    assert.deepEqual(resolveClientCapabilities({ client: " Templates " }, ENV_UNSET), {
+        shortTermRent: true,
+        clientListings: false,
+    })
 })
 
 test("the app gets nothing while the minimum version is unset", () => {
     assert.deepEqual(resolveClientCapabilities({ client: "mobile", appVersion: "9.9.9" }, ENV_UNSET), {
         shortTermRent: false,
+        clientListings: false,
     })
 })
 
@@ -41,6 +48,7 @@ test("the app gets a feature from its minimum version on", () => {
 test("unknown clients are legacy", () => {
     assert.deepEqual(resolveClientCapabilities({ client: "curl", appVersion: "5.0.0" }, ENV_1_1_0), {
         shortTermRent: false,
+        clientListings: false,
     })
 })
 
@@ -61,5 +69,19 @@ test("the middleware reads both headers", () => {
         nextCalled = true
     })
     assert.equal(nextCalled, true)
-    assert.deepEqual(req.capabilities, { shortTermRent: true })
+    assert.deepEqual(req.capabilities, { shortTermRent: true, clientListings: false })
+})
+
+test("client listings stay off for every caller while the minimum version is unset", () => {
+    const env = {}
+    assert.equal(resolveClientCapabilities({}, env).clientListings, false)
+    assert.equal(resolveClientCapabilities({ client: "templates" }, env).clientListings, false)
+    assert.equal(resolveClientCapabilities({ client: "mobile", appVersion: "9.9.9" }, env).clientListings, false)
+})
+
+test("client listings switch on for apps at or above MOBILE_MIN_VERSION_CLIENT_LISTINGS", () => {
+    const env = { MOBILE_MIN_VERSION_CLIENT_LISTINGS: "1.1.0" }
+    assert.equal(resolveClientCapabilities({ client: "mobile", appVersion: "1.1.0" }, env).clientListings, true)
+    assert.equal(resolveClientCapabilities({ client: "mobile", appVersion: "1.0.5" }, env).clientListings, false)
+    assert.equal(resolveClientCapabilities({}, env).clientListings, false)
 })
