@@ -23,6 +23,8 @@ import {
 } from "./utils/index.js"
 import prisma from "#database/client.js"
 import { HIDDEN_AGENCY_IDS, isHiddenAgency } from "#config/hiddenAgencies.config.js"
+import { LEGACY_CAPABILITIES } from "#config/client_capabilities.js"
+import { hiddenPropertyConditions, isPropertyVisibleTo } from "./utils/visibility.js"
 
 /**
  * @typedef {import('#types/api.js').ApiResponse} ApiResponse
@@ -41,6 +43,7 @@ import { HIDDEN_AGENCY_IDS, isHiddenAgency } from "#config/hiddenAgencies.config
  * @property {PrimitiveParam} [subCategory]
  * @property {PrimitiveParam} [category]
  * @property {PrimitiveParam} [listingType]
+ * @property {PrimitiveParam} [guests]
  * @property {PrimitiveParam} [size]
  * @property {PrimitiveParam} [size_from]
  * @property {PrimitiveParam} [size_to]
@@ -75,11 +78,12 @@ import { HIDDEN_AGENCY_IDS, isHiddenAgency } from "#config/hiddenAgencies.config
  * @param {Object} [options] - Internal options (never derived from query params)
  * @param {boolean} [options.includeHiddenAgencies] - Bypass the hidden agency exclusion
  * @param {boolean} [options.promoteFeatured] - Mix promoted properties into paginated results
+ * @param {{ shortTermRent?: boolean }} [options.capabilities] - req.capabilities (defaults to legacy)
  * @returns {Promise<ApiResponse<PropertyWithRelations[]>>}
  */
 export const getPropertiesService = async (params = {}, options = {}) => {
     try {
-        const { includeHiddenAgencies = false, promoteFeatured = true } = options
+        const { includeHiddenAgencies = false, promoteFeatured = true, capabilities = LEGACY_CAPABILITIES } = options
         const locale = stringValue(params.locale) ?? DEFAULT_LOCALE
 
         const includePending = booleanValue(params.includePending) && params.agency
@@ -109,6 +113,9 @@ export const getPropertiesService = async (params = {}, options = {}) => {
             })
         }
 
+        // Listings this caller cannot handle (e.g. short-term rent for apps before 1.1.0) are never returned.
+        andConditions.push(...hiddenPropertyConditions(capabilities))
+
         const inDevelopment = booleanValue(params.in_development)
         if (typeof inDevelopment === "boolean") filters.inDevelopment = inDevelopment
 
@@ -136,6 +143,9 @@ export const getPropertiesService = async (params = {}, options = {}) => {
 
         const listingType = stringValue(params.listingType)
         if (listingType) filters.listingType = listingType
+
+        const guests = positiveInt(params.guests)
+        if (guests) filters.maxGuests = { gte: guests }
 
         const sizeFilter =
             buildNumericFilter(params.size_from ?? params.size, params.size_to) ??
@@ -273,6 +283,8 @@ export const getPropertiesService = async (params = {}, options = {}) => {
                 })
             }
 
+            promotedAndConditions.push(...hiddenPropertyConditions(capabilities))
+
             const promotedFilters = {
                 status: PropertyStatus.PUBLISHED,
                 AND: promotedAndConditions,
@@ -400,11 +412,12 @@ export const getPropertiesService = async (params = {}, options = {}) => {
  * @param {string|null} [viewContext.clientId] - Client ID, if known
  * @param {Object} [options] - Internal options (never derived from query params)
  * @param {boolean} [options.includeHiddenAgencies] - Bypass the hidden agency exclusion
+ * @param {{ shortTermRent?: boolean }} [options.capabilities] - req.capabilities (defaults to legacy)
  * @returns {Promise<ApiResponse<PropertyWithRelations[]>>}
  */
 export const getPropertyService = async (propertyId, viewContext = {}, options = {}) => {
     try {
-        const { includeHiddenAgencies = false } = options
+        const { includeHiddenAgencies = false, capabilities = LEGACY_CAPABILITIES } = options
 
         const property = await prisma.property.findUnique({
             where: { id: propertyId },
@@ -419,7 +432,9 @@ export const getPropertyService = async (propertyId, viewContext = {}, options =
             },
         })
 
-        if (!includeHiddenAgencies && isHiddenAgency(property?.agencyId)) {
+        const hiddenAgency = !includeHiddenAgencies && isHiddenAgency(property?.agencyId)
+        // A listing the caller cannot handle answers exactly like a missing id, which older apps show as "not found".
+        if (hiddenAgency || (property && !isPropertyVisibleTo(property, capabilities))) {
             return {
                 data: null,
                 message: "Property loaded successfully",

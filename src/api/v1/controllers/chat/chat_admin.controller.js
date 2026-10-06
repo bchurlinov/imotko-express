@@ -13,6 +13,7 @@ import {
 import { getThread } from "#services/chat/chat_inbox.service.js"
 import { CHAT_ERRORS } from "#services/chat/chat_constants.js"
 import { ChatError } from "#services/chat/chat_error.js"
+import { ALL_CAPABILITIES } from "#config/client_capabilities.js"
 
 export const pendingMessagesController = async (req, res) =>
     chatResponse(res, 200, null, await getPendingMessages({ page: req.query.page }))
@@ -30,7 +31,7 @@ export const adminConversationsController = async (req, res) =>
         })
     )
 export const adminConversationController = async (req, res) => {
-    const thread = await getThread(req.chatViewer, req.params.id, req.query.locale || "mk")
+    const thread = await getThread(req.chatViewer, req.params.id, req.query.locale || "mk", ALL_CAPABILITIES)
     if (!thread) throw new ChatError(CHAT_ERRORS.NOT_FOUND, 404)
     return chatResponse(res, 200, null, {
         ...thread,

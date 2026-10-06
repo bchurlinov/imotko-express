@@ -1,7 +1,7 @@
 import assert from "node:assert/strict"
 import { afterEach, test } from "node:test"
 import prisma from "#database/client.js"
-import { getPropertiesService } from "./properties.service.js"
+import { getPropertiesService, getPropertyService } from "./properties.service.js"
 import { FEATURED_ROTATION_MS, featuredIdsForPage } from "./utils/featuredPagination.js"
 import { resolveCityLocationIds } from "./utils/queryHelpers.js"
 
@@ -9,12 +9,16 @@ const originalPropertyCount = prisma.property.count
 const originalPropertyFindMany = prisma.property.findMany
 const originalLocationFindFirst = prisma.propertyLocation.findFirst
 const originalLocationFindMany = prisma.propertyLocation.findMany
+const originalPropertyFindUnique = prisma.property.findUnique
+const originalPropertyViewCreate = prisma.propertyView.create
 
 afterEach(() => {
     prisma.property.count = originalPropertyCount
     prisma.property.findMany = originalPropertyFindMany
     prisma.propertyLocation.findFirst = originalLocationFindFirst
     prisma.propertyLocation.findMany = originalLocationFindMany
+    prisma.property.findUnique = originalPropertyFindUnique
+    prisma.propertyView.create = originalPropertyViewCreate
 })
 
 test("puts active promoted properties first and reserves twelve regular slots", async () => {
@@ -119,4 +123,83 @@ test("keeps promoted shuffling stable within the hour and advances it across pag
         firstPage.some(id => secondPage.includes(id)),
         false
     )
+})
+
+const hasExclusion = where => (where.AND || []).some(condition => condition.listingType?.not === "short_term_rent")
+
+test("legacy search and promoted queries leave out short-term rent", async () => {
+    const countQueries = []
+    const findManyQueries = []
+    prisma.property.count = async query => {
+        countQueries.push(query)
+        return 0
+    }
+    prisma.property.findMany = async query => {
+        findManyQueries.push(query)
+        return []
+    }
+
+    await getPropertiesService({ page: "1" })
+
+    assert.ok(countQueries.every(query => hasExclusion(query.where)))
+    const promotedIdQuery = findManyQueries.find(query => query.select?.id)
+    assert.ok(hasExclusion(promotedIdQuery.where))
+})
+
+test("an explicit short-term search from a legacy caller cannot match anything", async () => {
+    const countQueries = []
+    prisma.property.count = async query => {
+        countQueries.push(query)
+        return 0
+    }
+    prisma.property.findMany = async () => []
+
+    await getPropertiesService({ listingType: "short_term_rent", page: "1" })
+
+    const where = countQueries[0].where
+    assert.equal(where.listingType, "short_term_rent")
+    assert.ok(where.AND.some(condition => condition.listingType?.not === "short_term_rent"))
+})
+
+test("callers with the capability are not filtered, and guests filters maxGuests", async () => {
+    const countQueries = []
+    prisma.property.count = async query => {
+        countQueries.push(query)
+        return 0
+    }
+    prisma.property.findMany = async () => []
+
+    await getPropertiesService({ guests: "4", page: "1" }, { capabilities: { shortTermRent: true } })
+
+    assert.ok(countQueries.every(query => !hasExclusion(query.where)))
+    assert.deepEqual(countQueries[0].where.maxGuests, { gte: 4 })
+})
+
+test("junk guests values are ignored", async () => {
+    const countQueries = []
+    prisma.property.count = async query => {
+        countQueries.push(query)
+        return 0
+    }
+    prisma.property.findMany = async () => []
+
+    await getPropertiesService({ guests: "abc", page: "1" })
+    await getPropertiesService({ guests: "0", page: "1" })
+
+    assert.ok(countQueries.every(query => query.where.maxGuests === undefined))
+})
+
+test("a short-term listing opened by id looks missing to a legacy caller", async () => {
+    let viewRecorded = false
+    prisma.property.findUnique = async () => ({ id: "p1", agencyId: "a1", listingType: "short_term_rent" })
+    prisma.propertyView.create = async () => {
+        viewRecorded = true
+    }
+
+    const legacy = await getPropertyService("p1", {})
+    assert.equal(legacy.data, null)
+    assert.equal(viewRecorded, false)
+
+    const templates = await getPropertyService("p1", {}, { capabilities: { shortTermRent: true } })
+    assert.equal(templates.data.id, "p1")
 })

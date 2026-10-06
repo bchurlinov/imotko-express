@@ -23,7 +23,7 @@ export const getPriceTrendsController = async (req, res, next) => {
             year,
         })
 
-        if (!result.success) return res.status(500).json({ success: false, error: result.error })
+        if (!result.success) return res.status(result.status ?? 500).json({ success: false, error: result.error })
         res.json(result)
     } catch (error) {
         next(error)
@@ -47,7 +47,7 @@ export const getPricePerSqmController = async (req, res, next) => {
         })
 
         if (!result.success) {
-            return res.status(500).json({ error: result.error })
+            return res.status(result.status ?? 500).json({ error: result.error })
         }
 
         res.json(result.data)

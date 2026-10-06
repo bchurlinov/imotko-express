@@ -182,7 +182,7 @@ export const deleteNotificationController = asyncHandler(async (req, res) => {
  */
 export const propertyFavoriteController = asyncHandler(async (req, res) => {
     const { id: userId, propertyId } = req.params
-    const result = await usersCreatePropertiesFavoriteService(userId, propertyId, getIpAddress(req))
+    const result = await usersCreatePropertiesFavoriteService(userId, propertyId, getIpAddress(req), req.capabilities)
     return res.status(201).json(result)
 })
 
@@ -208,6 +208,6 @@ export const propertyUnfavoriteController = asyncHandler(async (req, res) => {
  */
 export const getPropertiesFavoritesController = asyncHandler(async (req, res) => {
     const { id: userId } = req.params
-    const result = await getPropertiesFavoritesService(userId)
+    const result = await getPropertiesFavoritesService(userId, req.capabilities)
     return res.status(200).json(result)
 })

@@ -14,7 +14,7 @@ import {
  */
 export const getUserSearchesController = asyncHandler(async (req, res) => {
     const userId = req.params.id
-    const result = await getUserSearchesService(userId, req.query)
+    const result = await getUserSearchesService(userId, req.query, req.capabilities)
     return res.status(result.code).json(result)
 })
 

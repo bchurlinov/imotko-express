@@ -8,6 +8,8 @@ import {
 } from "#generated/prisma/enums.ts"
 import prisma from "#database/client.js"
 import { isHiddenAgency } from "#config/hiddenAgencies.config.js"
+import { LEGACY_CAPABILITIES } from "#config/client_capabilities.js"
+import { hiddenPropertyConditions } from "#services/properties/utils/visibility.js"
 import { CHAT_ERRORS, CHAT_LIMITS, DAY_MS } from "./chat_constants.js"
 import { ChatError } from "./chat_error.js"
 import { fullName } from "./chat_format.js"
@@ -72,7 +74,7 @@ const loadViewerParticipant = async (conversationId, viewer) => {
     return { conversation, participant }
 }
 
-export const assertAgencyAvailable = async ({ agencyId, propertyId }) => {
+export const assertAgencyAvailable = async ({ agencyId, propertyId, capabilities = LEGACY_CAPABILITIES }) => {
     const agency =
         agencyId && !isHiddenAgency(agencyId)
             ? await prisma.agency.findUnique({
@@ -85,7 +87,13 @@ export const assertAgencyAvailable = async ({ agencyId, propertyId }) => {
     if (!propertyId) return { agency, property: null }
 
     const property = await prisma.property.findFirst({
-        where: { id: propertyId, agencyId, status: PropertyStatus.PUBLISHED },
+        where: {
+            id: propertyId,
+            agencyId,
+            status: PropertyStatus.PUBLISHED,
+            // A listing the caller cannot open answers like a missing one.
+            AND: hiddenPropertyConditions(capabilities),
+        },
         select: {
             id: true,
             name: true,
@@ -204,11 +212,12 @@ export const startAgencyInquiry = async ({
     bodyHtml,
     requiresAdminReview = false,
     now = new Date(),
+    capabilities = LEGACY_CAPABILITIES,
 }) => {
     const sanitized = requireSanitized(bodyHtml)
     const user = await loadSender(userId)
     if (!canStartAgencyInquiry(user)) throw new ChatError(CHAT_ERRORS.FORBIDDEN, 403)
-    const { agency, property } = await assertAgencyAvailable({ agencyId, propertyId })
+    const { agency, property } = await assertAgencyAvailable({ agencyId, propertyId, capabilities })
     const viewer = { type: "client", userId }
     const dedupeKey = buildDedupeKey({
         kind: ConversationKind.AGENCY_INQUIRY,

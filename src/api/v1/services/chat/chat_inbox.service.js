@@ -5,6 +5,8 @@ import { buildPropertySnapshot, findViewerParticipant } from "./conversation.ser
 import { canRemoveConversation, inboxParticipantWhere, visibleMessageWhere } from "./chat_policy.js"
 import { CHAT_PERMISSION, hasChatPermission } from "./chat_permissions.js"
 import { chatSystemEventText } from "./chat_locales.js"
+import { LEGACY_CAPABILITIES } from "#config/client_capabilities.js"
+import { withoutHiddenProperty } from "./chat_visibility.js"
 
 const THREAD_MESSAGE_LIMIT = 200
 export const INBOX_PAGE_SIZE = 30
@@ -55,7 +57,10 @@ const inboxItem = (row, locale) => {
     }
 }
 
-export const getInbox = async (viewer, { search = "", locale = "mk", limit = INBOX_PAGE_SIZE } = {}) => {
+export const getInbox = async (
+    viewer,
+    { search = "", locale = "mk", limit = INBOX_PAGE_SIZE, capabilities = LEGACY_CAPABILITIES } = {}
+) => {
     if (viewer?.type !== "client" && viewer?.type !== "agency") return { items: [], hasMore: false }
     const query = search.trim()
     const scope = inboxParticipantWhere(viewer)
@@ -115,7 +120,14 @@ export const getInbox = async (viewer, { search = "", locale = "mk", limit = INB
             },
         },
     })
-    return { items: rows.slice(0, cappedLimit).map(row => inboxItem(row, locale)), hasMore: rows.length > cappedLimit }
+    return {
+        items: rows
+            .slice(0, cappedLimit)
+            .map(row =>
+                inboxItem({ ...row, conversation: withoutHiddenProperty(row.conversation, capabilities) }, locale)
+            ),
+        hasMore: rows.length > cappedLimit,
+    }
 }
 
 const shapeProperty = (conversation, locale, viewer) => {
@@ -250,7 +262,7 @@ export const shapeThread = ({ conversation, viewer, locale }) => {
     }
 }
 
-export const getThread = async (viewer, conversationId, locale = "mk") => {
+export const getThread = async (viewer, conversationId, locale = "mk", capabilities = LEGACY_CAPABILITIES) => {
     if (!viewer || !conversationId) return null
     const conversation = await prisma.conversation.findUnique({
         where: { id: conversationId },
@@ -327,7 +339,7 @@ export const getThread = async (viewer, conversationId, locale = "mk") => {
         if (!own || own.removed) return null
     }
     if (viewer.type === "agency" && !conversation.lastDeliveredAt) return null
-    const thread = shapeThread({ conversation, viewer, locale })
+    const thread = shapeThread({ conversation: withoutHiddenProperty(conversation, capabilities), viewer, locale })
     if (viewer.type !== "agency") return thread
     const clientUser = conversation.participants.find(participant => participant.userId)?.user || null
     return { ...thread, crmClient: await findCrmClient(viewer, clientUser, locale) }

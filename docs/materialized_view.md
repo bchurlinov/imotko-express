@@ -4,6 +4,7 @@
 --   a) Removed size > 0 from WHERE (was excluding for_rent with no size)
 --   b) Added status = 'PUBLISHED' filter
 --   c) Added "parentLocationId" for Skopje-level rollup
+--   d) Only TOTAL prices contribute to price statistics
 -- ============================================================
 DROP MATERIALIZED VIEW IF EXISTS mv_price_per_sqm;
 
@@ -27,6 +28,7 @@ WHERE
 p.price > 1
 AND p."propertyLocationId" IS NOT NULL
 AND p.status = 'PUBLISHED'
+AND p."priceUnit" = 'TOTAL'
 GROUP BY
 p."propertyLocationId",
 loc."parentId",
@@ -74,6 +76,7 @@ ON mv_property_views_by_location ("propertyLocationId", "listingType");
 --   a) Removed size > 0 from WHERE (was excluding for_rent with no size)
 --   b) Added status = 'PUBLISHED' filter
 --   c) Added "parentLocationId" for Skopje-level rollup
+--   d) Only TOTAL prices contribute to price statistics
 -- ============================================================
 DROP MATERIALIZED VIEW IF EXISTS mv_market_trend_analysis;
 
@@ -94,6 +97,7 @@ p.price > 1
 AND p."createdAt" IS NOT NULL
 AND p."propertyLocationId" IS NOT NULL
 AND p.status = 'PUBLISHED'
+AND p."priceUnit" = 'TOTAL'
 ),
 monthly_aggregates AS (
 SELECT

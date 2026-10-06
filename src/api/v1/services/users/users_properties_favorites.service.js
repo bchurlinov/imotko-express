@@ -1,6 +1,8 @@
 import { EngagementType } from "#generated/prisma/enums.ts"
 import prisma from "#database/client.js"
 import createError from "http-errors"
+import { LEGACY_CAPABILITIES } from "#config/client_capabilities.js"
+import { hiddenPropertyConditions, isPropertyVisibleTo } from "#services/properties/utils/visibility.js"
 
 /**
  * @typedef {import('#types/api.js').ApiResponse} ApiResponse
@@ -12,10 +14,11 @@ import createError from "http-errors"
  * @param {string} userId - The ID of the user
  * @param {string} propertyId - The ID of the property to favorite
  * @param {string} [ip] - Requester IP address
+ * @param {{ shortTermRent?: boolean }} [capabilities] - req.capabilities (defaults to legacy)
  * @returns {Promise<ApiResponse<User>>} The created favorite and engagement records
  * @throws {Error} If user's client profile doesn't exist or property doesn't exist
  */
-const usersCreatePropertiesFavoriteService = async (userId, propertyId, ip) => {
+const usersCreatePropertiesFavoriteService = async (userId, propertyId, ip, capabilities = LEGACY_CAPABILITIES) => {
     // Find the client associated with this user
     const client = await prisma.client.findUnique({
         where: { userId },
@@ -28,7 +31,8 @@ const usersCreatePropertiesFavoriteService = async (userId, propertyId, ip) => {
         where: { id: propertyId },
     })
 
-    if (!property) throw createError(404, "Property not found")
+    // A listing the caller cannot open is treated as missing.
+    if (!property || !isPropertyVisibleTo(property, capabilities)) throw createError(404, "Property not found")
 
     const existingFavorite = await prisma.propertyFavorite.findFirst({
         where: {
@@ -103,10 +107,11 @@ const usersDeletePropertiesFavoriteService = async (userId, propertyId) => {
 /**
  * Service to remove a property from user's favorites
  * @param {string} userId - The ID of the user
+ * @param {{ shortTermRent?: boolean }} [capabilities] - req.capabilities (defaults to legacy)
  * @returns {Promise<{data: object, message: string}>} The deleted favorite record
  * @throws {Error} If user's client profile doesn't exist or favorite doesn't exist
  */
-const getPropertiesFavoritesService = async userId => {
+const getPropertiesFavoritesService = async (userId, capabilities = LEGACY_CAPABILITIES) => {
     // Find the client associated with this user
     const client = await prisma.client.findUnique({
         where: { userId },
@@ -114,9 +119,12 @@ const getPropertiesFavoritesService = async userId => {
 
     if (!client) throw createError(400, "No client exists with this user ID")
 
+    const hiddenConditions = hiddenPropertyConditions(capabilities)
     const favorites = await prisma.propertyFavorite.findMany({
         where: {
             clientId: client.id,
+            // Only filter on the relation when something is hidden, so favorites without a property keep showing.
+            ...(hiddenConditions.length ? { property: { AND: hiddenConditions } } : {}),
         },
         include: {
             property: true,

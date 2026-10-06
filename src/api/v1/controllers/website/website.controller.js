@@ -44,6 +44,7 @@ export const getWebsiteAgencyPropertiesController = asyncHandler(async (req, res
     const agencyProperties = await getPropertiesService(queryParams, {
         includeHiddenAgencies: true,
         promoteFeatured: false,
+        capabilities: req.capabilities,
     })
     return res.status(200).json(agencyProperties)
 })

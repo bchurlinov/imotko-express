@@ -29,6 +29,7 @@ WHERE
 price > 1         
 AND size > 0      
 AND "propertyLocationId" IS NOT NULL
+AND "priceUnit" = 'TOTAL'
 GROUP BY
 "propertyLocationId",
 "listingType",
@@ -59,6 +60,7 @@ price > 1
 AND size > 0
 AND "createdAt" IS NOT NULL
 AND "propertyLocationId" IS NOT NULL
+AND "priceUnit" = 'TOTAL'
 ),
 monthly_aggregates AS (
 SELECT

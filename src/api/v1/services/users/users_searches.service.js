@@ -1,6 +1,8 @@
 import prisma from "#database/client.js"
 import createError from "http-errors"
 import { calculatePagination, createPaginationResponse } from "#utils/pagination/index.js"
+import { PropertyListingType } from "#generated/prisma/enums.ts"
+import { LEGACY_CAPABILITIES } from "#config/client_capabilities.js"
 import { PropertyLocationDictionary, PropertyCategoryDictionary } from "#dictionaries/property/index.js"
 
 /**
@@ -153,15 +155,32 @@ export const createUserSearchService = async (_userId, body) => {
 }
 
 /**
+ * Saved searches for listings the caller cannot open (short-term rent saved on the web, before app 1.1.0).
+ * A positive JSON match, then notIn: a NOT on a JSON path would also drop every search without that key.
+ * @param {string} clientId - Client ID
+ * @param {{ shortTermRent?: boolean }} capabilities - req.capabilities
+ * @returns {Promise<Object>} Extra where conditions
+ */
+const hiddenSearchesWhere = async (clientId, capabilities) => {
+    if (capabilities.shortTermRent) return {}
+    const hidden = await prisma.clientSearch.findMany({
+        where: { clientId, filters: { path: ["listingType"], equals: PropertyListingType.short_term_rent } },
+        select: { id: true },
+    })
+    return hidden.length ? { id: { notIn: hidden.map(search => search.id) } } : {}
+}
+
+/**
  * Get all searches for a user with pagination
  * @param {string} userId - User ID
  * @param {object} query - Query parameters
  * @param {string | number | undefined} query.page - Page number (default: 1)
  * @param {string | number | undefined} query.limit - Items per page (default: 15, max: 500)
+ * @param {{ shortTermRent?: boolean }} [capabilities] - req.capabilities (defaults to legacy)
  * @returns {Promise<ApiResponse<UserSearch[]>>}
  */
 
-export const getUserSearchesService = async (userId, query = {}) => {
+export const getUserSearchesService = async (userId, query = {}, capabilities = LEGACY_CAPABILITIES) => {
     try {
         const user = await prisma.user.findUnique({
             where: { id: userId },
@@ -171,9 +190,9 @@ export const getUserSearchesService = async (userId, query = {}) => {
         if (!user) throw createError(404, "User not found")
         if (!user.client) throw createError(400, "User does not have a client profile")
 
-        const total = await prisma.clientSearch.count({
-            where: { clientId: user.client.id },
-        })
+        const where = { clientId: user.client.id, ...(await hiddenSearchesWhere(user.client.id, capabilities)) }
+
+        const total = await prisma.clientSearch.count({ where })
 
         // Calculate pagination
         const { page, limit, skip, totalPages } = calculatePagination({
@@ -184,7 +203,7 @@ export const getUserSearchesService = async (userId, query = {}) => {
 
         // Fetch paginated searches
         const searches = await prisma.clientSearch.findMany({
-            where: { clientId: user.client.id },
+            where,
             orderBy: { createdAt: "desc" },
             skip,
             take: limit,

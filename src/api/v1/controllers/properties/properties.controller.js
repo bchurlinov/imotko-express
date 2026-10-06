@@ -10,7 +10,7 @@ import { getIpAddress } from "#utils/auth/ip_address.js"
  * @returns {Promise<void>}
  */
 export const getPropertiesController = asyncHandler(async (req, res) => {
-    const properties = await getPropertiesService(req.query)
+    const properties = await getPropertiesService(req.query, { capabilities: req.capabilities })
     return res.status(200).json(properties)
 })
 
@@ -22,9 +22,13 @@ export const getPropertiesController = asyncHandler(async (req, res) => {
  * @returns {Promise<void>}
  */
 export const getPropertyByIdController = async (req, res) => {
-    const property = await getPropertyService(req.params.id, {
-        ip: getIpAddress(req),
-        clientId: req.user?.clientId ?? null,
-    })
+    const property = await getPropertyService(
+        req.params.id,
+        {
+            ip: getIpAddress(req),
+            clientId: req.user?.clientId ?? null,
+        },
+        { capabilities: req.capabilities }
+    )
     return res.status(200).json(property)
 }

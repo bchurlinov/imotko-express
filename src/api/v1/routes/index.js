@@ -6,6 +6,7 @@ import websiteRouter from "./website/website.routes.js"
 import inquiriesRouter from "./inquiries/inquiries.routes.js"
 import chatRouter from "./chat/chat.routes.js"
 import adminChatRouter from "./admin/chat.routes.js"
+import { attachClientCapabilities } from "#middlewares/client_capabilities.js"
 
 /**
  * Initialize API routes
@@ -13,6 +14,7 @@ import adminChatRouter from "./admin/chat.routes.js"
  * @returns {void}
  */
 export default app => {
+    app.use("/api/v1", attachClientCapabilities)
     app.use("/api/v1/properties", propertiesRouter)
     app.use("/api/v1/users", usersRouter)
     app.use("/api/v1/agencies", agencyRouter)

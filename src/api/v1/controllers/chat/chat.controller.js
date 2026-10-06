@@ -37,6 +37,7 @@ export const listConversationsController = async (req, res) =>
             search: req.query.q || "",
             locale: locale(req.query.locale),
             limit: limited(req.query.limit),
+            capabilities: req.capabilities,
         })
     )
 
@@ -57,12 +58,13 @@ export const startConversationController = async (req, res) => {
         agencyId: req.body.agencyId,
         propertyId: req.body.propertyId || null,
         bodyHtml: req.body.bodyHtml,
+        capabilities: req.capabilities,
     })
     return chatResponse(res, 201, "messageSent", result)
 }
 
 export const getConversationController = async (req, res) => {
-    const thread = await getThread(req.chatViewer, req.params.id, locale(req.query.locale))
+    const thread = await getThread(req.chatViewer, req.params.id, locale(req.query.locale), req.capabilities)
     if (!thread) throw new ChatError(CHAT_ERRORS.NOT_FOUND, 404)
     return chatResponse(res, 200, null, thread)
 }
@@ -117,7 +119,11 @@ export const guestController = async (req, res) => {
     const email = normalizeGuestEmail(input.email)
     const existing = await existingGuestOutcome({ email, verificationChoice: input.verificationChoice })
     if (existing) return chatResponse(res, 200, existing.message, existing.data)
-    await assertAgencyAvailable({ agencyId: input.agencyId, propertyId: input.propertyId || null })
+    await assertAgencyAvailable({
+        agencyId: input.agencyId,
+        propertyId: input.propertyId || null,
+        capabilities: req.capabilities,
+    })
     const sanitized = sanitizeMessage(input.bodyHtml)
     if (sanitized.error) throw new ChatError(sanitized.error, 400)
     const ipAddress = getIpAddress(req)
@@ -156,6 +162,7 @@ export const guestController = async (req, res) => {
             propertyId: input.propertyId || null,
             bodyHtml: input.bodyHtml,
             requiresAdminReview: true,
+            capabilities: req.capabilities,
         })
         await recordAccountCreation(ipAddress)
         return chatResponse(res, 201, "messageSent", {

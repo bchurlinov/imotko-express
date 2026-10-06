@@ -10,6 +10,13 @@ enum PropertyType {
 enum PropertyListingType {
   for_rent
   for_sale
+  short_term_rent
+}
+
+enum PropertyPriceUnit {
+  TOTAL
+  PER_SQUARE_METER
+  PER_NIGHT
 }
 
 enum PropertyCountry {
@@ -69,7 +76,12 @@ model Property {
   hommexSync                    Json?
   verifiedByAgency              Boolean                    @default(false)
   price                         Int
-  hasApproximatePrice           Boolean?                   @default(false)
+  priceUnit                     PropertyPriceUnit          @default(TOTAL)
+  maxGuests                     Int?
+  minNights                     Int?
+  checkInFrom                   String?
+  checkOutUntil                 String?
+  hasApproximatePrice          Boolean?                   @default(false)
   approximatePrice              Int?
   estimationPrice               Int?
   size                          Int

@@ -21,6 +21,13 @@ import prisma from "#database/client.js"
  */
 const normalizeLocationId = id => (id ? id.replace(/^skopje-/, "") : id)
 
+// Nightly (short-term) prices must never be averaged with sale or monthly prices, for any caller.
+export const PRICE_STATS_LISTING_TYPES = ["for_sale", "for_rent"]
+const UNSUPPORTED_LISTING_TYPE = { success: false, status: 400, error: "unsupportedListingType" }
+const isUnsupportedListingType = listingType => Boolean(listingType) && !PRICE_STATS_LISTING_TYPES.includes(listingType)
+const priceStatsListingTypesSql = alias =>
+    `${alias}."listingType"::text IN (${PRICE_STATS_LISTING_TYPES.map(type => `'${type}'`).join(", ")})`
+
 const getStartDate = range => {
     const now = new Date()
     switch (range) {
@@ -55,11 +62,12 @@ const getYearWindow = year => {
  * @param {string} [params.propertyType] - Property type filter ('flat', 'house', etc.)
  * @param {TimeRange} [params.range='1y'] - Time range for data
  * @param {number} [params.year] - Calendar year for data
- * @returns {Promise<{success: boolean, data?: PriceTrendItem[], error?: string}>}
+ * @returns {Promise<{success: boolean, status?: number, data?: PriceTrendItem[], error?: string}>}
  */
 export const getPriceTrendsService = async (params = {}) => {
     try {
         const { locationId: rawLocationId, listingType, propertyType, range = "1y", year } = params
+        if (isUnsupportedListingType(listingType)) return UNSUPPORTED_LISTING_TYPE
         const locationId = normalizeLocationId(rawLocationId)
         const yearWindow = getYearWindow(year)
         const startDate = yearWindow ? yearWindow.start : getStartDate(range)
@@ -94,6 +102,8 @@ export const getPriceTrendsService = async (params = {}) => {
             joinConditions.push(`mt."listingType"::text = $${paramIndex}`)
             queryParams.push(listingType)
             paramIndex++
+        } else {
+            joinConditions.push(priceStatsListingTypesSql("mt"))
         }
         if (propertyType) {
             joinConditions.push(`mt.property_type::text = $${paramIndex}`)
@@ -162,11 +172,12 @@ export const getPriceTrendsService = async (params = {}) => {
  * @param {string} [params.listingType] - Listing type filter ('for_rent' or 'for_sale')
  * @param {string} [params.propertyType] - Property type filter ('flat', 'house', etc.)
  * @param {'city' | 'type'} [params.groupBy='city'] - Group results by 'city' or 'type'
- * @returns {Promise<{success: boolean, data?: Object[], error?: string}>}
+ * @returns {Promise<{success: boolean, status?: number, data?: Object[], error?: string}>}
  */
 export const getPricePerSqmService = async (params = {}) => {
     try {
         const { locationId: rawLocationId, listingType, propertyType, groupBy = "city" } = params
+        if (isUnsupportedListingType(listingType)) return UNSUPPORTED_LISTING_TYPE
         const locationId = normalizeLocationId(rawLocationId)
 
         const whereConditions = []
@@ -195,6 +206,8 @@ export const getPricePerSqmService = async (params = {}) => {
         if (listingType) {
             whereConditions.push(`mv."listingType"::text = $${queryParams.length + 1}`)
             queryParams.push(listingType)
+        } else {
+            whereConditions.push(priceStatsListingTypesSql("mv"))
         }
         if (propertyType) {
             whereConditions.push(`mv.property_type::text = $${queryParams.length + 1}`)
@@ -261,6 +274,7 @@ export const getPricePerSqmService = async (params = {}) => {
 export const getDemandAnalyticsService = async (params = {}) => {
     try {
         const { locationId: rawLocationId, listingType, limit = 20 } = params
+        if (isUnsupportedListingType(listingType)) return UNSUPPORTED_LISTING_TYPE
         const locationId = normalizeLocationId(rawLocationId)
 
         // Resolve locationId if it's a name instead of an ID
@@ -289,6 +303,8 @@ export const getDemandAnalyticsService = async (params = {}) => {
             whereConditions.push(`mv."listingType"::text = $${paramIndex}`)
             queryParams.push(listingType)
             paramIndex++
+        } else {
+            whereConditions.push(priceStatsListingTypesSql("mv"))
         }
 
         const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(" AND ")}` : ""
