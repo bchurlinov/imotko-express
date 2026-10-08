@@ -60,7 +60,7 @@ export async function extractExternalIdWithAI(propertyData) {
             - If you find "ШИФРА- 3518", return: 3518
             - If you find "Код: ABC123", return: ABC123
             - If no ID is found, return: null`,
-            maxTokens: 50,
+            maxOutputTokens: 50,
             temperature: 0,
         })
 

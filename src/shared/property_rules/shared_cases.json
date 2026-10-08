@@ -1,0 +1,100 @@
+{
+    "baseListing": {
+        "country": "macedonia",
+        "city": "ohrid",
+        "district": "chekoshtina",
+        "address": "ул. Македонски Просветители 10",
+        "coordinates": [41.1231, 20.8016],
+        "listingType": "for_sale",
+        "type": "flat",
+        "propertySubType": "APARTMENT",
+        "price": "98000",
+        "priceUnit": "TOTAL",
+        "size": 64,
+        "numOfRooms": 2,
+        "numOfBathrooms": 1,
+        "orientation": "east",
+        "name": "Светол стан во центар",
+        "description": "Светол двособен стан со поглед на езерото, реновиран.",
+        "images": [{ "id": "img1" }]
+    },
+    "schema": [
+        { "name": "valid sale flat", "patch": {}, "errors": [] },
+        {
+            "name": "short-term needs guests and nights",
+            "patch": { "listingType": "short_term_rent", "priceUnit": "PER_NIGHT" },
+            "errors": ["maxGuestsRequired", "minNightsRequired"]
+        },
+        {
+            "name": "short-term refuses land and a total price",
+            "patch": { "listingType": "short_term_rent", "type": "land", "priceUnit": "TOTAL", "maxGuests": 4, "minNights": 2 },
+            "errors": ["priceUnitNotAllowed", "propertyTypeNotAllowedForListingType"]
+        },
+        { "name": "at least one photo", "patch": { "images": [] }, "errors": ["propertyPhotosLength"] },
+        { "name": "district required where the city has districts", "patch": { "district": null }, "errors": ["propertyDistrictRequired"] },
+        { "name": "city without districts", "patch": { "city": "arachinovo", "district": null }, "errors": [] },
+        {
+            "name": "valid short-term",
+            "patch": {
+                "listingType": "short_term_rent",
+                "priceUnit": "PER_NIGHT",
+                "price": "45",
+                "maxGuests": 4,
+                "minNights": 2,
+                "checkInFrom": "14:00",
+                "checkOutUntil": "10:00"
+            },
+            "errors": []
+        },
+        { "name": "bad check-in time", "patch": { "checkInFrom": "25:00" }, "errors": ["invalidTime"] }
+    ],
+    "contactDetails": [
+        { "input": { "description": "Јавете се на 070 123 456 за повеќе" }, "expected": "description" },
+        { "input": { "name": "пишете на ana@example.com" }, "expected": "name" },
+        { "input": { "description": "Цена 1.000.000 денари" }, "expected": null }
+    ],
+    "normalizeListingTypeFields": [
+        {
+            "input": { "listingType": "for_sale", "priceUnit": "PER_NIGHT", "maxGuests": 3 },
+            "expected": { "priceUnit": "TOTAL", "maxGuests": null, "minNights": null, "checkInFrom": null, "checkOutUntil": null }
+        },
+        {
+            "input": { "listingType": "for_rent", "priceUnit": "PER_SQUARE_METER" },
+            "expected": { "priceUnit": "PER_SQUARE_METER", "maxGuests": null, "minNights": null, "checkInFrom": null, "checkOutUntil": null }
+        },
+        {
+            "input": { "listingType": "short_term_rent", "maxGuests": "4", "minNights": 2, "checkInFrom": "14:00", "checkOutUntil": "" },
+            "expected": {
+                "priceUnit": "PER_NIGHT",
+                "maxGuests": 4,
+                "minNights": 2,
+                "checkInFrom": "14:00",
+                "checkOutUntil": null,
+                "inDevelopment": false,
+                "inDevelopmentUntil": null,
+                "hasApproximatePrice": false,
+                "approximatePrice": null,
+                "estimationPrice": null,
+                "publishToHommex": false
+            }
+        }
+    ],
+    "taxonomy": [
+        { "type": "flat", "subType": "APARTMENT", "expected": { "categoryId": "1", "subcategoryId": "102" } },
+        { "type": "flat", "subType": "NOPE", "expected": null }
+    ],
+    "priceFormat": [
+        { "input": { "price": 98000, "listingType": "for_sale" }, "locale": "mk", "expected": "€ 98.000" },
+        { "input": { "price": 450, "listingType": "for_rent", "priceUnit": "TOTAL" }, "locale": "mk", "expected": "€ 450 / месечно" },
+        { "input": { "price": 8, "listingType": "for_rent", "priceUnit": "PER_SQUARE_METER" }, "locale": "mk", "expected": "€ 8 / m²" },
+        { "input": { "price": 45, "listingType": "short_term_rent", "priceUnit": "PER_NIGHT" }, "locale": "mk", "expected": "€ 45 / ноќ" },
+        { "input": { "price": 45, "listingType": "short_term_rent" }, "locale": "en", "expected": "€ 45 / night" },
+        { "input": { "price": 0, "listingType": "for_sale" }, "locale": "mk", "expected": null }
+    ],
+    "sellerName": [
+        { "input": { "name": "Марко", "lastName": "Петровски" }, "short": "Марко П.", "first": "Марко" },
+        { "input": { "name": "Ана Марија Стојанова" }, "short": "Ана С.", "first": "Ана" },
+        { "input": { "name": "" }, "short": null, "first": null }
+    ],
+    "limit": { "perType": 5, "countedStatuses": ["PENDING", "PUBLISHED", "UNPUBLISHED"] }
+}

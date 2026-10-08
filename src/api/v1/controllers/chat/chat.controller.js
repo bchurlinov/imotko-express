@@ -1,10 +1,12 @@
 import { chatResponse } from "./chat_response.js"
 import {
     findAgencyInquiryId,
+    findPrivateInquiryId,
     markRead,
     reportConversation,
     sendMessage,
     startAgencyInquiry,
+    startPrivateInquiry,
     toggleBlock,
 } from "#services/chat/conversation.service.js"
 import { removeConversation } from "#services/chat/chat_removal.service.js"
@@ -43,6 +45,14 @@ export const listConversationsController = async (req, res) =>
 
 export const lookupConversationController = async (req, res) => {
     if (req.chatViewer.type !== "client") return chatResponse(res, 200, null, { conversationId: null })
+    if (!req.query.agencyId) {
+        // Buyer → private seller threads exist only for apps that can show them (design D §4.4).
+        const conversationId =
+            req.capabilities?.clientListings && req.query.propertyId
+                ? await findPrivateInquiryId({ userId: req.chatViewer.userId, propertyId: req.query.propertyId })
+                : null
+        return chatResponse(res, 200, null, { conversationId })
+    }
     const conversationId = await findAgencyInquiryId({
         userId: req.chatViewer.userId,
         agencyId: req.query.agencyId,
@@ -53,6 +63,20 @@ export const lookupConversationController = async (req, res) => {
 
 export const startConversationController = async (req, res) => {
     if (req.chatViewer.type !== "client") throw new ChatError(CHAT_ERRORS.FORBIDDEN, 403)
+    if (!req.body.agencyId) {
+        // Without agencyId request is buyer → private seller start; older apps always send agencyId and keep getting
+        // validation error they got before.
+        if (!req.capabilities?.clientListings || !req.body.propertyId) {
+            throw new ChatError(CHAT_ERRORS.VALIDATION_FAILED, 400)
+        }
+        const result = await startPrivateInquiry({
+            buyerUserId: req.chatViewer.userId,
+            propertyId: req.body.propertyId,
+            bodyHtml: req.body.bodyHtml,
+            capabilities: req.capabilities,
+        })
+        return chatResponse(res, 201, "messageSent", result)
+    }
     const result = await startAgencyInquiry({
         userId: req.chatViewer.userId,
         agencyId: req.body.agencyId,

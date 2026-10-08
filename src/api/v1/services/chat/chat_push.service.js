@@ -1,6 +1,8 @@
-import { ConversationKind, MessageKind, MessageStatus, UserRole } from "#generated/prisma/enums.ts"
+import { MessageKind, MessageStatus, UserRole } from "#generated/prisma/enums.ts"
 import prisma from "#database/client.js"
+import { resolveClientCapabilities } from "#middlewares/client_capabilities.js"
 import { inboxParticipantWhere } from "./chat_policy.js"
+import { isConversationKindVisible } from "./chat_visibility.js"
 import { CHAT_ERRORS } from "./chat_constants.js"
 import { ChatError } from "./chat_error.js"
 
@@ -26,11 +28,12 @@ const expoHeaders = () => ({
     ...(process.env.EXPO_ACCESS_TOKEN ? { Authorization: `Bearer ${process.env.EXPO_ACCESS_TOKEN}` } : {}),
 })
 
-export const registerPushToken = async ({ userId, token, platform, locale }) =>
+// Null means a token registered before 1.1.0; a re-registration from an updated app overwrites it.
+export const registerPushToken = async ({ userId, token, platform, locale, appVersion = null }) =>
     prisma.userPushToken.upsert({
         where: { token },
-        create: { userId, token, platform, locale, lastSeenAt: new Date() },
-        update: { userId, platform, locale, lastSeenAt: new Date() },
+        create: { userId, token, platform, locale, appVersion, lastSeenAt: new Date() },
+        update: { userId, platform, locale, appVersion, lastSeenAt: new Date() },
     })
 
 export const unregisterPushToken = async ({ userId, token }) => {
@@ -55,7 +58,7 @@ const loadPush = async messageId => {
                         select: {
                             id: true,
                             userId: true,
-                            user: { select: { role: true, pushTokens: { select: { id: true, token: true } } } },
+                            user: { select: { role: true, pushTokens: { select: { id: true, token: true, appVersion: true } } } },
                         },
                     },
                 },
@@ -63,23 +66,38 @@ const loadPush = async messageId => {
         },
     })
     if (!message || message.kind !== MessageKind.USER || message.status !== MessageStatus.DELIVERED) return null
-    // Apps before sub-project D only know agency threads; every caller (web request, admin release, Express send)
-    // goes through here, so this is the single gate. Email notifications still go out (roadmap rule 7).
-    if (message.conversation.kind !== ConversationKind.AGENCY_INQUIRY) return null
-
     const recipient = message.conversation.participants.find(item => item.id !== message.senderParticipantId)
-    if (!recipient?.userId || recipient.user?.role !== UserRole.CLIENT || !recipient.user.pushTokens.length) return null
+    if (!recipient?.userId || recipient.user?.role !== UserRole.CLIENT) return null
 
-    const badge = await prisma.conversationParticipant.count({
-        where: { ...inboxParticipantWhere({ type: "client", userId: recipient.userId }), unreadCount: { gt: 0 } },
-    })
+    const kind = message.conversation.kind
+    const capabilitiesOf = token => resolveClientCapabilities({ client: "mobile", appVersion: token.appVersion ?? undefined })
+    const tokens = recipient.user.pushTokens.filter(token => isConversationKindVisible(kind, capabilitiesOf(token)))
+    if (!tokens.length) return null
+
+    const badges = new Map()
+    const badgeFor = async capabilities => {
+        const key = JSON.stringify(capabilities)
+        if (!badges.has(key)) {
+            badges.set(
+                key,
+                await prisma.conversationParticipant.count({
+                    where: {
+                        ...inboxParticipantWhere({ type: "client", userId: recipient.userId }, capabilities),
+                        unreadCount: { gt: 0 },
+                    },
+                })
+            )
+        }
+        return badges.get(key)
+    }
+    const tokensWithBadge = []
+    for (const token of tokens) tokensWithBadge.push({ ...token, badge: await badgeFor(capabilitiesOf(token)) })
 
     return {
         conversationId: message.conversationId,
         title: message.senderParticipant.displayName || "Imotko",
         body: preview(message.bodyText) || "New message",
-        badge,
-        tokens: recipient.user.pushTokens,
+        tokens: tokensWithBadge,
     }
 }
 
@@ -109,7 +127,7 @@ export const sendChatPushNotification = async messageId => {
         body: push.body,
         sound: "default",
         channelId: "chat",
-        badge: push.badge,
+        badge: token.badge,
         priority: "high",
         data: {
             type: "chat_message",

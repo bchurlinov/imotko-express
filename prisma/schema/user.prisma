@@ -92,6 +92,8 @@ model UserPushToken {
   token       String           @unique
   platform    PushPlatform
   locale      PushLocale
+  // App version that registered token from X-Imotko-App-Version. Null means app before 1.1.0.
+  appVersion  String?
   lastSeenAt  DateTime         @default(now()) @db.Timestamptz(3)
   createdAt   DateTime         @default(now()) @db.Timestamptz(3)
   updatedAt   DateTime         @updatedAt @db.Timestamptz(3)

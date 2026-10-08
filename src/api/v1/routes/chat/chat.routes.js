@@ -59,7 +59,7 @@ router.get(
 )
 router.post(
     "/conversations",
-    [body("agencyId").isString().trim().notEmpty().isLength({ max: 200 }), optionalId("propertyId"), bodyHtml],
+    [optionalId("agencyId"), optionalId("propertyId"), bodyHtml],
     validateRequest,
     requireChatParticipant,
     handle(startConversationController)
@@ -67,7 +67,7 @@ router.post(
 router.get(
     "/conversations/lookup",
     [
-        query("agencyId").isString().trim().notEmpty().isLength({ max: 200 }),
+        query("agencyId").optional().isString().trim().notEmpty().isLength({ max: 200 }),
         query("propertyId").optional().isString().trim().notEmpty().isLength({ max: 200 }),
     ],
     validateRequest,

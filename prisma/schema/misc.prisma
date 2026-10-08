@@ -61,22 +61,22 @@ enum LeadUnlockType {
 }
 
 model Lead {
-  id              String       @id @default(cuid())
-  intent          LeadIntent
-  teaserDesc      String
-  fullDesc        String
-  firstName       String
-  fullName        String
-  email           String
-  phone           String?
-  location        String
-  propertyType    String
-  priceFrom       Int?
-  priceTo         Int?
-  sizeFrom        Int?
-  sizeTo          Int?
-  size            Int?
-  source          String?
+  id                 String                @id @default(cuid())
+  intent             LeadIntent
+  teaserDesc         String
+  fullDesc           String
+  firstName          String
+  fullName           String
+  email              String
+  phone              String?
+  location           String
+  propertyType       String
+  priceFrom          Int?
+  priceTo            Int?
+  sizeFrom           Int?
+  sizeTo             Int?
+  size               Int?
+  source             String?
   isActive           Boolean               @default(true)
   paidUnlockCount    Int                   @default(0)
   sharedWithAgencies Boolean               @default(true)
@@ -108,6 +108,38 @@ model LeadReveal {
   @@unique([leadId, agencyId])
   @@unique([agencyId, freePeriod])
   @@index([agencyId])
+}
+
+// Sub-project C: how an agency paid for contacting a private seller. Kept apart from LeadUnlockType.
+enum OutreachUnlockType {
+  FREE_LAUNCH
+  PLAN_PREMIUM
+  FREE_MONTHLY
+  CREDITS
+}
+
+// One row per agency per private listing (design C §2). freePeriod ("YYYY-MM") only for FREE_MONTHLY.
+model PropertyOutreach {
+  id             String             @id @default(cuid())
+  propertyId     String
+  property       Property           @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  agencyId       String
+  agency         Agency             @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  memberId       String?
+  member         AgencyMember?      @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  clientId       String?
+  client         Client?            @relation(fields: [clientId], references: [id], onDelete: SetNull)
+  conversationId String?            @unique
+  conversation   Conversation?      @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  unlockType     OutreachUnlockType
+  creditsSpent   Int                @default(0)
+  freePeriod     String?
+  createdAt      DateTime           @default(now()) @db.Timestamptz(3)
+
+  @@unique([agencyId, propertyId])
+  @@unique([agencyId, freePeriod])
+  @@index([agencyId, createdAt])
+  @@index([propertyId])
 }
 
 model LeadClientMatchSend {

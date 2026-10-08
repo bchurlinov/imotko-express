@@ -28,7 +28,7 @@ export const getPropertyByIdController = async (req, res) => {
             ip: getIpAddress(req),
             clientId: req.user?.clientId ?? null,
         },
-        { capabilities: req.capabilities }
+        { capabilities: req.capabilities, viewerSupabaseUserId: req.viewerSupabaseUserId }
     )
     return res.status(200).json(property)
 }

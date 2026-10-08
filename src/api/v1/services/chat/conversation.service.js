@@ -21,6 +21,9 @@ import { buildDedupeKey, canStartAgencyInquiry, resolveInitialStatus } from "./c
 import { CHAT_PERMISSION, hasChatPermission } from "./chat_permissions.js"
 import { sanitizeMessage } from "./chat_sanitizer.js"
 import { isConversationKindVisible } from "./chat_visibility.js"
+import { buildPrivateDedupeKey } from "#shared/chat/private_dedupe_key.js"
+import { PRIVATE_PARTICIPANT_FALLBACK } from "#shared/chat/private_participant_fallback.js"
+import { shortDisplayName } from "#shared/property_rules/seller_name.js"
 
 const PRISMA_UNIQUE_CONSTRAINT = "P2002"
 
@@ -220,6 +223,20 @@ const countClientConversations = (userId, since) =>
         where: { userId, isSeller: false, ...(since ? { createdAt: { gte: since } } : {}) },
     })
 
+// The limits every new conversation started by a client passes (agency inquiries and buyer → seller threads).
+const assertCanStartConversation = async (user, now) => {
+    if (
+        (await countClientConversations(user.id, new Date(now.getTime() - DAY_MS))) >=
+        CHAT_LIMITS.NEW_CONVERSATIONS_PER_DAY
+    ) {
+        throw new ChatError(CHAT_ERRORS.CONVERSATION_DAILY_LIMIT, 429)
+    }
+    if (!user.emailVerified && (await countClientConversations(user.id)) >= CHAT_LIMITS.UNVERIFIED_CONVERSATIONS) {
+        throw new ChatError(CHAT_ERRORS.UNVERIFIED_CONVERSATION_LIMIT, 403)
+    }
+    if (await enforceUnansweredLimit(prisma, user)) throw new ChatError(CHAT_ERRORS.MESSAGING_RESTRICTED, 403)
+}
+
 export const startAgencyInquiry = async ({
     userId,
     agencyId,
@@ -245,16 +262,7 @@ export const startAgencyInquiry = async ({
         const message = await sendMessage({ conversationId: existing.id, viewer, bodyHtml, requiresAdminReview })
         return { conversationId: existing.id, created: false, messageId: message.id }
     }
-    if (
-        (await countClientConversations(userId, new Date(now.getTime() - DAY_MS))) >=
-        CHAT_LIMITS.NEW_CONVERSATIONS_PER_DAY
-    ) {
-        throw new ChatError(CHAT_ERRORS.CONVERSATION_DAILY_LIMIT, 429)
-    }
-    if (!user.emailVerified && (await countClientConversations(userId)) >= CHAT_LIMITS.UNVERIFIED_CONVERSATIONS) {
-        throw new ChatError(CHAT_ERRORS.UNVERIFIED_CONVERSATION_LIMIT, 403)
-    }
-    if (await enforceUnansweredLimit(prisma, user)) throw new ChatError(CHAT_ERRORS.MESSAGING_RESTRICTED, 403)
+    await assertCanStartConversation(user, now)
     const deliver =
         !requiresAdminReview &&
         resolveInitialStatus({ senderType: "client", emailVerified: user.emailVerified }) === MessageStatus.DELIVERED
@@ -304,6 +312,147 @@ export const startAgencyInquiry = async ({
         const raced = await prisma.conversation.findUnique({ where: { dedupeKey }, select: { id: true } })
         if (!raced) throw error
         const message = await sendMessage({ conversationId: raced.id, viewer, bodyHtml, requiresAdminReview })
+        return { conversationId: raced.id, messageId: message.id, created: false }
+    }
+}
+
+const PRIVATE_LISTING_SELECT = {
+    id: true,
+    name: true,
+    slug: true,
+    price: true,
+    listingType: true,
+    size: true,
+    attributes: true,
+    photos: true,
+    district: true,
+    country: true,
+    propertyLocation: { select: { name: true } },
+    client: { select: { userId: true, user: { select: { name: true, lastName: true } } } },
+}
+
+export const assertPrivateListingAvailable = async ({ propertyId, capabilities = LEGACY_CAPABILITIES }) => {
+    const property = propertyId
+        ? await prisma.property.findFirst({
+              where: {
+                  id: propertyId,
+                  status: PropertyStatus.PUBLISHED,
+                  clientId: { not: null },
+                  AND: hiddenPropertyConditions(capabilities),
+              },
+              select: PRIVATE_LISTING_SELECT,
+          })
+        : null
+    if (!property?.client?.userId) throw new ChatError(CHAT_ERRORS.LISTING_NOT_AVAILABLE, 404)
+    return property
+}
+
+export const findPrivateInquiryId = async ({ userId, propertyId }) => {
+    if (!userId || !propertyId) return null
+    const property = await prisma.property.findUnique({
+        where: { id: propertyId },
+        select: { client: { select: { userId: true } } },
+    })
+    const sellerUserId = property?.client?.userId
+    if (!sellerUserId) return null
+    const conversation = await prisma.conversation.findUnique({
+        where: { dedupeKey: buildPrivateDedupeKey({ buyerUserId: userId, sellerUserId, propertyId }) },
+        select: { id: true },
+    })
+    return conversation?.id || null
+}
+
+// Buyer → private seller (design B §6.5, design D §4.4). Same safety rules as agency inquiries.
+export const startPrivateInquiry = async ({
+    buyerUserId,
+    propertyId,
+    bodyHtml,
+    requiresAdminReview = false,
+    now = new Date(),
+    capabilities = LEGACY_CAPABILITIES,
+}) => {
+    const sanitized = requireSanitized(bodyHtml)
+    const buyer = await loadSender(buyerUserId)
+    if (!canStartAgencyInquiry(buyer)) throw new ChatError(CHAT_ERRORS.FORBIDDEN, 403)
+
+    const property = await assertPrivateListingAvailable({ propertyId, capabilities })
+    const sellerUserId = property.client.userId
+    if (sellerUserId === buyerUserId) throw new ChatError(CHAT_ERRORS.CANNOT_MESSAGE_OWN_LISTING, 403)
+
+    const viewer = { type: "client", userId: buyerUserId }
+    const dedupeKey = buildPrivateDedupeKey({ buyerUserId, sellerUserId, propertyId: property.id })
+    const existing = await prisma.conversation.findUnique({ where: { dedupeKey }, select: { id: true } })
+    if (existing) {
+        const message = await sendMessage({
+            conversationId: existing.id,
+            viewer,
+            bodyHtml,
+            requiresAdminReview,
+            capabilities,
+        })
+        return { conversationId: existing.id, messageId: message.id, created: false }
+    }
+
+    await assertCanStartConversation(buyer, now)
+    const deliver =
+        !requiresAdminReview &&
+        resolveInitialStatus({ senderType: "client", emailVerified: buyer.emailVerified }) === MessageStatus.DELIVERED
+
+    try {
+        const result = await prisma.$transaction(async tx => {
+            const conversation = await tx.conversation.create({
+                data: {
+                    kind: ConversationKind.PRIVATE_INQUIRY,
+                    dedupeKey,
+                    propertyId: property.id,
+                    propertySnapshot: buildPropertySnapshot(property),
+                    participants: {
+                        create: [
+                            {
+                                userId: buyerUserId,
+                                displayName: shortDisplayName(buyer) || PRIVATE_PARTICIPANT_FALLBACK.buyer,
+                            },
+                            {
+                                userId: sellerUserId,
+                                isSeller: true,
+                                displayName:
+                                    shortDisplayName(property.client.user) || PRIVATE_PARTICIPANT_FALLBACK.seller,
+                            },
+                        ],
+                    },
+                },
+                select: { id: true, participants: { select: { id: true, userId: true } } },
+            })
+            const senderParticipant = conversation.participants.find(item => item.userId === buyerUserId)
+            const appended = await appendMessage(tx, {
+                conversationId: conversation.id,
+                senderParticipantId: senderParticipant.id,
+                senderUserId: buyerUserId,
+                sanitized,
+                deliver,
+                requiresAdminReview,
+            })
+            return {
+                conversationId: conversation.id,
+                messageId: appended.message.id,
+                notifyParticipantId: appended.notifyParticipantId,
+                pushMessageId: appended.pushMessageId,
+            }
+        })
+        queueChatNewMessageEmail(result.notifyParticipantId)
+        queueChatPushNotification(result.pushMessageId)
+        return { conversationId: result.conversationId, messageId: result.messageId, created: true }
+    } catch (error) {
+        if (error?.code !== PRISMA_UNIQUE_CONSTRAINT) throw error
+        const raced = await prisma.conversation.findUnique({ where: { dedupeKey }, select: { id: true } })
+        if (!raced) throw error
+        const message = await sendMessage({
+            conversationId: raced.id,
+            viewer,
+            bodyHtml,
+            requiresAdminReview,
+            capabilities,
+        })
         return { conversationId: raced.id, messageId: message.id, created: false }
     }
 }

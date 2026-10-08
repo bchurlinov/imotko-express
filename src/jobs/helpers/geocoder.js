@@ -31,7 +31,7 @@ export async function geocodeAddress(location, address) {
         const result = await generateText({
             model: openai("gpt-4o-mini"),
             temperature: 0.2,
-            maxTokens: 100,
+            maxOutputTokens: 100,
             prompt: `You are a geocoding assistant specialized in North Macedonia (Macedonia) locations.
                      Given the following address, provide the approximate latitude and longitude coordinates.
 
@@ -169,7 +169,7 @@ If NO good match exists, return the word "NONE".
 
 Return only the location name or "NONE":`,
             temperature: 0.1,
-            maxTokens: 50,
+            maxOutputTokens: 50,
         })
 
         const matchedName = result.text.trim()

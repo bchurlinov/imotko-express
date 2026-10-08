@@ -1,4 +1,10 @@
-import { AgencyApprovalStatus, MessageKind, MessageStatus, PropertyStatus } from "#generated/prisma/enums.ts"
+import {
+    AgencyApprovalStatus,
+    ConversationKind,
+    MessageKind,
+    MessageStatus,
+    PropertyStatus,
+} from "#generated/prisma/enums.ts"
 import prisma from "#database/client.js"
 import { escapeHtml, fullName, isoOrNull, pickLocalized } from "./chat_format.js"
 import { buildPropertySnapshot, findViewerParticipant } from "./conversation.service.js"
@@ -7,6 +13,7 @@ import { CHAT_PERMISSION, hasChatPermission } from "./chat_permissions.js"
 import { chatSystemEventText } from "./chat_locales.js"
 import { LEGACY_CAPABILITIES } from "#config/client_capabilities.js"
 import { isConversationKindVisible, withoutHiddenProperty } from "./chat_visibility.js"
+import { counterpartTypeFor } from "#shared/chat/counterpart_type.js"
 
 const THREAD_MESSAGE_LIMIT = 200
 export const INBOX_PAGE_SIZE = 30
@@ -18,7 +25,7 @@ const messagePreview = (message, locale) =>
         .replace(/\s+/g, " ")
         .trim()
         .slice(0, 140)
-const inboxItem = (row, locale) => {
+const inboxItem = (row, locale, capabilities = LEGACY_CAPABILITIES) => {
     const counterpart = row.conversation.participants.find(participant => participant.id !== row.id)
     const agency = row.conversation.participants.find(participant => participant.agencyId)
     const last = row.conversation.messages[0]
@@ -33,6 +40,9 @@ const inboxItem = (row, locale) => {
     return {
         id: row.conversation.id,
         kind: row.conversation.kind,
+        ...(capabilities.clientListings
+            ? { counterpartType: counterpartTypeFor(row, counterpart, row.conversation.kind) }
+            : {}),
         counterpartName: counterpart?.displayName || "",
         counterpartDeleted: Boolean(counterpart?.deletedAt),
         counterpartLogo: agencyLogo(counterpart),
@@ -64,7 +74,9 @@ export const getInbox = async (
     if (viewer?.type !== "client" && viewer?.type !== "agency") return { items: [], hasMore: false }
     const query = search.trim()
     const scope = inboxParticipantWhere(viewer, capabilities)
-    const counterpart = viewer.type === "agency" ? { agencyId: null } : { agencyId: { not: null } }
+    // A client's counterpart is an agency (no userId) or another person; match both, never the viewer (web inbox.js).
+    const counterpart =
+        viewer.type === "agency" ? { agencyId: null } : { OR: [{ userId: null }, { userId: { not: viewer.userId } }] }
     const where = query
         ? {
               ...scope,
@@ -90,6 +102,8 @@ export const getInbox = async (
         take: cappedLimit + 1,
         select: {
             id: true,
+            isSeller: true,
+            agencyId: true,
             unreadCount: true,
             conversation: {
                 select: {
@@ -104,6 +118,7 @@ export const getInbox = async (
                             id: true,
                             userId: true,
                             agencyId: true,
+                            isSeller: true,
                             displayName: true,
                             deletedAt: true,
                             blockedAt: true,
@@ -124,7 +139,11 @@ export const getInbox = async (
         items: rows
             .slice(0, cappedLimit)
             .map(row =>
-                inboxItem({ ...row, conversation: withoutHiddenProperty(row.conversation, capabilities) }, locale)
+                inboxItem(
+                    { ...row, conversation: withoutHiddenProperty(row.conversation, capabilities) },
+                    locale,
+                    capabilities
+                )
             ),
         hasMore: rows.length > cappedLimit,
     }
@@ -176,12 +195,25 @@ const inboxHrefFor = (viewer, locale) =>
         ? null
         : `/${locale}${viewer.type === "client" ? "/korisnicka-smetka/poraki" : "/smetka/agencija/prodazba/poraki"}`
 
-export const shapeThread = ({ conversation, viewer, locale }) => {
+export const shapeThread = ({ conversation, viewer, locale, capabilities = LEGACY_CAPABILITIES }) => {
     const own = findViewerParticipant(conversation.participants, viewer)
-    const personSide = conversation.participants.find(isPersonSide) || null
-    const agencySide = conversation.participants.find(participant => !isPersonSide(participant)) || null
-    const counterpart = viewer.type === "client" ? agencySide : personSide
-    const agencyInactive = !agencySide?.agencyId || agencySide.agency?.status === AgencyApprovalStatus.DELETED
+    // Same rules as web's src/data/chat/inbox.js: a buyer–seller thread has two person sides (design B §6.5), and
+    // an agency never gets an outreach seller's contact details (design C §5.4).
+    const isPrivate = conversation.kind === ConversationKind.PRIVATE_INQUIRY
+    const isOutreach = conversation.kind === ConversationKind.AGENCY_OUTREACH
+    const sellerSide = isPrivate ? conversation.participants.find(participant => participant.isSeller) || null : null
+    const personSide = isPrivate
+        ? conversation.participants.find(participant => !participant.isSeller) || null
+        : conversation.participants.find(isPersonSide) || null
+    const agencySide = isPrivate
+        ? null
+        : conversation.participants.find(participant => !isPersonSide(participant)) || null
+    // Admins (no own side) see the person side, as before.
+    const counterpart = own
+        ? conversation.participants.find(participant => participant.id !== own.id) || null
+        : personSide
+    const agencyInactive =
+        !isPrivate && (!agencySide?.agencyId || agencySide.agency?.status === AgencyApprovalStatus.DELETED)
     const blocked = conversation.participants.some(participant => participant.blockedAt)
     const blockedByOther = conversation.participants.some(
         participant => participant.id !== own?.id && participant.blockedAt
@@ -189,16 +221,35 @@ export const shapeThread = ({ conversation, viewer, locale }) => {
     const messagingFlagged = viewer.type === "client" && Boolean(own?.user?.messagingFlagged)
     const canWrite =
         viewer.type === "client" || (viewer.type === "agency" && hasChatPermission(viewer.role, CHAT_PERMISSION.WRITE))
+    const blockedBy = isPrivate
+        ? sellerSide?.blockedAt
+            ? "seller"
+            : personSide?.blockedAt
+              ? "buyer"
+              : null
+        : personSide?.blockedAt
+          ? isOutreach
+              ? "seller"
+              : "client"
+          : agencySide?.blockedAt
+            ? "agency"
+            : null
     return {
         id: conversation.id,
         kind: conversation.kind,
+        ...(capabilities.clientListings
+            ? {
+                  counterpartType: own ? counterpartTypeFor(own, counterpart, conversation.kind) : null,
+                  sellerName: sellerSide?.displayName || null,
+              }
+            : {}),
         readOnly: viewer.type === "admin",
         closed: Boolean(conversation.closedAt),
         blocked,
         blockedByMe: Boolean(own?.blockedAt),
         blockedByOther,
         blockedState: { byMe: Boolean(own?.blockedAt), byOther: blockedByOther },
-        blockedBy: personSide?.blockedAt ? "client" : agencySide?.blockedAt ? "agency" : null,
+        blockedBy,
         hasUnread: (own?.unreadCount || 0) > 0,
         canReply:
             canWrite &&
@@ -225,10 +276,10 @@ export const shapeThread = ({ conversation, viewer, locale }) => {
             logoUrl: agencyLogo(counterpart),
             deleted: Boolean(counterpart?.deletedAt),
             agencyInactive: viewer.type === "client" ? agencyInactive : false,
-            phone: viewer.type === "client" ? null : counterpart?.user?.phone || null,
+            phone: viewer.type === "client" || isOutreach ? null : counterpart?.user?.phone || null,
             ...(viewer.type === "agency"
                 ? {
-                      email: counterpart?.user?.email || null,
+                      email: isOutreach ? null : counterpart?.user?.email || null,
                       memberSince: isoOrNull(counterpart?.user?.createdAt),
                       emailVerified: Boolean(counterpart?.user?.emailVerified),
                   }
@@ -296,6 +347,7 @@ export const getThread = async (viewer, conversationId, locale = "mk", capabilit
                     id: true,
                     userId: true,
                     agencyId: true,
+                    isSeller: true,
                     displayName: true,
                     blockedAt: true,
                     deletedAt: true,
@@ -341,7 +393,12 @@ export const getThread = async (viewer, conversationId, locale = "mk", capabilit
         if (!own || own.removed) return null
     }
     if (viewer.type === "agency" && !conversation.lastDeliveredAt) return null
-    const thread = shapeThread({ conversation: withoutHiddenProperty(conversation, capabilities), viewer, locale })
+    const thread = shapeThread({
+        conversation: withoutHiddenProperty(conversation, capabilities),
+        viewer,
+        locale,
+        capabilities,
+    })
     if (viewer.type !== "agency") return thread
     const clientUser = conversation.participants.find(participant => participant.userId)?.user || null
     return { ...thread, crmClient: await findCrmClient(viewer, clientUser, locale) }

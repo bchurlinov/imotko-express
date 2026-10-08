@@ -80,7 +80,7 @@ export async function extractNumericValue(text, field) {
 
                 Return only the number or the word "null":`,
                 temperature: 0.1,
-                maxTokens: 50,
+                maxOutputTokens: 50,
             })
             return response
         }, `extractNumericValue(${field})`)
@@ -128,7 +128,7 @@ export async function mapListingType(text) {
             const { text: response } = await generateText({
                 model: openai("gpt-4o-mini"),
                 temperature: 0.1,
-                maxTokens: 20,
+                maxOutputTokens: 20,
                 prompt: `Classify the following property listing type text into one of these categories:
                         - for_rent (properties for rent/lease)
                         - for_sale (properties for sale)
@@ -171,7 +171,7 @@ export async function classifyPropertyType(title, description) {
             const { text: response } = await generateText({
                 model: openai("gpt-4o-mini"),
                 temperature: 0.2,
-                maxTokens: 100,
+                maxOutputTokens: 100,
                 prompt: `Classify the following property into ONE of these types:
                         - flat (apartments, studios, penthouses)
                         - house (single-family homes, villas, townhouses)
@@ -261,7 +261,7 @@ Return your response in this exact JSON format (no markdown, no extra text):
 If translation is not possible for one language, use null:
 {"mk": "macedonian text", "en": null}`,
                 temperature: 0.3,
-                maxTokens: 200,
+                maxOutputTokens: 200,
             })
             return response
         }, "structureName")
@@ -325,7 +325,7 @@ Return your response in this exact JSON format (no markdown, no extra text):
 If translation is not possible for one language, use null:
 {"mk": "macedonian text", "en": null}`,
                 temperature: 0.3,
-                maxTokens: 800,
+                maxOutputTokens: 800,
             })
             return response
         }, "structureDescription")
@@ -367,7 +367,7 @@ export async function extractAttributes(sourceData) {
             const { text: response } = await generateText({
                 model: openai("gpt-4o-mini"),
                 temperature: 0.2,
-                maxTokens: 300,
+                maxOutputTokens: 300,
                 prompt: `Extract property attributes from the following data and return a structured JSON object.
                             Property title: "${title}"
                             Property description: "${description}"

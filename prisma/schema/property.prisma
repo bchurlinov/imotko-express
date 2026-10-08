@@ -136,11 +136,16 @@ model Property {
   lastAutoRenewedAt             DateTime?
   bumpedAt                      DateTime?                  @db.Timestamptz(3)
   conversations                 Conversation[]
+  // Sub-project C: the seller's opt-in (decision 102a) and the first approval (103a).
+  agencyContactAllowed          Boolean                    @default(true)
+  firstPublishedAt              DateTime?                  @db.Timestamptz(3)
+  outreaches                    PropertyOutreach[]
 
   @@index([propertyLocationId, listingType])
   @@index([country, propertyLocationId, listingType])
   @@index([agencyId])
   @@index([clientId, listingType, status])
+  @@index([clientId, status, firstPublishedAt])
   @@index([bumpedAt])
   @@index([featured])
   @@index([categoryId])

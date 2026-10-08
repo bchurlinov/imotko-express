@@ -64,7 +64,8 @@ app.use(helmet())
 app.use(attachRateLimitKey)
 app.use(limiter)
 
-app.use(express.json())
+// Client listings carry four-language texts and up to 20 photo objects; web allows 1 MB too.
+app.use(express.json({ limit: "1mb" }))
 app.use(cookieParser(process.env.JWT_SECRET))
 
 initializeRoutes(app)

@@ -62,6 +62,7 @@ model Agency {
   logo                       Json?
   credits                    Int                               @default(0)
   leadReveals                LeadReveal[]
+  propertyOutreaches         PropertyOutreach[]
   owner                      String
   users                      User[]
   ratings                    AgencyReview[]
@@ -308,23 +309,26 @@ enum AgencyMemberPosition {
 }
 
 model AgencyMember {
-  id                     String                   @id @default(cuid())
-  userId                 String                   @unique
-  user                   User                     @relation("AgencyMember", fields: [userId], references: [id], onDelete: Cascade)
+  id                     String                    @id @default(cuid())
+  userId                 String                    @unique
+  user                   User                      @relation("AgencyMember", fields: [userId], references: [id], onDelete: Cascade)
   agencyId               String?
-  agency                 Agency?                  @relation(fields: [agencyId], references: [id])
-  status                 AgencyMemberStatus?      @default(active)
-  role                   AgencyMemberRole         @default(viewer)
+  agency                 Agency?                   @relation(fields: [agencyId], references: [id])
+  status                 AgencyMemberStatus?       @default(active)
+  role                   AgencyMemberRole          @default(viewer)
   position               AgencyMemberPosition?
   createdProperties      Property[]
   agencyClientNotes      AgencyClientNotes[]
-  agencyClient           AgencyClient[]           @relation("ClientCreatedBy")
-  AgencyClientPreference AgencyClientPreference[] @relation("ClientPreferenceCreatedBy")
+  agencyClient           AgencyClient[]            @relation("ClientCreatedBy")
+  AgencyClientPreference AgencyClientPreference[]  @relation("ClientPreferenceCreatedBy")
   reminders              AgentReminder[]
   assignedConversations  ConversationParticipant[] @relation("ConversationAssignedMember")
   readConversations      ConversationParticipant[] @relation("ConversationLastReadByMember")
-  createdAt              DateTime?                @default(now()) @db.Timestamptz(3)
-  updatedAt              DateTime?                @updatedAt @db.Timestamptz(3)
+  propertyOutreaches     PropertyOutreach[]
+  // "Приватни огласи": listings first published after this are "new" for this member (decision 103a).
+  privateListingsSeenAt  DateTime?                 @db.Timestamptz(3)
+  createdAt              DateTime?                 @default(now()) @db.Timestamptz(3)
+  updatedAt              DateTime?                 @updatedAt @db.Timestamptz(3)
 }
 
 model AgencyInvitation {

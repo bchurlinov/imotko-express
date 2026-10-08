@@ -23,6 +23,8 @@ export const CHAT_ERRORS = Object.freeze({
     MESSAGE_EMPTY: "messageEmpty",
     MESSAGE_TOO_LONG: "messageTooLong",
     AGENCY_NOT_AVAILABLE: "agencyNotAvailable",
+    LISTING_NOT_AVAILABLE: "listingNotAvailable",
+    CANNOT_MESSAGE_OWN_LISTING: "cannotMessageOwnListing",
     NOT_FOUND: "conversationNotFound",
     MESSAGE_NOT_FOUND: "messageNotFound",
     MESSAGE_ALREADY_REVIEWED: "messageAlreadyReviewed",

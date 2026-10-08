@@ -25,6 +25,7 @@ import prisma from "#database/client.js"
 import { HIDDEN_AGENCY_IDS, isHiddenAgency } from "#config/hiddenAgencies.config.js"
 import { LEGACY_CAPABILITIES } from "#config/client_capabilities.js"
 import { hiddenPropertyConditions, isPropertyVisibleTo } from "./utils/visibility.js"
+import { firstNameOf } from "#shared/property_rules/seller_name.js"
 
 /**
  * @typedef {import('#types/api.js').ApiResponse} ApiResponse
@@ -415,9 +416,36 @@ export const getPropertiesService = async (params = {}, options = {}) => {
  * @param {{ shortTermRent?: boolean }} [options.capabilities] - req.capabilities (defaults to legacy)
  * @returns {Promise<ApiResponse<PropertyWithRelations[]>>}
  */
+// App 1.1.0 only (design D §4.2): private seller's first name (never phone or email, design B §6.2, same shape as
+// web public API) and whether signed-in viewer owns listing ("Ова е ваш оглас").
+const privateListingFields = async (property, viewerSupabaseUserId) => {
+    const [client, viewer] = await Promise.all([
+        property.clientId
+            ? prisma.client.findUnique({
+                  where: { id: property.clientId },
+                  select: { user: { select: { name: true } } },
+              })
+            : null,
+        viewerSupabaseUserId
+            ? prisma.user.findUnique({
+                  where: { supabaseUserId: viewerSupabaseUserId },
+                  select: { client: { select: { id: true } } },
+              })
+            : null,
+    ])
+    return {
+        seller: property.clientId ? { type: "private", firstName: firstNameOf(client?.user?.name) } : null,
+        viewer: { isOwner: Boolean(property.clientId && viewer?.client?.id === property.clientId) },
+    }
+}
+
 export const getPropertyService = async (propertyId, viewContext = {}, options = {}) => {
     try {
-        const { includeHiddenAgencies = false, capabilities = LEGACY_CAPABILITIES } = options
+        const {
+            includeHiddenAgencies = false,
+            capabilities = LEGACY_CAPABILITIES,
+            viewerSupabaseUserId = null,
+        } = options
 
         const property = await prisma.property.findUnique({
             where: { id: propertyId },
@@ -455,8 +483,13 @@ export const getPropertyService = async (propertyId, viewContext = {}, options =
             }
         }
 
+        const data =
+            property && capabilities.clientListings
+                ? { ...property, ...(await privateListingFields(property, viewerSupabaseUserId)) }
+                : property
+
         return {
-            data: property,
+            data,
             message: "Property loaded successfully",
         }
     } catch (err) {
