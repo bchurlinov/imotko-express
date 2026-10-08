@@ -8,6 +8,7 @@ import chatRouter from "./chat/chat.routes.js"
 import adminChatRouter from "./admin/chat.routes.js"
 import appRouter from "./app/app.routes.js"
 import clientRouter from "./client/client.routes.js"
+import uploadsRouter from "./uploads/uploads.routes.js"
 import { attachClientCapabilities } from "#middlewares/client_capabilities.js"
 
 /**
@@ -19,6 +20,7 @@ export default app => {
     app.use("/api/v1", attachClientCapabilities)
     app.use("/api/v1/app", appRouter)
     app.use("/api/v1/client", clientRouter)
+    app.use("/api/v1/uploads", uploadsRouter)
     app.use("/api/v1/properties", propertiesRouter)
     app.use("/api/v1/users", usersRouter)
     app.use("/api/v1/agencies", agencyRouter)

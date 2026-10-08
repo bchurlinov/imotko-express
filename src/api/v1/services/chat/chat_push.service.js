@@ -101,7 +101,7 @@ const loadPush = async messageId => {
     }
 }
 
-const sendBatch = async messages => {
+export const sendExpoPushBatch = async messages => {
     const response = await fetch(EXPO_PUSH_URL, {
         method: "POST",
         headers: expoHeaders(),
@@ -138,7 +138,7 @@ export const sendChatPushNotification = async messageId => {
 
     for (let start = 0; start < messages.length; start += PUSH_BATCH_SIZE) {
         const batch = messages.slice(start, start + PUSH_BATCH_SIZE)
-        const tickets = await sendBatch(batch.map(({ tokenId, ...message }) => message))
+        const tickets = await sendExpoPushBatch(batch.map(({ tokenId, ...message }) => message))
         const successfulTickets = tickets.flatMap((ticket, index) =>
             ticket?.status === "ok" && typeof ticket.id === "string"
                 ? [
