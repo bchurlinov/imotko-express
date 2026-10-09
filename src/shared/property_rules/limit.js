@@ -6,6 +6,7 @@ import {
     CLIENT_LISTING_ERRORS,
     CLIENT_LISTING_LIMIT_PER_TYPE,
 } from "./client_listings_constants.js"
+import { isShortTermRent } from "./listing_type_rules.js"
 import { ClientListingError } from "./client_listing_error.js"
 
 export const countClientListings = (db, clientId, listingType, { excludePropertyId } = {}) =>
@@ -21,6 +22,8 @@ export const countClientListings = (db, clientId, listingType, { excludeProperty
 // The advisory lock serializes every limit check of one client until the transaction ends, so two parallel creates
 // cannot both see 4 and both insert.
 export const assertBelowListingLimit = async (tx, clientId, listingType, { excludePropertyId } = {}) => {
+    // Short-term stays are not capped; only sale and rent count against the limit.
+    if (isShortTermRent(listingType)) return
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${clientId}))`
     const count = await countClientListings(tx, clientId, listingType, { excludePropertyId })
     if (count >= CLIENT_LISTING_LIMIT_PER_TYPE) throw new ClientListingError(CLIENT_LISTING_ERRORS.LIMIT_REACHED, 409)

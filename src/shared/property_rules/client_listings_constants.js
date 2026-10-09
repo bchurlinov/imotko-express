@@ -12,6 +12,10 @@ export const CLIENT_LISTING_COUNTED_STATUSES = Object.freeze([
     PropertyStatus.UNPUBLISHED,
 ])
 
+// Launch phase: private sellers renew a listing for free, once per listing per calendar day (Europe/Skopje), and the
+// credits UI is hidden. Set to false to bring back the paid 10-credit renew; balances and the credit code stay as is.
+export const CLIENT_FREE_DAILY_RENEW = true
+
 // Express hides notifications carrying this tag from apps that do not support client listings (roadmap rule 2).
 export const CLIENT_LISTING_FEATURE = "client_listings"
 
@@ -19,6 +23,7 @@ export const CLIENT_LISTING_ERRORS = Object.freeze({
     LIMIT_REACHED: "clientListingLimitReached",
     CONTACT_DETAILS: "contactDetailsNotAllowed",
     NOT_ENOUGH_CREDITS: "notEnoughCredits",
+    RENEW_LIMIT_REACHED: "renewLimitReached",
     INVALID_STATUS: "invalidListingStatus",
     CANNOT_MESSAGE_OWN: "cannotMessageOwnListing",
     AGENCY_REQUEST_PENDING: "agencyRequestPending",

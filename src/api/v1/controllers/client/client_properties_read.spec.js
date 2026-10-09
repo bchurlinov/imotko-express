@@ -13,9 +13,11 @@ const originals = {
     propertyFindFirst: prisma.property.findFirst,
     propertyGroupBy: prisma.property.groupBy,
     agencyFindFirst: prisma.agency.findFirst,
+    propertyViewCount: prisma.propertyView.count,
 }
 afterEach(() => {
     prisma.client.findUnique = originals.clientFindUnique
+    prisma.propertyView.count = originals.propertyViewCount
     prisma.property.findMany = originals.propertyFindMany
     prisma.property.findFirst = originals.propertyFindFirst
     prisma.property.groupBy = originals.propertyGroupBy
@@ -76,6 +78,7 @@ test("the list returns credits, limits, counts, the agency request and public ph
     ]
     prisma.property.groupBy = async () => [{ listingType: "for_sale", _count: { _all: 1 } }]
     prisma.agency.findFirst = async () => null
+    prisma.propertyView.count = async () => 0
     const res = fakeRes()
     await listClientPropertiesController({ chatViewer: { type: "client", userId: "u1" }, client: { id: "c1" } }, res)
     assert.equal(res.statusCode, 200)
@@ -84,6 +87,7 @@ test("the list returns credits, limits, counts, the agency request and public ph
     assert.equal(res.body.data.counts.for_sale, 1)
     assert.equal(res.body.data.agencyRequest, null)
     assert.equal(res.body.data.properties[0]._count.outreaches, 2)
+    assert.equal(res.body.data.properties[0].canRenew, true)
     assert.deepEqual(res.body.data.properties[0].photos[0], { id: "i1", name: null, sizes: { small: "s" } })
 })
 test("edit data: own listing only, and it does not count against its own type", async () => {

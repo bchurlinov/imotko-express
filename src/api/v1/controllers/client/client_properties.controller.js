@@ -2,6 +2,7 @@ import prisma from "#database/client.js"
 import { PropertyStatus } from "#generated/prisma/enums.ts"
 import { ClientListingError } from "#shared/property_rules/client_listing_error.js"
 import {
+    CLIENT_FREE_DAILY_RENEW,
     CLIENT_LISTING_COUNTED_STATUSES,
     CLIENT_LISTING_ERRORS,
     CLIENT_LISTING_LIMIT_PER_TYPE,
@@ -11,6 +12,7 @@ import { assertBelowListingLimit, getClientListingCounts } from "#shared/propert
 import { buildClientListingData, validateClientListingInput } from "#shared/property_rules/listing_input.js"
 import { loadOwnedProperty } from "#shared/property_rules/permissions.js"
 import { spendClientCredits } from "#shared/property_rules/credits.js"
+import { renewPropertyOncePerDay } from "#shared/property_rules/renew_policy.js"
 import { PRICING_CREDITS } from "#shared/property_rules/pricing_credits.js"
 import { resolvePropertyLocation } from "#shared/property_rules/property_location.js"
 import { upsertPropertyTaxonomy } from "#shared/property_rules/property_dto.js"
@@ -170,9 +172,15 @@ export const setAgencyContactController = async (req, res) => {
 }
 
 // Decision 113: the instant bump only, at the agency price, paid in the same transaction.
+// While CLIENT_FREE_DAILY_RENEW is on it is free instead, once per listing per calendar day.
 export const bumpClientPropertyController = async (req, res) => {
     const property = await ownedOr404(req)
     if (property.status !== PropertyStatus.PUBLISHED) throw new ClientListingError(CLIENT_LISTING_ERRORS.INVALID_STATUS, 409)
+    if (CLIENT_FREE_DAILY_RENEW) {
+        const renewed = await renewPropertyOncePerDay(prisma, { propertyId: property.id, clientId: req.client.id })
+        if (!renewed) throw new ClientListingError(CLIENT_LISTING_ERRORS.RENEW_LIMIT_REACHED, 409)
+        return clientJson(res, 200, "propertyRestartSuccess")
+    }
     const paid = await prisma.$transaction(async tx => {
         if (!(await spendClientCredits(tx, req.client.id, PRICING_CREDITS.restartProperty))) return false
         const now = new Date()

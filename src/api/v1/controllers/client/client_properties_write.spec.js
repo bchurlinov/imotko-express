@@ -184,24 +184,43 @@ test("agency contact saves at once without touching the status", async () => {
     assert.equal(res.body.message, "agencyContactBlockedSaved")
 })
 
-test("bump spends 10 credits and refuses without them", async () => {
+test("renew is free: no credits are spent and it only matches listings not renewed since today's midnight", async () => {
     prisma.property.findUnique = async () => ({ id: "p1", clientId: "c1", status: "PUBLISHED", slug: "s" })
-    fakeTx({ client: { updateMany: async () => ({ count: 0 }) } })
-    await assert.rejects(() => bumpClientPropertyController(request(), fakeRes()), { code: "notEnoughCredits", status: 402 })
-
-    let spent
-    fakeTx({
-        client: {
-            updateMany: async ({ data }) => {
-                spent = data.credits.decrement
-                return { count: 1 }
-            },
-        },
-    })
+    let spent = false
+    fakeTx({ client: { updateMany: async () => ((spent = true), { count: 1 }) } })
+    let query
+    prisma.property.updateMany = async input => {
+        query = input
+        return { count: 1 }
+    }
     const res = fakeRes()
     await bumpClientPropertyController(request(), res)
-    assert.equal(spent, 10)
+    assert.equal(spent, false)
     assert.equal(res.body.message, "propertyRestartSuccess")
+    assert.deepEqual(
+        { id: query.where.id, clientId: query.where.clientId, status: query.where.status },
+        { id: "p1", clientId: "c1", status: "PUBLISHED" }
+    )
+    assert.deepEqual(query.where.OR[0], { bumpedAt: null })
+    assert.ok(query.where.OR[1].bumpedAt.lt instanceof Date)
+    assert.ok(query.data.bumpedAt instanceof Date)
+})
+
+test("renew answers 409 renewLimitReached when the listing was already renewed today", async () => {
+    prisma.property.findUnique = async () => ({ id: "p1", clientId: "c1", status: "PUBLISHED", slug: "s" })
+    prisma.property.updateMany = async () => ({ count: 0 })
+    await assert.rejects(() => bumpClientPropertyController(request(), fakeRes()), {
+        code: "renewLimitReached",
+        status: 409,
+    })
+})
+
+test("renew refuses a listing that is not published", async () => {
+    prisma.property.findUnique = async () => ({ id: "p1", clientId: "c1", status: "PENDING", slug: "s" })
+    await assert.rejects(() => bumpClientPropertyController(request(), fakeRes()), {
+        code: "invalidListingStatus",
+        status: 409,
+    })
 })
 
 test("delete is soft", async () => {
