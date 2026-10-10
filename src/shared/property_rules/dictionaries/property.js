@@ -990,7 +990,6 @@ const MacedonianPropertyDistrictDictionary = {
         "Тафталиџе 1",
         "Тафталиџе 2",
         "Трнодол",
-        "Момин Поток",
     ]),
     "skopje-aerodrom": createDistrictOptions("skopje-aerodrom", [
         "Аеродром",

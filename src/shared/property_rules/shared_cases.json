@@ -51,7 +51,18 @@
     "contactDetails": [
         { "input": { "description": "Јавете се на 070 123 456 за повеќе" }, "expected": "description" },
         { "input": { "name": "пишете на ana@example.com" }, "expected": "name" },
-        { "input": { "description": "Цена 1.000.000 денари" }, "expected": null }
+        { "input": { "description": "Цена 1.000.000 денари" }, "expected": null },
+        { "input": { "description": "Повеќе на www.vilavesna.mk" }, "expected": "description" },
+        { "input": { "description": "insta: vila_vesna" }, "expected": "description" },
+        { "input": { "name": "Стан @vila_vesna" }, "expected": "name" },
+        { "input": { "description": "Слободен од 01.06.2025, 120 m², 2+1" }, "expected": null },
+        { "input": { "description": "Имаме Facebook страна" }, "expected": null }
+    ],
+    "stripContactDetails": [
+        { "input": "Јавете се на 070 123 456 или +389 71 234 567.", "format": "plain", "expected": "Јавете се на или." },
+        { "input": "Слики на www.vilavesna.mk и booking.com/hotel/x", "format": "plain", "expected": "Слики на и" },
+        { "input": "Цена 1.000.000 €, 120 m², 2+1, кат 3/5", "format": "plain", "expected": "Цена 1.000.000 €, 120 m², 2+1, кат 3/5" },
+        { "input": "<p>Светол стан.</p><p>070 123 456</p>", "format": "html", "expected": "<p>Светол стан.</p>" }
     ],
     "normalizeListingTypeFields": [
         {
@@ -96,5 +107,16 @@
         { "input": { "name": "Ана Марија Стојанова" }, "short": "Ана С.", "first": "Ана" },
         { "input": { "name": "" }, "short": null, "first": null }
     ],
-    "limit": { "perType": 5, "countedStatuses": ["PENDING", "PUBLISHED", "UNPUBLISHED"] }
+    "limit": { "perType": 5, "countedStatuses": ["PENDING", "PUBLISHED", "UNPUBLISHED"] },
+    "prefillLocation": [
+        { "cityMention": "Охрид", "districtMention": null, "expected": { "city": "ohrid" } },
+        { "cityMention": "Аеродром", "districtMention": null, "expected": { "city": "skopje-aerodrom", "district": "aerodrom" } },
+        { "cityMention": "Скопје - Центар", "districtMention": null, "expected": { "city": "skopje-skopje_centar", "district": "centar" } },
+        { "cityMention": "Карпош", "districtMention": null, "expected": { "city": "skopje-karposh" } },
+        { "cityMention": "Охрид", "districtMention": "Бејбунар-Билјанини Извори", "expected": { "city": "ohrid", "district": "biljanini-izvori" } },
+        { "cityMention": "Карпош", "districtMention": "Карпош 4", "expected": { "city": "skopje-karposh", "district": "karposh-4" } },
+        { "cityMention": null, "districtMention": "Karposh 4", "expected": { "city": "skopje-karposh", "district": "karposh-4" } },
+        { "cityMention": "Скопје", "districtMention": "Водно", "expected": { "city": "skopje-skopje_centar", "district": "vodno" } },
+        { "cityMention": null, "districtMention": "Центар", "expected": {} }
+    ]
 }

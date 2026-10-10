@@ -1,6 +1,9 @@
 // COPIED FROM imotko/src/lib/ai/property_postprocess.js (without: revalidateProperty) by scripts/export_property_rules.mjs — do not edit here.
 // Change the web file, then re-run the script (design D §3).
+import { PropertyAiStatus } from "#generated/prisma/enums.ts"
 import { enrichPropertyOnCreate } from "./property_enrichment.js"
+import { enrichPrivateProperty } from "./private_property_enrichment.js"
+import { stripContactDetails } from "../property_rules/contact_details.js"
 import { slugifyText } from "../property_rules/strings.js"
 import { sanitizeServer } from "../property_rules/sanitize_server.js"
 import prisma from "#database/client.js"
@@ -111,48 +114,77 @@ const toPropertyPatch = (currentProperty, enrichedBody) => {
     }
 }
 
-export const runPropertyAiPostprocess = async ({ propertyId, submittedBody, baselineUpdatedAt, userId }) => {
-    try {
-        const property = await prisma.property.findUnique({
-            where: { id: propertyId },
-            select: {
-                id: true,
-                name: true,
-                description: true,
-                address: true,
-                attributes: true,
-                slug: true,
-                type: true,
-                listingType: true,
-                size: true,
-                agencyId: true,
-                ownerId: true,
-                updatedAt: true,
-            },
-        })
+const stripLocalized = (value, format) =>
+    Object.fromEntries(
+        Object.entries(value || {}).map(([locale, text]) => [locale, stripContactDetails(text, { format })])
+    )
 
+// The AI step failed for a private listing: keep the seller's text minus whatever the regexes can remove, and flag it
+// for the admin (private listing AI cleanup §3.6).
+const toFailedPrivatePatch = property => ({
+    name: stripLocalized(property.name, "plain"),
+    description: stripLocalized(property.description, "html"),
+    address: property.address ? stripContactDetails(property.address) : property.address,
+    aiStatus: PropertyAiStatus.FAILED,
+    updatedAt: new Date(),
+})
+
+// Both outcomes are guarded: a newer edit has its own run and must not be overwritten.
+const writeIfUnchanged = async (propertyId, baselineUpdatedAt, data) => {
+    const result = await prisma.property.updateMany({ where: { id: propertyId, updatedAt: baselineUpdatedAt }, data })
+    if (result.count === 0) console.info(`[AI_PROPERTY_POSTPROCESS] Skipped stale property update: ${propertyId}`)
+    return result.count > 0
+}
+
+const PROPERTY_SELECT = {
+    id: true,
+    name: true,
+    description: true,
+    address: true,
+    attributes: true,
+    slug: true,
+    type: true,
+    listingType: true,
+    size: true,
+    agencyId: true,
+    ownerId: true,
+    updatedAt: true,
+}
+
+const recordPrivateFailure = async (property, baselineUpdatedAt, submittedBody) => {
+    try {
+        if (!(await writeIfUnchanged(property.id, baselineUpdatedAt, toFailedPrivatePatch(property)))) return
+    } catch (err) {
+        console.error("[AI_PROPERTY_POSTPROCESS] Failed to record the AI failure", err)
+    }
+}
+
+export const runPropertyAiPostprocess = async ({
+    propertyId,
+    submittedBody,
+    baselineUpdatedAt,
+    userId,
+    listerKind = "agency",
+}) => {
+    const isPrivate = listerKind === "private"
+    let property = null
+    try {
+        property = await prisma.property.findUnique({ where: { id: propertyId }, select: PROPERTY_SELECT })
         if (!property) return
 
         const enrichmentInput = toEnrichmentInput(property, submittedBody)
-        const enrichedBody = await enrichPropertyOnCreate(enrichmentInput, {
-            sessionId: `property-${propertyId}`,
-            distinctId: userId,
-        })
-        const propertyPatch = toPropertyPatch(property, enrichedBody)
-
-        const result = await prisma.property.updateMany({
-            where: {
-                id: propertyId,
-                updatedAt: baselineUpdatedAt,
-            },
-            data: propertyPatch,
-        })
-
-        if (result.count === 0) {
-            console.info(`[AI_PROPERTY_POSTPROCESS] Skipped stale property update: ${propertyId}`)
-            return
+        const aiContext = { sessionId: `property-${propertyId}`, distinctId: userId }
+        const enrichedBody = isPrivate
+            ? await enrichPrivateProperty(enrichmentInput, aiContext)
+            : await enrichPropertyOnCreate(enrichmentInput, aiContext)
+        const propertyPatch = {
+            ...toPropertyPatch(property, enrichedBody),
+            ...(isPrivate ? { aiStatus: PropertyAiStatus.DONE } : {}),
         }
+
+        if (!(await writeIfUnchanged(propertyId, baselineUpdatedAt, propertyPatch))) return
     } catch (err) {
         console.error("[AI_PROPERTY_POSTPROCESS] Failed to postprocess property", err)
+        if (isPrivate && property) await recordPrivateFailure(property, baselineUpdatedAt, submittedBody)
     }
 }

@@ -1,8 +1,9 @@
 import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import test from "node:test"
+import { matchPrefillLocation } from "#shared/ai/property_prefill/location_match.js"
 import { PropertySchema } from "./property.schema.js"
-import { findContactDetailsField } from "./contact_details.js"
+import { findContactDetailsField, stripContactDetails } from "./contact_details.js"
 import { normalizeListingTypeFields } from "./listing_type_rules.js"
 import { resolvePropertyTaxonomy } from "./property_dto.js"
 import { firstNameOf, shortDisplayName } from "./seller_name.js"
@@ -52,4 +53,14 @@ for (const { input, short, first } of cases.sellerName) {
 test("limit", () => {
     assert.equal(CLIENT_LISTING_LIMIT_PER_TYPE, cases.limit.perType)
     assert.deepEqual([...CLIENT_LISTING_COUNTED_STATUSES], cases.limit.countedStatuses)
+})
+
+for (const { input, format, expected } of cases.stripContactDetails) {
+    test(`strip contact details: ${input}`, () => assert.equal(stripContactDetails(input, { format }), expected))
+}
+
+test("prefill location matches the web cases", () => {
+    for (const { cityMention, districtMention, expected } of cases.prefillLocation) {
+        assert.deepEqual(matchPrefillLocation({ cityMention, districtMention, country: "macedonia" }), expected)
+    }
 })

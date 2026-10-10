@@ -27,6 +27,13 @@ test("agency websites get the templates features", () => {
     })
 })
 
+test("the web dashboard gets short-term rent but not client listings", () => {
+    assert.deepEqual(resolveClientCapabilities({ client: "web" }, ENV_UNSET), {
+        shortTermRent: true,
+        clientListings: false,
+    })
+})
+
 test("the app gets nothing while the minimum version is unset", () => {
     assert.deepEqual(resolveClientCapabilities({ client: "mobile", appVersion: "9.9.9" }, ENV_UNSET), {
         shortTermRent: false,

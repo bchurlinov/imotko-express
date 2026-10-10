@@ -11,6 +11,7 @@ import { getClientListingsOverview, getClientPropertyForEdit } from "#shared/pro
 import { assertBelowListingLimit, getClientListingCounts } from "#shared/property_rules/limit.js"
 import { buildClientListingData, validateClientListingInput } from "#shared/property_rules/listing_input.js"
 import { loadOwnedProperty } from "#shared/property_rules/permissions.js"
+import { withPlaceholderTitle } from "#shared/property_rules/placeholder_title.js"
 import { spendClientCredits } from "#shared/property_rules/credits.js"
 import { renewPropertyOncePerDay } from "#shared/property_rules/renew_policy.js"
 import { PRICING_CREDITS } from "#shared/property_rules/pricing_credits.js"
@@ -57,7 +58,7 @@ const ownedOr404 = async (req, select = { slug: true }) => {
 }
 
 export const createClientPropertyController = async (req, res) => {
-    const body = req.body ?? {}
+    const body = withPlaceholderTitle(req.body ?? {})
     const userId = req.chatViewer.userId
     const taxonomy = await validateClientListingInput({ body, userId })
 
@@ -92,6 +93,7 @@ export const createClientPropertyController = async (req, res) => {
         submittedBody: body,
         baselineUpdatedAt: property.updatedAt,
         userId,
+        listerKind: "private",
     })
     return clientJson(res, 201, "clientListingSubmitted", property)
 }
@@ -99,7 +101,7 @@ export const createClientPropertyController = async (req, res) => {
 // Decision 111a: like agency edits, a published listing is saved in place and hidden until the admin approves again.
 export const updateClientPropertyController = async (req, res) => {
     const existing = await ownedOr404(req, EDIT_SELECT)
-    const body = req.body ?? {}
+    const body = withPlaceholderTitle(req.body ?? {})
     const taxonomy = await validateClientListingInput({ body, userId: req.chatViewer.userId, existing })
 
     // A type change, or a DECLINED listing becoming PENDING, adds one counted listing of body.listingType.
@@ -122,13 +124,21 @@ export const updateClientPropertyController = async (req, res) => {
                     category: { connect: { id: categoryId } },
                     subcategory: { connect: { id: subcategoryId } },
                 },
-                select: { id: true, slug: true, status: true, listingType: true },
+                select: { id: true, slug: true, status: true, listingType: true, updatedAt: true },
             })
             await tx.propertySubmissionReview.deleteMany({ where: { propertyId: existing.id } })
             return updated
         },
         { timeout: 10000 }
     )
+    // Edits rewrite the title and translations too (private listing AI cleanup §3.6).
+    clientListingEffects.scheduleAi({
+        propertyId: property.id,
+        submittedBody: body,
+        baselineUpdatedAt: property.updatedAt,
+        userId: req.chatViewer.userId,
+        listerKind: "private",
+    })
     return clientJson(res, 200, "clientListingSubmitted", property)
 }
 

@@ -1,4 +1,9 @@
-import { getFeatureMinAppVersions, LEGACY_CAPABILITIES, TEMPLATES_FEATURES } from "#config/client_capabilities.js"
+import {
+    getFeatureMinAppVersions,
+    LEGACY_CAPABILITIES,
+    TEMPLATES_FEATURES,
+    WEB_FEATURES,
+} from "#config/client_capabilities.js"
 
 const VERSION_PATTERN = /^\d+(\.\d+){0,2}$/
 
@@ -43,6 +48,10 @@ export const resolveClientCapabilities = ({ client, appVersion } = {}, env = pro
 
     if (caller === "templates") {
         return Object.fromEntries(features.map(feature => [feature, TEMPLATES_FEATURES[feature] === true]))
+    }
+
+    if (caller === "web") {
+        return Object.fromEntries(features.map(feature => [feature, WEB_FEATURES[feature] === true]))
     }
 
     if (caller === "mobile") {

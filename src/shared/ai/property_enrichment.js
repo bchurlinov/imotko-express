@@ -101,7 +101,7 @@ const ATTRIBUTE_DESCRIPTIONS = {
     personalHeating: "personal heating/parno",
 }
 
-const ATTRIBUTE_SCHEMA = z.object(
+export const ATTRIBUTE_SCHEMA = z.object(
     Object.fromEntries(
         SUPPORTED_ATTRIBUTE_KEYS.map(key => [
             key,
@@ -150,7 +150,7 @@ const mergeAttributeValue = (originalValue, enrichedValue, isNumeric) => {
     return enrichedValue === true ? true : undefined
 }
 
-const getEligibleAttributeKeys = type => {
+export const getEligibleAttributeKeys = type => {
     const visibleFeatureKeys = PropertyFeaturesDictionary.filter(feature => feature.visible.includes(type)).map(
         feature => feature.name
     )
@@ -167,10 +167,10 @@ const getEligibleAttributeKeys = type => {
     return SUPPORTED_ATTRIBUTE_KEYS.filter(key => [...visibleFeatureKeys, ...manuallyVisibleKeys].includes(key))
 }
 
-const getExistingAttributes = body =>
+export const getExistingAttributes = body =>
     Object.fromEntries(SUPPORTED_ATTRIBUTE_KEYS.map(key => [key, body?.[key]]).filter(([, value]) => isPresent(value)))
 
-const mergeAttributes = (body, enrichedAttributes = {}) => {
+export const mergeAttributes = (body, enrichedAttributes = {}) => {
     const eligibleKeys = getEligibleAttributeKeys(body.type)
 
     return Object.fromEntries(
@@ -187,7 +187,8 @@ const mergeAttributes = (body, enrichedAttributes = {}) => {
     )
 }
 
-const toAttributePromptList = keys => keys.map(key => `- ${key}: ${ATTRIBUTE_DESCRIPTIONS[key] || key}`).join("\n")
+export const toAttributePromptList = keys =>
+    keys.map(key => `- ${key}: ${ATTRIBUTE_DESCRIPTIONS[key] || key}`).join("\n")
 
 export const enrichPropertyOnCreate = async (body, aiContext) => {
     try {

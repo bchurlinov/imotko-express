@@ -18,7 +18,6 @@ const LIST_SELECT = {
     createdAt: true,
     agencyContactAllowed: true,
     bumpedAt: true,
-    _count: { select: { outreaches: true } },
     propertyReview: { orderBy: { createdAt: "desc" }, take: 1, select: { title: true, description: true } },
 }
 

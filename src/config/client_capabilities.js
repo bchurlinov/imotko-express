@@ -19,6 +19,9 @@ export const getFeatureMinAppVersions = (env = process.env) => ({
 // clientListings is deliberately absent: agency sites only list their own agency's listings.
 export const TEMPLATES_FEATURES = Object.freeze({ shortTermRent: true })
 
+/** The web dashboard (Next proxy → Express) is deployed together with Express, like the agency websites. */
+export const WEB_FEATURES = Object.freeze({ shortTermRent: true })
+
 const FEATURES = Object.keys(getFeatureMinAppVersions({}))
 
 /** Apps 1.0.5 and older, unknown callers, jobs and admin code that do not pass capabilities. */

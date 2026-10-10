@@ -22,6 +22,7 @@
         "test:facebook-worker": "node --experimental-transform-types --test workers/facebook-property-publication/*.spec.js",
         "test:chat": "tsx --test src/api/v1/services/chat/*.spec.js",
         "test:shared": "tsx --test src/shared/property_rules/shared_cases.spec.js",
+        "test:ai-prefill": "tsx --test src/api/v1/middlewares/resolve_property_writer.spec.js src/api/v1/services/ai/property_prefill_input.spec.js src/api/v1/controllers/ai/property_prefill.controller.spec.js",
         "announce:app-update": "node --experimental-transform-types scripts/announce_app_update.js"
     },
     "prisma": {

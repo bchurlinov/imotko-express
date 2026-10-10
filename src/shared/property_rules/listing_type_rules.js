@@ -37,7 +37,7 @@ export const LISTING_TYPE_RULES = {
         propertyTypes: ALL_PROPERTY_TYPES,
         priceUnits: [PropertyPriceUnit.TOTAL, PropertyPriceUnit.PER_SQUARE_METER],
         defaultPriceUnit: PropertyPriceUnit.TOTAL,
-        hiddenFields: [],
+        hiddenFields: ["builder", "yearBuilt", "inDevelopment", "inDevelopmentUntil"],
         requiredFields: [],
         priceRange: { min: 100, max: 5_000, step: 50, maxPlusLabel: "5,000+", maxPlusValue: "50000" },
         inPriceStats: true,
@@ -47,6 +47,8 @@ export const LISTING_TYPE_RULES = {
         priceUnits: [PropertyPriceUnit.PER_NIGHT],
         defaultPriceUnit: PropertyPriceUnit.PER_NIGHT,
         hiddenFields: [
+            "builder",
+            "yearBuilt",
             "inDevelopment",
             "inDevelopmentUntil",
             "hasApproximatePrice",
@@ -60,6 +62,8 @@ export const LISTING_TYPE_RULES = {
 }
 
 export const isShortTermRent = listingType => listingType === PropertyListingType.short_term_rent
+export const isRentalListingType = listingType =>
+    listingType === PropertyListingType.for_rent || isShortTermRent(listingType)
 
 export const getListingTypeRules = listingType => LISTING_TYPE_RULES[listingType]
 
@@ -109,7 +113,6 @@ export const normalizeListingTypeFields = (body = {}) => {
         body.priceUnit && isPriceUnitAllowed(listingType, body.priceUnit)
             ? body.priceUnit
             : getDefaultPriceUnit(listingType)
-
     if (!isShortTermRent(listingType)) {
         return { priceUnit, maxGuests: null, minNights: null, checkInFrom: null, checkOutUntil: null }
     }

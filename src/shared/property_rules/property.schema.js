@@ -4,14 +4,36 @@ import { PropertyCountry, PropertyType } from "#generated/prisma/enums.ts"
 import { getPropertyDistrictsByCountryLocation, isPropertyLocationValidForCountry } from "./dictionaries/property.js"
 import {
     getEnabledListingTypes,
+    isRentalListingType,
     isPriceUnitAllowed,
     isPropertyTypeAllowed,
     isShortTermRent,
 } from "./listing_type_rules.js"
+import { hasContactDetails } from "./contact_details.js"
 import * as yup from "yup"
 
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
 const emptyToNull = (value, originalValue) => (originalValue === "" || originalValue === undefined ? null : value)
+const optionalLocalizedString = (minimum, message) =>
+    yup
+        .string()
+        .nullable()
+        .transform((value, originalValue) => (originalValue === "" ? null : value))
+        .test("optional-minimum", message, value => value == null || value.length >= minimum)
+
+export const CLIENT_PROPERTY_TRANSLATION_FIELDS = [
+    "nameMk",
+    "nameEn",
+    "nameSq",
+    "nameTr",
+    "descriptionMk",
+    "descriptionEn",
+    "descriptionSq",
+    "descriptionTr",
+]
+
+export const stripClientPropertyTranslations = (body = {}) =>
+    Object.fromEntries(Object.entries(body).filter(([key]) => !CLIENT_PROPERTY_TRANSLATION_FIELDS.includes(key)))
 
 const hasDistrictOptions = (country, city) =>
     Boolean(city && getPropertyDistrictsByCountryLocation(country, city)?.length)
@@ -55,24 +77,24 @@ export const getPropertyRequiredFields = ({
         size: true,
         numOfRooms: !isLand && !isGarage && !isCommercial,
         numOfBathrooms: !isLand && !isGarage && !isCommercial,
-        inDevelopmentUntil: Boolean(inDevelopment) && !isShortTerm,
+        inDevelopmentUntil: Boolean(inDevelopment) && !isRentalListingType(listingType),
         maxGuests: isShortTerm,
         minNights: isShortTerm,
-        images: !Boolean(inDevelopment) && !Boolean(isAdmin),
+        images: (!Boolean(inDevelopment) || isRentalListingType(listingType)) && !Boolean(isAdmin),
     }
 }
 
 export const PropertySchema = yup.object().shape({
     name: yup.string().required("propertyNameRequired").min(5, "propertyNameLength"),
-    nameMk: yup.string().min(5, "propertyNameLength"),
-    nameEn: yup.string().min(5, "propertyNameLength"),
-    nameSq: yup.string().min(5, "propertyNameLength"),
-    nameTr: yup.string().min(5, "propertyNameLength"),
+    nameMk: optionalLocalizedString(5, "propertyNameLength"),
+    nameEn: optionalLocalizedString(5, "propertyNameLength"),
+    nameSq: optionalLocalizedString(5, "propertyNameLength"),
+    nameTr: optionalLocalizedString(5, "propertyNameLength"),
     description: yup.string().required("propertyDescriptionRequired").min(20, "propertyDescriptionLength"),
-    descriptionMk: yup.string().min(20, "propertyDescriptionLength"),
-    descriptionEn: yup.string().min(20, "propertyDescriptionLength"),
-    descriptionSq: yup.string().min(20, "propertyDescriptionLength"),
-    descriptionTr: yup.string().min(20, "propertyDescriptionLength"),
+    descriptionMk: optionalLocalizedString(20, "propertyDescriptionLength"),
+    descriptionEn: optionalLocalizedString(20, "propertyDescriptionLength"),
+    descriptionSq: optionalLocalizedString(20, "propertyDescriptionLength"),
+    descriptionTr: optionalLocalizedString(20, "propertyDescriptionLength"),
     address: yup.string().required("propertyAddressRequired").min(5, "propertyAddressLength"),
     country: yup
         .mixed()
@@ -243,7 +265,7 @@ export const PropertySchema = yup.object().shape({
         }),
     inDevelopment: yup.boolean(),
     inDevelopmentUntil: yup.string().when(["inDevelopment", "listingType"], {
-        is: (inDevelopment, listingType) => Boolean(inDevelopment) && !isShortTermRent(listingType),
+        is: (inDevelopment, listingType) => Boolean(inDevelopment) && !isRentalListingType(listingType),
         then: schema => schema.required("inDevelopmentUntilRequired"),
         otherwise: schema => schema.notRequired(),
     }),
@@ -266,12 +288,32 @@ export const PropertySchema = yup.object().shape({
     images: yup
         .array()
         .nullable()
-        .when(["inDevelopment", "$isAdmin"], {
-            is: (inDevelopment, isAdmin) => inDevelopment === true || isAdmin === true,
+        .when(["inDevelopment", "listingType", "$isAdmin"], {
+            is: (inDevelopment, listingType, isAdmin) =>
+                (inDevelopment === true && !isRentalListingType(listingType)) || isAdmin === true,
             then: schema => schema.notRequired(),
             otherwise: schema => schema.required("propertyPhotosRequired").min(1, "propertyPhotosLength"),
         }),
     propertyOwner: yup.string().nullable(),
     propertyRenter: yup.string().nullable(),
     externalId: yup.string().nullable(),
+})
+
+const noContactDetails = value => value == null || !hasContactDetails(value)
+
+// Client copy is translated asynchronously after submission. Client forms and routes must never validate or accept
+// locale-specific copies. The title is written by the AI step (private listing AI cleanup §3.4): the web wizard sends
+// none, and a title sent by the mobile app is replaced on the server.
+export const ClientPropertySchema = PropertySchema.omit(CLIENT_PROPERTY_TRANSLATION_FIELDS).shape({
+    name: yup
+        .string()
+        .transform((value, originalValue) => (originalValue === "" ? undefined : value))
+        .notRequired()
+        .min(5, "propertyNameLength")
+        .test("no-contact-details", "contactDetailsNotAllowed", noContactDetails),
+    description: PropertySchema.fields.description.test(
+        "no-contact-details",
+        "contactDetailsNotAllowed",
+        noContactDetails
+    ),
 })

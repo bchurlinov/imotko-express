@@ -53,6 +53,12 @@ enum PropertyStatus {
   DELETED
 }
 
+enum PropertyAiStatus {
+  PENDING
+  DONE
+  FAILED
+}
+
 enum EngagementType {
   SHARE
   SUBSCRIBE
@@ -140,6 +146,8 @@ model Property {
   agencyContactAllowed          Boolean                    @default(true)
   firstPublishedAt              DateTime?                  @db.Timestamptz(3)
   outreaches                    PropertyOutreach[]
+  // Private listing AI cleanup: null for agency rows and rows created before it.
+  aiStatus                      PropertyAiStatus?
 
   @@index([propertyLocationId, listingType])
   @@index([country, propertyLocationId, listingType])

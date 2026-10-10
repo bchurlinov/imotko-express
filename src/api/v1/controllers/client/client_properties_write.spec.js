@@ -12,6 +12,7 @@ import {
     updateClientPropertyController,
 } from "./client_properties.controller.js"
 import { scheduleAiPostprocess } from "#services/client/client_ai.service.js"
+import { buildPlaceholderTitle } from "#shared/property_rules/placeholder_title.js"
 
 const cases = JSON.parse(readFileSync(new URL("../../../../shared/property_rules/shared_cases.json", import.meta.url), "utf8"))
 const originals = {
@@ -71,7 +72,7 @@ const fakeTx = (overrides = {}) => {
             },
             update: async ({ data }) => {
                 calls.update = data
-                return { id: "p1", slug: "svetol", status: "PENDING", listingType: "for_sale" }
+                return { id: "p1", slug: "svetol", status: "PENDING", listingType: "for_sale", updatedAt: new Date(0) }
             },
         },
         propertyLocation: { upsert: async () => ({ id: "loc1" }) },
@@ -102,6 +103,32 @@ test("create stores a PENDING private listing with the web's forced fields", asy
     assert.equal(scheduled.length, 1)
     assert.equal(scheduled[0].propertyId, "p1")
     assert.equal(scheduled[0].userId, "u1")
+})
+
+test("create replaces any title with the placeholder, marks aiStatus PENDING and schedules the private AI step", async () => {
+    const calls = fakeTx()
+    await createClientPropertyController(request({ body: body({ name: "Vila Vesna 070 123 456" }) }), fakeRes())
+    assert.equal(calls.create.name.mk, buildPlaceholderTitle(cases.baseListing))
+    assert.equal(calls.create.aiStatus, "PENDING")
+    assert.equal(scheduled[0].listerKind, "private")
+})
+
+test("edit schedules the private AI step with the saved updatedAt", async () => {
+    const calls = fakeTx()
+    prisma.property.findUnique = async () => ({
+        id: "p1",
+        clientId: "c1",
+        status: "PUBLISHED",
+        listingType: "for_sale",
+        slug: "svetol",
+        photos: [ownedPhoto],
+        propertyPlan: [],
+    })
+    await updateClientPropertyController(request(), fakeRes())
+    assert.equal(calls.update.aiStatus, "PENDING")
+    assert.equal(scheduled.length, 1)
+    assert.equal(scheduled[0].listerKind, "private")
+    assert.deepEqual(scheduled[0].baselineUpdatedAt, new Date(0))
 })
 
 test("create refuses a phone number in the description and photos from someone else's folder", async () => {
