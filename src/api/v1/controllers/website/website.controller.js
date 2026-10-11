@@ -1,6 +1,7 @@
 import { asyncHandler } from "#utils/helpers/async_handler.js"
 import { getPropertiesService } from "#services/properties/properties.service.js"
 import { postAgencyContactService, postAgencyAppraisalService } from "#services/website/website.service.js"
+import { getAllowedListingTypes } from "#services/website/utils/listing_types.js"
 
 /**
  * Controller to get agency website configuration based on referer header
@@ -45,6 +46,8 @@ export const getWebsiteAgencyPropertiesController = asyncHandler(async (req, res
         includeHiddenAgencies: true,
         promoteFeatured: false,
         capabilities: req.capabilities,
+        // The agency decides which rental kinds its website shows (AgencyWebsiteSettings toggles).
+        listingTypes: getAllowedListingTypes(req.agency?.websiteSettings),
     })
     return res.status(200).json(agencyProperties)
 })

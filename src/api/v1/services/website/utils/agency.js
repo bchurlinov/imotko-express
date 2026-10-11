@@ -4,6 +4,37 @@ import { withCache } from "#utils/cache/index.js"
 import { CACHE_TTL } from "#config/cache.config.js"
 
 /**
+ * Fields loaded for an agency website, shared by the referer lookup and the dev id lookup so both
+ * resolve to the same shape.
+ */
+const AGENCY_WEBSITE_SELECT = {
+    agencyMembers: {
+        orderBy: {
+            updatedAt: "desc",
+        },
+        include: {
+            user: true,
+        },
+    },
+    id: true,
+    name: true,
+    logo: true,
+    social: true,
+    description: true,
+    address: true,
+    location: true,
+    email: true,
+    phone: true,
+    websiteSettings: true,
+    testimonials: true,
+    partners: {
+        orderBy: {
+            sortOrder: "asc",
+        },
+    },
+}
+
+/**
  * Retrieves an agency by matching the referer domain against agency website URLs
  *
  * @param {string} referer - The referer URL to match against
@@ -43,32 +74,7 @@ async function _getAgencyByReferer(referer) {
 
     return prisma.agency.findUnique({
         where: { id: matchingAgencies[0].id },
-        select: {
-            agencyMembers: {
-                orderBy: {
-                    updatedAt: "desc",
-                },
-                include: {
-                    user: true,
-                },
-            },
-            id: true,
-            name: true,
-            logo: true,
-            social: true,
-            description: true,
-            address: true,
-            location: true,
-            email: true,
-            phone: true,
-            websiteSettings: true,
-            testimonials: true,
-            partners: {
-                orderBy: {
-                    sortOrder: "asc",
-                },
-            },
-        },
+        select: AGENCY_WEBSITE_SELECT,
     })
 }
 
@@ -77,3 +83,19 @@ export const getAgencyByReferer = withCache(_getAgencyByReferer, {
     keyPrefix: "getAgencyByReferer",
     ttl: CACHE_TTL.getAgencyByReferer, // 5 minutes
 })
+
+/**
+ * Loads an agency straight by id, uncached. Local development only: lets an agency website running on
+ * localhost pick any agency without editing `social.website`. Never call it from a production path.
+ *
+ * @param {string} id - Agency id
+ * @returns {Promise<Object|null>} The agency or null if not found
+ */
+export async function getAgencyById(id) {
+    if (!id) return null
+
+    return prisma.agency.findUnique({
+        where: { id },
+        select: AGENCY_WEBSITE_SELECT,
+    })
+}

@@ -175,6 +175,48 @@ test("callers with the capability are not filtered, and guests filters maxGuests
     assert.deepEqual(countQueries[0].where.maxGuests, { gte: 4 })
 })
 
+test("an allowed-listing-types list restricts an unfiltered search to those types", async () => {
+    const countQueries = []
+    prisma.property.count = async query => {
+        countQueries.push(query)
+        return 0
+    }
+    prisma.property.findMany = async () => []
+
+    await getPropertiesService({ page: "1" }, { listingTypes: ["for_sale", "for_rent"] })
+
+    assert.deepEqual(countQueries[0].where.listingType, { in: ["for_sale", "for_rent"] })
+})
+
+test("a requested listing type outside the allowed list matches nothing", async () => {
+    const countQueries = []
+    prisma.property.count = async query => {
+        countQueries.push(query)
+        return 0
+    }
+    prisma.property.findMany = async () => []
+
+    await getPropertiesService(
+        { listingType: "short_term_rent", page: "1" },
+        { listingTypes: ["for_sale"], capabilities: { shortTermRent: true } }
+    )
+
+    assert.deepEqual(countQueries[0].where.listingType, { in: [] })
+})
+
+test("a requested listing type inside the allowed list is kept as is", async () => {
+    const countQueries = []
+    prisma.property.count = async query => {
+        countQueries.push(query)
+        return 0
+    }
+    prisma.property.findMany = async () => []
+
+    await getPropertiesService({ listingType: "for_rent", page: "1" }, { listingTypes: ["for_sale", "for_rent"] })
+
+    assert.equal(countQueries[0].where.listingType, "for_rent")
+})
+
 test("junk guests values are ignored", async () => {
     const countQueries = []
     prisma.property.count = async query => {

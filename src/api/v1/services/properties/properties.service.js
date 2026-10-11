@@ -80,11 +80,17 @@ import { firstNameOf } from "#shared/property_rules/seller_name.js"
  * @param {boolean} [options.includeHiddenAgencies] - Bypass the hidden agency exclusion
  * @param {boolean} [options.promoteFeatured] - Mix promoted properties into paginated results
  * @param {{ shortTermRent?: boolean }} [options.capabilities] - req.capabilities (defaults to legacy)
+ * @param {string[]} [options.listingTypes] - Restrict results to these listing types (agency websites)
  * @returns {Promise<ApiResponse<PropertyWithRelations[]>>}
  */
 export const getPropertiesService = async (params = {}, options = {}) => {
     try {
-        const { includeHiddenAgencies = false, promoteFeatured = true, capabilities = LEGACY_CAPABILITIES } = options
+        const {
+            includeHiddenAgencies = false,
+            promoteFeatured = true,
+            capabilities = LEGACY_CAPABILITIES,
+            listingTypes: allowedListingTypes,
+        } = options
         const locale = stringValue(params.locale) ?? DEFAULT_LOCALE
 
         const includePending = booleanValue(params.includePending) && params.agency
@@ -142,7 +148,16 @@ export const getPropertiesService = async (params = {}, options = {}) => {
         const district = stringValue(params.district)
         if (district) filters.district = district
 
-        const listingType = stringValue(params.listingType)
+        const requestedListingType = stringValue(params.listingType)
+        // Callers that restrict listing types (agency websites) get a requested type outside the list as no results.
+        let listingType = requestedListingType
+        if (Array.isArray(allowedListingTypes)) {
+            if (requestedListingType) {
+                if (!allowedListingTypes.includes(requestedListingType)) listingType = { in: [] }
+            } else {
+                listingType = { in: allowedListingTypes }
+            }
+        }
         if (listingType) filters.listingType = listingType
 
         const guests = positiveInt(params.guests)

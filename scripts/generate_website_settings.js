@@ -27,6 +27,7 @@ async function generateWebsiteSettings() {
                 data: {
                     agencyId: agency.id,
                     enableRentals: true,
+                    enableShortTermRentals: false,
                     serviceAreas: ["ohrid", "skopje"],
                     template: "default",
                     primaryColor: "#c72424",

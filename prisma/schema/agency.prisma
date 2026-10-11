@@ -411,27 +411,28 @@ model AgentReminder {
 }
 
 model AgencyWebsiteSettings {
-  id               String   @id @default(cuid())
-  agencyId         String   @unique
-  agency           Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  enableRentals    Boolean  @default(true)
-  serviceAreas     String[]
-  analyticsCode    String?
-  template         String   @default("default")
-  primaryColor     String?
-  accentColor      String?
-  secondaryColor   String?
-  heroImage        Json?
-  siteTitle        String?
-  tagline          String?
-  heroTitle        String?
-  heroSubtitle     String?
-  heroTitleI18n    Json?
-  heroSubtitleI18n Json?
-  websiteUrl       String?  @unique
-  isLive           Boolean  @default(false)
-  createdAt        DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt        DateTime @updatedAt @db.Timestamptz(3)
+  id                     String   @id @default(cuid())
+  agencyId               String   @unique
+  agency                 Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  enableRentals          Boolean  @default(true)
+  enableShortTermRentals Boolean  @default(false)
+  serviceAreas           String[]
+  analyticsCode          String?
+  template               String   @default("default")
+  primaryColor           String?
+  accentColor            String?
+  secondaryColor         String?
+  heroImage              Json?
+  siteTitle              String?
+  tagline                String?
+  heroTitle              String?
+  heroSubtitle           String?
+  heroTitleI18n          Json?
+  heroSubtitleI18n       Json?
+  websiteUrl             String?  @unique
+  isLive                 Boolean  @default(false)
+  createdAt              DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt              DateTime @updatedAt @db.Timestamptz(3)
 }
 
 model AgencyTestimonial {
