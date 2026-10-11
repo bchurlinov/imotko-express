@@ -20,6 +20,7 @@ import { upsertPropertyTaxonomy } from "#shared/property_rules/property_dto.js"
 import { slugifyText } from "#shared/property_rules/strings.js"
 import { scheduleAiPostprocess } from "#services/client/client_ai.service.js"
 import { clientJson } from "./client_listing_response.js"
+import { notifyTemplates } from "#utils/templates_revalidation.js"
 
 export const listClientPropertiesController = async (req, res) => {
     const overview = await getClientListingsOverview(req.chatViewer.userId)
@@ -46,7 +47,7 @@ const EDIT_SELECT = { listingType: true, slug: true, photos: true, propertyPlan:
 // Side effects that run after the response; specs replace them (no network in tests).
 export const clientListingEffects = { scheduleAi: scheduleAiPostprocess }
 
-const ownedOr404 = async (req, select = { slug: true }) => {
+const ownedOr404 = async (req, select = { slug: true, agencyId: true }) => {
     const property = await loadOwnedProperty(prisma, {
         sessionUser: req.chatUser,
         clientId: req.client.id,
@@ -124,13 +125,14 @@ export const updateClientPropertyController = async (req, res) => {
                     category: { connect: { id: categoryId } },
                     subcategory: { connect: { id: subcategoryId } },
                 },
-                select: { id: true, slug: true, status: true, listingType: true, updatedAt: true },
+                select: { id: true, slug: true, status: true, listingType: true, updatedAt: true, agencyId: true },
             })
             await tx.propertySubmissionReview.deleteMany({ where: { propertyId: existing.id } })
             return updated
         },
         { timeout: 10000 }
     )
+    void notifyTemplates({ agencyId: property.agencyId, propertyId: property.id })
     // Edits rewrite the title and translations too (private listing AI cleanup §3.6).
     clientListingEffects.scheduleAi({
         propertyId: property.id,
@@ -150,6 +152,7 @@ export const deleteClientPropertyController = async (req, res) => {
         data: { status: PropertyStatus.DELETED, autoRenewEnabled: false },
     })
     if (!result.count) throw new ClientListingError(CLIENT_LISTING_ERRORS.NOT_FOUND, 404)
+    void notifyTemplates({ agencyId: existing.agencyId, propertyId: existing.id })
     return clientJson(res, 200, "clientListingDeleted")
 }
 
@@ -165,6 +168,7 @@ export const setClientPropertyVisibilityController = async (req, res) => {
         data: { status: to },
     })
     if (!result.count) throw new ClientListingError(CLIENT_LISTING_ERRORS.INVALID_STATUS, 409)
+    void notifyTemplates({ agencyId: existing.agencyId, propertyId: existing.id })
     return clientJson(res, 200, req.body.visible ? "clientListingShown" : "clientListingHidden")
 }
 
@@ -176,6 +180,7 @@ export const setAgencyContactController = async (req, res) => {
         where: { id: existing.id, clientId: req.client.id },
         data: { agencyContactAllowed: req.body.allowed },
     })
+    void notifyTemplates({ agencyId: existing.agencyId, propertyId: existing.id })
     return clientJson(res, 200, req.body.allowed ? "agencyContactAllowedSaved" : "agencyContactBlockedSaved", {
         agencyContactAllowed: req.body.allowed,
     })
@@ -189,6 +194,7 @@ export const bumpClientPropertyController = async (req, res) => {
     if (CLIENT_FREE_DAILY_RENEW) {
         const renewed = await renewPropertyOncePerDay(prisma, { propertyId: property.id, clientId: req.client.id })
         if (!renewed) throw new ClientListingError(CLIENT_LISTING_ERRORS.RENEW_LIMIT_REACHED, 409)
+        void notifyTemplates({ agencyId: property.agencyId, propertyId: property.id })
         return clientJson(res, 200, "propertyRestartSuccess")
     }
     const paid = await prisma.$transaction(async tx => {
@@ -198,5 +204,6 @@ export const bumpClientPropertyController = async (req, res) => {
         return true
     })
     if (!paid) throw new ClientListingError(CLIENT_LISTING_ERRORS.NOT_ENOUGH_CREDITS, 402)
+    void notifyTemplates({ agencyId: property.agencyId, propertyId: property.id })
     return clientJson(res, 200, "propertyRestartSuccess")
 }

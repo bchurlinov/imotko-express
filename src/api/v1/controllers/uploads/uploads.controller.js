@@ -23,6 +23,7 @@ import {
     userCanMutateProperty,
 } from "#shared/property_rules/property_image_storage.js"
 import { clientJson } from "#controllers/client/client_listing_response.js"
+import { notifyTemplates } from "#utils/templates_revalidation.js"
 
 // Same server-side limits as the web's /api/upload (SECURITY N-5).
 const MAX_FILES_PER_REQUEST = 10
@@ -142,6 +143,7 @@ export const rotateImageController = async (req, res) => {
                 where: { id: propertyId },
                 data: { [imagePool]: nextImages, updatedAt: new Date() },
             })
+            void notifyTemplates({ agencyId: property.agencyId, propertyId })
         }
 
         const oldKeysToRemove =

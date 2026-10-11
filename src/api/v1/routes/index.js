@@ -10,6 +10,7 @@ import appRouter from "./app/app.routes.js"
 import clientRouter from "./client/client.routes.js"
 import uploadsRouter from "./uploads/uploads.routes.js"
 import aiRouter from "./ai/ai.routes.js"
+import internalRouter from "./internal/internal.routes.js"
 import { attachClientCapabilities } from "#middlewares/client_capabilities.js"
 
 /**
@@ -27,6 +28,7 @@ export default app => {
     app.use("/api/v1/users", usersRouter)
     app.use("/api/v1/agencies", agencyRouter)
     app.use("/api/v1/analytics", analyticsRouter)
+    app.use("/api/v1/internal", internalRouter)
     app.use("/api/v1/website", websiteRouter)
     app.use("/api/v1/inquiries", inquiriesRouter)
     app.use("/api/v1/chat", chatRouter)

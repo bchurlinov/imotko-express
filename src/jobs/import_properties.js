@@ -1,5 +1,6 @@
 import { importConfig } from "./config.js"
 import prisma from "#database/client.js"
+import { notifyTemplates } from "#utils/templates_revalidation.js"
 import { processPropertyImages } from "./helpers/image_processor.js"
 import {
     extractNumericValue,
@@ -434,6 +435,9 @@ export async function importProperties(triggeredBy = "manual") {
         }
 
         await processBatches([valid?.at(0)], stats)
+        // One notification per run: the importer writes a single default agency, and the agency tag covers every listing.
+        if (!importConfig.testMode && stats.success > 0)
+            void notifyTemplates({ agencyId: importConfig.defaultAgencyId })
     } catch (error) {
         console.error("❌ Fatal error during import:", error)
         stats.errors.push({

@@ -7,6 +7,7 @@ import { stripContactDetails } from "../property_rules/contact_details.js"
 import { slugifyText } from "../property_rules/strings.js"
 import { sanitizeServer } from "../property_rules/sanitize_server.js"
 import prisma from "#database/client.js"
+import { notifyTemplates } from "#utils/templates_revalidation.js"
 
 const ATTRIBUTE_KEYS = [
     "numOfBathrooms",
@@ -154,6 +155,7 @@ const PROPERTY_SELECT = {
 const recordPrivateFailure = async (property, baselineUpdatedAt, submittedBody) => {
     try {
         if (!(await writeIfUnchanged(property.id, baselineUpdatedAt, toFailedPrivatePatch(property)))) return
+        void notifyTemplates({ agencyId: property.agencyId, propertyId: property.id })
     } catch (err) {
         console.error("[AI_PROPERTY_POSTPROCESS] Failed to record the AI failure", err)
     }
@@ -183,6 +185,7 @@ export const runPropertyAiPostprocess = async ({
         }
 
         if (!(await writeIfUnchanged(propertyId, baselineUpdatedAt, propertyPatch))) return
+        void notifyTemplates({ agencyId: property.agencyId, propertyId: property.id })
     } catch (err) {
         console.error("[AI_PROPERTY_POSTPROCESS] Failed to postprocess property", err)
         if (isPrivate && property) await recordPrivateFailure(property, baselineUpdatedAt, submittedBody)

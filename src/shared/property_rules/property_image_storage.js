@@ -87,7 +87,7 @@ const getWatermarkExif = imageId => ({
 const encodeImageBuffer = async (
     inputBuffer,
     fileInfo,
-    { width, quality = 90, rotation, autoOrient = false, watermark = false, imageId } = {}
+    { width, quality = 90, rotation, autoOrient = false, watermark = false, imageId, outputFormat } = {}
 ) => {
     let sharpInstance = sharp(inputBuffer, { limitInputPixels: MAX_INPUT_PIXELS })
 
@@ -97,6 +97,10 @@ const encodeImageBuffer = async (
     if (watermark && width) {
         sharpInstance = sharpInstance.composite(await createWatermarkLayers(width)).withExif(getWatermarkExif(imageId))
     }
+
+    // Public size variants are always WebP (~25-35% smaller than JPEG at the same quality); the clean original
+    // is stored in its source format by passing no outputFormat.
+    if (outputFormat === "webp") return sharpInstance.webp({ quality }).toBuffer()
 
     if (fileInfo.format === "png") {
         return sharpInstance
@@ -168,6 +172,8 @@ const getPublicUrl = (supabase, storageKey) => {
 const uploadBuffer = async (supabase, storageKey, buffer, contentType) => {
     const { error } = await supabase.storage.from(PROPERTY_IMAGE_BUCKET).upload(storageKey, buffer, {
         contentType,
+        // Paths are versioned ({imageId}/{versionId}/...), so a URL's bytes never change: cache for a year.
+        cacheControl: "31536000",
         upsert: false,
     })
 
@@ -250,9 +256,10 @@ const storeNormalizedImageSet = async ({ supabase, normalizedBuffer, fileInfo, s
                 quality,
                 watermark,
                 imageId,
+                outputFormat: "webp",
             })
-            const storageKey = getStorageKey({ prefix, suffix, extension: fileInfo.extension })
-            const publicUrl = await uploadBuffer(supabase, storageKey, resizedBuffer, fileInfo.contentType)
+            const storageKey = getStorageKey({ prefix, suffix, extension: "webp" })
+            const publicUrl = await uploadBuffer(supabase, storageKey, resizedBuffer, "image/webp")
 
             sizes[key] = publicUrl
             s3Urls.push(storageKey)

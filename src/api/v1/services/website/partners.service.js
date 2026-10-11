@@ -7,6 +7,7 @@
 import prisma from "#database/client.js"
 import createError from "http-errors"
 import { invalidateCachePattern } from "#utils/cache/index.js"
+import { notifyTemplates } from "#utils/templates_revalidation.js"
 
 /**
  * Verifies that a user is an active member of the specified agency
@@ -81,6 +82,7 @@ export async function createAgencyPartnerService(agencyId, partnerData, userId) 
 
     // Invalidate agency configuration cache
     invalidateCachePattern("cache:getAgencyByReferer:")
+    void notifyTemplates({ agencyId, scope: "agency" })
 
     return partner
 }
@@ -125,6 +127,7 @@ export async function updateAgencyPartnerService(agencyId, partnerId, partnerDat
 
     // Invalidate agency configuration cache
     invalidateCachePattern("cache:getAgencyByReferer:")
+    void notifyTemplates({ agencyId, scope: "agency" })
 
     return updatedPartner
 }
@@ -160,6 +163,7 @@ export async function deleteAgencyPartnerService(agencyId, partnerId, userId) {
 
     // Invalidate agency configuration cache
     invalidateCachePattern("cache:getAgencyByReferer:")
+    void notifyTemplates({ agencyId, scope: "agency" })
 
     return deletedPartner
 }
@@ -203,6 +207,7 @@ export async function reorderAgencyPartnersService(agencyId, reorderData, userId
 
     // Invalidate agency configuration cache
     invalidateCachePattern("cache:getAgencyByReferer:")
+    void notifyTemplates({ agencyId, scope: "agency" })
 
     return updatedPartners
 }
