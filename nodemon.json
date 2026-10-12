@@ -1,6 +1,7 @@
 {
-    "watch": ["./src/**/*.js"],
-    "ext": "js",
+    "watch": ["./src", "./generated/prisma"],
+    "ext": "js,ts",
     "ignore": ["src/**/*.spec.js"],
+    "delay": 1000,
     "exec": "node --inspect=127.0.0.1:9229 --experimental-transform-types ./src/app.js"
 }

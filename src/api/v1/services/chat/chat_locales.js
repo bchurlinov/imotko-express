@@ -12,6 +12,8 @@ const messages = {
         emailHeadline: "Имате нова порака",
         emailOpen: "Отворете разговор",
         emailInstructions: "Отворете го разговорот за да ја прочитате пораката и да одговорите.",
+        emailUnsubscribeText: "Не сакате да ги добивате овие е-пораки?",
+        emailUnsubscribeLabel: "Исклучете ги известувањата по е-пошта",
     },
     en: {
         newTitle: "New message",
@@ -26,6 +28,8 @@ const messages = {
         emailHeadline: "You have a new message",
         emailOpen: "Open conversation",
         emailInstructions: "Open the conversation to read the message and reply.",
+        emailUnsubscribeText: "Don't want to receive these emails?",
+        emailUnsubscribeLabel: "Turn off email notifications",
     },
     sq: {
         newTitle: "Mesazh i ri",
@@ -40,6 +44,8 @@ const messages = {
         emailHeadline: "Keni një mesazh të ri",
         emailOpen: "Hap bisedën",
         emailInstructions: "Hapni bisedën për ta lexuar mesazhin dhe për t'u përgjigjur.",
+        emailUnsubscribeText: "Nuk dëshironi t'i merrni këto email-e?",
+        emailUnsubscribeLabel: "Çaktivizoni njoftimet me email",
     },
     tr: {
         newTitle: "Yeni mesaj",
@@ -54,6 +60,8 @@ const messages = {
         emailHeadline: "Yeni mesajınız var",
         emailOpen: "Görüşmeyi aç",
         emailInstructions: "Mesajı okumak ve yanıtlamak için görüşmeyi açın.",
+        emailUnsubscribeText: "Bu e-postaları almak istemiyor musunuz?",
+        emailUnsubscribeLabel: "E-posta bildirimlerini kapatın",
     },
 }
 

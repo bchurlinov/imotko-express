@@ -1,4 +1,5 @@
 import { MessageStatus } from "#generated/prisma/enums.ts"
+import { isRealEmailDeliveryEnabled } from "#utils/email/delivery_policy.js"
 import { notifyParticipant } from "./chat_notifications.service.js"
 
 // The status update is the delivery lock shared by Express and Next. Only the winner performs recipient effects.
@@ -36,6 +37,10 @@ export const deliverMessage = async (tx, messageId, now = new Date()) => {
             where: { id: recipient.id },
             data: { unreadCount: { increment: 1 } },
         })
+        // Dev only (one line per message is too noisy in production): explains why later messages send no email.
+        if (!isRealEmailDeliveryEnabled()) {
+            console.info("[chat-email]", { participantId: recipient.id, outcome: "skipped", reason: "already-unread" })
+        }
     } else {
         await notifyParticipant(tx, { participant: recipient, conversationId: message.conversationId })
     }

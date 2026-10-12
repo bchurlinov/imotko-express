@@ -1,4 +1,5 @@
 import { normalizeUrl } from "#utils/url/normalizeUrl.js"
+import { resolveEmailDelivery } from "#utils/email/delivery_policy.js"
 import { SendEmailCommand, SendRawEmailCommand, SESClient } from "@aws-sdk/client-ses"
 import {
     logAccessDenied,
@@ -189,16 +190,20 @@ export async function postAgencyContactService(body, agency) {
             agency
         )
 
-        const emailSubject = subject ? `Contact Form: ${subject}` : `New Contact Form Submission from ${name}`
+        const delivery = resolveEmailDelivery({
+            to: [agency.email],
+            replyTo: email ? [email] : [],
+            subject: subject ? `Contact Form: ${subject}` : `New Contact Form Submission from ${name}`,
+        })
 
         const sendEmailCommand = new SendEmailCommand({
             Source: process.env.IMOTKO_EMAIL || "contact@imotko.mk",
             Destination: {
-                ToAddresses: [agency.email],
+                ToAddresses: delivery.toAddresses,
             },
             Message: {
                 Subject: {
-                    Data: emailSubject,
+                    Data: delivery.subject,
                     Charset: "UTF-8",
                 },
                 Body: {
@@ -222,7 +227,7 @@ export async function postAgencyContactService(body, agency) {
                     },
                 },
             },
-            ReplyToAddresses: email ? [email] : undefined,
+            ReplyToAddresses: delivery.replyToAddresses,
         })
 
         const response = await emailClient.send(sendEmailCommand)
@@ -280,17 +285,20 @@ export async function postAgencyAppraisalService(body, agency) {
             agency
         )
 
-        const emailSubject = `Порака од ${name}`
+        const delivery = resolveEmailDelivery({
+            to: [agency.email],
+            replyTo: email ? [email] : [],
+            subject: `Порака од ${name}`,
+        })
 
         const sendEmailCommand = new SendEmailCommand({
             Source: process.env.IMOTKO_EMAIL || "contact@imotko.mk",
             Destination: {
-                ToAddresses: [agency.email],
-                // ToAddresses: ["bchurlinov@gmail.com"],
+                ToAddresses: delivery.toAddresses,
             },
             Message: {
                 Subject: {
-                    Data: emailSubject,
+                    Data: delivery.subject,
                     Charset: "UTF-8",
                 },
                 Body: {
@@ -316,7 +324,7 @@ export async function postAgencyAppraisalService(body, agency) {
                     },
                 },
             },
-            ReplyToAddresses: email ? [email] : undefined,
+            ReplyToAddresses: delivery.replyToAddresses,
         })
 
         const response = await emailClient.send(sendEmailCommand)
