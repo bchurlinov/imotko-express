@@ -28,8 +28,8 @@ import { notifyTemplates } from "#utils/templates_revalidation.js"
 // Same server-side limits as the web's /api/upload (SECURITY N-5).
 const MAX_FILES_PER_REQUEST = 10
 const MAX_FILE_BYTES = 5 * 1024 * 1024
-const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"]
-const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp"]
+const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"]
+const ALLOWED_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "avif"]
 const ROTATION_DIRECTIONS = new Set(["left", "right"])
 
 export const uploadFiles = multer({

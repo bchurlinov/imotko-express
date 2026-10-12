@@ -37,6 +37,10 @@ const getFileInfo = (fileName = "", mimeType = "") => {
         return { format: "jpeg", extension: "jpg", contentType: "image/jpeg" }
     } else if (extension === "webp" || mimeType === "image/webp") {
         return { format: "webp", extension: "webp", contentType: "image/webp" }
+    } else if (extension === "avif" || mimeType === "image/avif") {
+        // AVIF is accepted on upload but stored as WebP: downstream consumers (rotate, Hommex, OG images) expect
+        // jpeg/png/webp originals.
+        return { format: "webp", extension: "webp", contentType: "image/webp" }
     }
 
     return { format: "jpeg", extension: "jpg", contentType: "image/jpeg" }

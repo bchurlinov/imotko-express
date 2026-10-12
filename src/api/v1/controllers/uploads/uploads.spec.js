@@ -50,11 +50,13 @@ test("the pipeline stores a clean original and three watermarked sizes in the us
     }
 })
 
-test("only jpeg, png and webp up to 5 MB are accepted", () => {
+test("only jpeg, png, webp and avif up to 5 MB are accepted", () => {
     assert.equal(isAllowedImage({ size: 1000, mimetype: "image/jpeg", originalname: "a.jpg" }), true)
     assert.equal(isAllowedImage({ size: 1000, mimetype: "image/heic", originalname: "a.heic" }), false)
     assert.equal(isAllowedImage({ size: 6 * 1024 * 1024, mimetype: "image/png", originalname: "a.png" }), false)
     assert.equal(isAllowedImage({ size: 1000, mimetype: "", originalname: "a.webp" }), true)
+    assert.equal(isAllowedImage({ size: 1000, mimetype: "image/avif", originalname: "a.avif" }), true)
+    assert.equal(isAllowedImage({ size: 1000, mimetype: "", originalname: "a.AVIF" }), true)
 })
 
 test("a request without files or with a bad file stores nothing", async () => {
