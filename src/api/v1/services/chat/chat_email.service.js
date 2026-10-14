@@ -43,6 +43,7 @@ export const sendChatNewMessageEmail = async participantId => {
                 conversation: {
                     select: {
                         id: true,
+                        kind: true,
                         propertySnapshot: true,
                         participants: { select: { id: true, displayName: true } },
                     },
@@ -50,6 +51,9 @@ export const sendChatNewMessageEmail = async participantId => {
             },
         })
         if (!participant) return skip(participantId, "participant-not-found")
+        if (["PLATFORM_SUPPORT", "PLATFORM_TOPIC"].includes(participant.conversation?.kind)) {
+            return skip(participantId, "platform-conversation")
+        }
         if (participant.agencyId && !participant.agency?.emailNotificationsEnabled) {
             return skip(participantId, "agency-notifications-off")
         }

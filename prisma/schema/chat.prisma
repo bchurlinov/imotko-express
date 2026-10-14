@@ -2,6 +2,8 @@ enum ConversationKind {
   AGENCY_INQUIRY
   PRIVATE_INQUIRY
   AGENCY_OUTREACH
+  PLATFORM_SUPPORT
+  PLATFORM_TOPIC
 }
 
 enum MessageStatus {
@@ -27,6 +29,8 @@ model Conversation {
   propertyId       String?
   property         Property?                 @relation(fields: [propertyId], references: [id], onDelete: SetNull)
   propertySnapshot Json?
+  // Admin-entered title of a PLATFORM_TOPIC conversation; null for every other kind.
+  subject          String?
   lastDeliveredAt  DateTime?                 @db.Timestamptz(3)
   closedAt         DateTime?                 @db.Timestamptz(3)
   participants     ConversationParticipant[]
@@ -64,6 +68,8 @@ model ConversationParticipant {
   removed            Boolean              @default(false)
   // The private seller's side of a PRIVATE_INQUIRY. Kept on the participant: the listing can be deleted later.
   isSeller           Boolean              @default(false)
+  // The Imotko side of a PLATFORM_* conversation (shared by all admins); userId and agencyId are null on this row.
+  isPlatform         Boolean              @default(false)
   messages           Message[]
   reports            ConversationReport[]
   createdAt          DateTime             @default(now()) @db.Timestamptz(3)

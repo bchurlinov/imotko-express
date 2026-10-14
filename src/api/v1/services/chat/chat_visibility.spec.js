@@ -96,3 +96,13 @@ test("callers with clientListings see every kind", () => {
         "PRIVATE_INQUIRY",
     ])
 })
+
+test("platform (Imotko ↔ agency) kinds stay hidden from every app caller", () => {
+    for (const capabilities of [undefined, { clientListings: true, shortTermRent: true }]) {
+        const kinds = visibleConversationKinds(capabilities)
+        assert.equal(kinds.includes("PLATFORM_SUPPORT"), false)
+        assert.equal(kinds.includes("PLATFORM_TOPIC"), false)
+        assert.equal(isConversationKindVisible("PLATFORM_TOPIC", capabilities), false)
+    }
+    assert.equal(visibleConversationKinds({ clientListings: true }).includes("AGENCY_OUTREACH"), true)
+})

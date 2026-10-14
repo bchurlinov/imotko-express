@@ -15,6 +15,9 @@ export const withoutHiddenProperty = (conversation, capabilities = LEGACY_CAPABI
     return { ...conversation, propertyId: null, property: null, propertySnapshot: null }
 }
 
+// Imotko ↔ agency threads live in the web dashboard only; no app version supports them yet.
+const PLATFORM_KINDS = [ConversationKind.PLATFORM_SUPPORT, ConversationKind.PLATFORM_TOPIC]
+
 /**
  * Conversation kinds a caller can open. Allow-list: apps before client listings know only agency inquiries, so
  * buyer–seller threads (B) and agency outreach (C) stay hidden from them.
@@ -22,7 +25,9 @@ export const withoutHiddenProperty = (conversation, capabilities = LEGACY_CAPABI
  * @returns {string[]}
  */
 export const visibleConversationKinds = (capabilities = LEGACY_CAPABILITIES) =>
-    capabilities.clientListings ? Object.values(ConversationKind) : [ConversationKind.AGENCY_INQUIRY]
+    capabilities.clientListings
+        ? Object.values(ConversationKind).filter(kind => !PLATFORM_KINDS.includes(kind))
+        : [ConversationKind.AGENCY_INQUIRY]
 
 /**
  * @param {string} kind - Conversation.kind
