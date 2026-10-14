@@ -38,48 +38,50 @@ model Admin {
 }
 
 model User {
-  id                      String                @id @default(cuid())
-  supabaseUserId          String?               @unique
-  name                    String
-  lastName                String?
-  email                   String                @unique
-  location                String?
-  emailVerified           DateTime?
-  image                   String?
-  hashedPassword          String?
-  phone                   String?
-  accessToken             String?
-  refreshToken            String?
-  language                UserLanguage?         @default(MK)
-  role                    UserRole              @default(CLIENT)
-  account                 Account?
-  clientId                String?
-  client                  Client?
-  notifications           Notification[]
-  pushTokens              UserPushToken[]
-  agencyId                String?
-  agency                  Agency?               @relation(fields: [agencyId], references: [id])
-  adminId                 String?
-  admin                   Admin?
-  ipAddress               String?
-  leadPopupShownAt        DateTime?             @db.Timestamptz(3)
-  externalAdsPopupShownAt DateTime?             @db.Timestamptz(3)
-  UserFeatureRequest      UserFeatureRequest[]
+  id                          String                    @id @default(cuid())
+  supabaseUserId              String?                   @unique
+  name                        String
+  lastName                    String?
+  email                       String                    @unique
+  location                    String?
+  emailVerified               DateTime?
+  image                       String?
+  hashedPassword              String?
+  phone                       String?
+  accessToken                 String?
+  refreshToken                String?
+  language                    UserLanguage?             @default(MK)
+  role                        UserRole                  @default(CLIENT)
+  account                     Account?
+  clientId                    String?
+  client                      Client?
+  notifications               Notification[]
+  pushTokens                  UserPushToken[]
+  agencyId                    String?
+  agency                      Agency?                   @relation(fields: [agencyId], references: [id])
+  adminId                     String?
+  admin                       Admin?
+  ipAddress                   String?
+  leadPopupShownAt            DateTime?                 @db.Timestamptz(3)
+  externalAdsPopupShownAt     DateTime?                 @db.Timestamptz(3)
+  messagesPopupShownAt        DateTime?                 @db.Timestamptz(3)
+  privateListingsPopupShownAt DateTime?                 @db.Timestamptz(3)
+  UserFeatureRequest          UserFeatureRequest[]
   //
-  agencyMember            AgencyMember?         @relation("AgencyMember")
-  ownedAgency             Agency?               @relation("AgencyOwner")
+  agencyMember                AgencyMember?             @relation("AgencyMember")
+  ownedAgency                 Agency?                   @relation("AgencyOwner")
   //
-  agencyInvitationSender  AgencyInvitation[]    @relation("InvitingSender")
-  leadMatchSendsSent      LeadClientMatchSend[]
-  messagingFlagged         Boolean                   @default(false)
-  messagingFlaggedAt       DateTime?                 @db.Timestamptz(3)
-  messagingFlagReason      MessagingFlagReason?
-  messagingFlaggedById     String?
-  messagingUnflaggedAt     DateTime?                 @db.Timestamptz(3)
-  conversationParticipants ConversationParticipant[]
-  sentMessages             Message[]                 @relation("MessageSender")
-  createdAt               DateTime?             @default(now()) @db.Timestamptz(3)
-  updatedAt               DateTime?             @updatedAt @db.Timestamptz(3)
+  agencyInvitationSender      AgencyInvitation[]        @relation("InvitingSender")
+  leadMatchSendsSent          LeadClientMatchSend[]
+  messagingFlagged            Boolean                   @default(false)
+  messagingFlaggedAt          DateTime?                 @db.Timestamptz(3)
+  messagingFlagReason         MessagingFlagReason?
+  messagingFlaggedById        String?
+  messagingUnflaggedAt        DateTime?                 @db.Timestamptz(3)
+  conversationParticipants    ConversationParticipant[]
+  sentMessages                Message[]                 @relation("MessageSender")
+  createdAt                   DateTime?                 @default(now()) @db.Timestamptz(3)
+  updatedAt                   DateTime?                 @updatedAt @db.Timestamptz(3)
 
   @@index([agencyId])
   @@index([clientId])
@@ -103,14 +105,14 @@ model UserPushToken {
 }
 
 model ExpoPushTicket {
-  id             String        @id @default(cuid())
-  tokenId        String
-  token          UserPushToken @relation(fields: [tokenId], references: [id], onDelete: Cascade)
-  messageId      String
-  conversationId String
-  ticketId       String        @unique
-  receiptCheckedAt DateTime?   @db.Timestamptz(3)
-  createdAt      DateTime      @default(now()) @db.Timestamptz(3)
+  id               String        @id @default(cuid())
+  tokenId          String
+  token            UserPushToken @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  messageId        String
+  conversationId   String
+  ticketId         String        @unique
+  receiptCheckedAt DateTime?     @db.Timestamptz(3)
+  createdAt        DateTime      @default(now()) @db.Timestamptz(3)
 
   @@index([receiptCheckedAt, createdAt])
   @@index([messageId])
