@@ -1358,11 +1358,90 @@ export const PropertyFeaturesDictionary = [
         "selfCheckIn",
         "bbq",
         "smokingAllowed",
+        "cookingBasics",
+        "coffeeMaker",
+        "hairDryer",
+        "iron",
+        "privateEntrance",
+        "smokeAlarm",
+        "firstAidKit",
+        "scenicView",
     ].map(name => ({
         name,
         visible: [PropertyType.flat, PropertyType.house, PropertyType.holiday_home],
         listingTypes: [PropertyListingType.short_term_rent],
     })),
+]
+
+// Order for the amenity preview on property details (the first few the listing has). Every amenity in
+// SHORT_TERM_AMENITY_GROUPS except house rules is listed.
+export const SHORT_TERM_AMENITY_PRIORITY = [
+    "wifi",
+    "airCon",
+    "heating",
+    "centralHeating",
+    "personalHeating",
+    "kitchen",
+    "parking",
+    "washingMachine",
+    "selfCheckIn",
+    "linensAndTowels",
+    "tv",
+    "pool",
+    "balcony",
+    "scenicView",
+    "workspace",
+    "bbq",
+    "garden",
+    "dishwasher",
+    "privateEntrance",
+    "coffeeMaker",
+    "cookingBasics",
+    "babyCrib",
+    "elevator",
+    "hairDryer",
+    "iron",
+    "fireplace",
+    "smokeAlarm",
+    "firstAidKit",
+    "securitySystem",
+]
+
+// Amenities guests look for first. Property details lists the ones a short-term listing lacks as "Not included".
+// `anyOf` counts other names as having it (any kind of heating counts as heating).
+export const SHORT_TERM_KEY_AMENITIES = [
+    { name: "wifi" },
+    { name: "airCon" },
+    { name: "heating", anyOf: ["heating", "centralHeating", "personalHeating"] },
+    { name: "smokeAlarm" },
+]
+
+// Short-term rentals show their amenities in these groups (listing wizard, dashboard form, property details), in this
+// order. General features left out here (wooden floors, cellar, condition, furnishing...) are not shown for short stays.
+export const SHORT_TERM_AMENITY_GROUPS = [
+    {
+        key: "essentials",
+        items: [
+            "wifi",
+            "airCon",
+            "heating",
+            "centralHeating",
+            "personalHeating",
+            "linensAndTowels",
+            "tv",
+            "washingMachine",
+            "hairDryer",
+            "iron",
+            "fireplace",
+        ],
+    },
+    { key: "kitchen", items: ["kitchen", "cookingBasics", "coffeeMaker", "dishwasher"] },
+    { key: "outdoor", items: ["balcony", "garden", "bbq", "pool", "scenicView"] },
+    { key: "access", items: ["parking", "privateEntrance", "selfCheckIn", "elevator"] },
+    { key: "familyAndWork", items: ["babyCrib", "workspace"] },
+    { key: "safety", items: ["smokeAlarm", "firstAidKit", "securitySystem"] },
+    // House rules, not amenities: property details shows them as their own section.
+    { key: "houseRules", items: ["petFriendly", "smokingAllowed"] },
 ]
 
 export const PropertyTypeDictionary = {

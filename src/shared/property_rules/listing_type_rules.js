@@ -1,7 +1,13 @@
 // COPIED FROM imotko/src/lib/property/listing_type_rules.js by scripts/export_property_rules.mjs — do not edit here.
 // Change the web file, then re-run the script (design D §3).
 import { PropertyListingType, PropertyPriceUnit, PropertyType } from "#generated/prisma/enums.ts"
-import { PropertyListingTypeDictionary, PropertyTypeDictionary } from "./dictionaries/property.js"
+import {
+    PropertyListingTypeDictionary,
+    PropertyTypeDictionary,
+    SHORT_TERM_AMENITY_GROUPS,
+    SHORT_TERM_AMENITY_PRIORITY,
+    SHORT_TERM_KEY_AMENITIES,
+} from "./dictionaries/property.js"
 
 const ALL_PROPERTY_TYPES = Object.values(PropertyType)
 
@@ -18,6 +24,14 @@ export const SHORT_TERM_AMENITIES = [
     "selfCheckIn",
     "bbq",
     "smokingAllowed",
+    "cookingBasics",
+    "coffeeMaker",
+    "hairDryer",
+    "iron",
+    "privateEntrance",
+    "smokeAlarm",
+    "firstAidKit",
+    "scenicView",
 ]
 
 // Used by the search slider when no listing type is selected (matches the previous hardcoded fallback).
@@ -95,6 +109,32 @@ export const getListingTypeOptions = (locale, { includeShortTerm = true } = {}) 
     )
 
 // `type` is optional: search filters show amenities before a property type is chosen.
+// Short-term amenity groups limited to `names` (for example the amenities visible for the property type, or the ones a
+// listing has). Keeps the group order and drops empty groups.
+export const groupShortTermAmenities = (names = []) =>
+    SHORT_TERM_AMENITY_GROUPS.map(group => ({
+        key: group.key,
+        items: group.items.filter(name => names.includes(name)),
+    })).filter(group => group.items.length > 0)
+
+// Key amenities (wifi, air conditioning, heating, smoke alarm) a listing does not have, from its attributes.
+export const getMissingKeyAmenities = (attributes = {}) =>
+    SHORT_TERM_KEY_AMENITIES.filter(({ name, anyOf = [name] }) => !anyOf.some(key => attributes?.[key] === true)).map(
+        ({ name }) => name
+    )
+
+// The `limit` most important amenities across `groups` (output of groupShortTermAmenities), in priority order.
+export const pickTopAmenities = (groups = [], limit = 6) => {
+    const rank = name => {
+        const index = SHORT_TERM_AMENITY_PRIORITY.indexOf(name)
+        return index === -1 ? SHORT_TERM_AMENITY_PRIORITY.length : index
+    }
+    return groups
+        .flatMap(group => group.items)
+        .sort((a, b) => rank(a) - rank(b))
+        .slice(0, limit)
+}
+
 export const isAmenityVisible = (feature, { type, listingType } = {}) => {
     const listingTypeMatches = !feature.listingTypes || feature.listingTypes.includes(listingType)
     const typeMatches = !type || feature.visible.includes(type)

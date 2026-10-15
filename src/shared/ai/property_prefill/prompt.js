@@ -26,6 +26,8 @@ ${subtypeGuide()}
 - cityMention / districtMention: copy the place names exactly as written (municipality, neighbourhood). Do not translate.
 - address: a short street/landmark phrase copied from the text (e.g. "ул. Партизанска 12", "кај Рамстор").
 - size and sizeOfYard in square meters. numOfRooms = rooms/bedrooms ("трисобен" = 3, "гарсоњера" = 1).
+- numOfBathrooms: how many bathrooms/toilets. A bathroom or toilet named once ("купатило", "бања", "тоалет", "ВЦ", "WC", "вц+купатило", "bathroom") = 1; "2 купатила", "две бањи" = 2. Evidence = the words naming them.
+- numOfBalconies: how many balconies/terraces/loggias. "тераса", "балкон", "лоџија" = 1; "две тераси", "2 балкони" = 2. Count them, never use their size: "тераса + 4м2" = 1, not 4. Keep the m2 figure out of the evidence.
 - flatFloor = the floor of the unit ("приземје" = 0, "сутерен" = -1); flatFloorFrom = total floors in the building.
 - price: the number only. priceUnit: TOTAL, PER_SQUARE_METER or PER_NIGHT, only if stated.
 - hasApproximatePrice: true only for explicit wording such as "по договор", "околу", "approx".

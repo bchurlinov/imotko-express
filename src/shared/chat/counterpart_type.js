@@ -1,8 +1,10 @@
 // COPIED FROM imotko/src/data/chat/inbox.js (only: counterpartTypeFor) by scripts/export_property_rules.mjs — do not edit here.
 // Change the web file, then re-run the script (design D §3).
 import { ConversationKind } from "#generated/prisma/enums.ts"
+import { isPlatformKind } from "./platform_chat.js"
 
 export const counterpartTypeFor = (own, counterpart, kind = null) => {
+    if (isPlatformKind(kind)) return own?.isPlatform ? "agency" : "imotko"
     if (kind === ConversationKind.AGENCY_OUTREACH) return own?.agencyId ? "private_seller" : "agency_outreach"
     if (own?.agencyId) return "client"
     if (counterpart?.isSeller) return "seller"

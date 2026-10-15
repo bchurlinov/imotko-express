@@ -2,7 +2,7 @@
 // Change the web file, then re-run the script (design D §3).
 import { PropertyType } from "#generated/prisma/enums.ts"
 import { PropertyTypeDictionary } from "./dictionaries/property.js"
-import { normalizeListingTypeFields, pickShortTermAmenities } from "./listing_type_rules.js"
+import { isShortTermRent, normalizeListingTypeFields, pickShortTermAmenities } from "./listing_type_rules.js"
 import { normalizePropertyCountry } from "./property_location.js"
 import { sanitizeServer } from "./sanitize_server.js"
 import { _isEmpty } from "./is_empty.js"
@@ -68,6 +68,9 @@ export const buildPropertyAttributes = body => ({
     ...Object.fromEntries(TRUE_FLAGS.filter(key => body[key]).map(key => [key, true])),
     ...(body.flatFloor !== undefined && body.flatFloor !== null ? { flatFloor: body.flatFloor } : {}),
     ...pickShortTermAmenities(body),
+    // Sent by the listing forms that show the full amenity list (client wizard, agency form). Property details only
+    // shows "Not included" once a host has confirmed the list; older listings may simply never have filled it in.
+    ...(isShortTermRent(body.listingType) && body.amenitiesConfirmed === true ? { amenitiesConfirmed: true } : {}),
 })
 
 export const buildCorePropertyFields = body => ({

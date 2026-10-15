@@ -136,3 +136,61 @@ export const isValueInEvidence = (value, evidence) => {
     const normalizedValue = normalizeText(value)
     return normalizedValue.length > 0 && ` ${normalizeText(evidence)} `.includes(` ${normalizedValue} `)
 }
+
+// Areas next to a terrace ("тераса + 4м2") are sizes, never counts.
+const AREA_PATTERN = /\d+(?:[.,]\d+)?\s*(?:м2|м²|m2|m²|кв\.?\s*м|kvm|sqm)/gi
+
+// One bathroom or terrace is written as the bare noun ("вц+купатило", "тераса"), so no digit or number word exists to
+// ground the value on. The singular noun, with no plural form beside it, grounds exactly 1.
+const COUNT_NOUNS = {
+    numOfBathrooms: {
+        singular: ["купатило", "бања", "тоалет", "вц", "wc", "kupatilo", "banja", "toalet", "bathroom", "toilet"],
+        plural: ["купатила", "бањи", "тоалети", "kupatila", "banji", "toaleti", "bathrooms", "toilets"],
+    },
+    numOfBalconies: {
+        singular: [
+            "тераса",
+            "балкон",
+            "лоџа",
+            "лоџија",
+            "terasa",
+            "balkon",
+            "lodza",
+            "lodzija",
+            "terrace",
+            "balcony",
+            "loggia",
+            "ballkon",
+        ],
+        plural: [
+            "тераси",
+            "балкони",
+            "лоџи",
+            "лоџии",
+            "terasi",
+            "balkoni",
+            "lodzi",
+            "terraces",
+            "balconies",
+            "loggias",
+            "ballkone",
+        ],
+    },
+}
+
+const COUNT_TOKENS = Object.fromEntries(
+    Object.entries(COUNT_NOUNS).map(([key, { singular, plural }]) => [
+        key,
+        { singular: new Set(singular.map(normalizeText)), plural: new Set(plural.map(normalizeText)) },
+    ])
+)
+
+export const isCountGrounded = (key, value, evidence) => {
+    const withoutAreas = String(evidence ?? "").replace(AREA_PATTERN, " ")
+    if (isNumberGrounded(value, withoutAreas)) return true
+
+    const nouns = COUNT_TOKENS[key]
+    if (!nouns || value !== 1) return false
+    const tokens = normalizeText(withoutAreas).split(" ")
+    return tokens.some(token => nouns.singular.has(token)) && !tokens.some(token => nouns.plural.has(token))
+}

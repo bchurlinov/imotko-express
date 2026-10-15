@@ -7,7 +7,7 @@ import {
     isPropertyTypeAllowed,
 } from "../../property_rules/listing_type_rules.js"
 import { stripContactDetails } from "../../property_rules/contact_details.js"
-import { isEvidenceInText, isNumberGrounded, isValueInEvidence, normalizeText } from "./normalize.js"
+import { isCountGrounded, isEvidenceInText, isNumberGrounded, isValueInEvidence, normalizeText } from "./normalize.js"
 import { AMENITY_KEYS, getSubtypeValues, isPrefillKeyEligible, NUMBER_KEYS, PREFILL_ACTOR } from "./field_sets.js"
 import { matchPrefillLocation } from "./location_match.js"
 import { buildPrefillTitle } from "./title.js"
@@ -29,6 +29,9 @@ const NUMBER_RULES = {
     yearBuilt: { min: 1800, max: CURRENT_YEAR + 5, integer: true },
     inDevelopmentUntil: { min: CURRENT_YEAR, max: CURRENT_YEAR + 15, integer: true },
 }
+
+// Counted by noun as well as by number: "вц+купатило" is one bathroom, "тераса" is one terrace.
+const COUNT_KEYS = new Set(["numOfBathrooms", "numOfBalconies"])
 
 const YOUTUBE_PATTERN = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
@@ -109,11 +112,8 @@ export const verifyPrefill = (
 
     // 3. Numbers and years: the value must appear in its own evidence and fall inside a sane range.
     for (const key of [...NUMBER_KEYS, "yearBuilt", "inDevelopmentUntil"]) {
-        accept(
-            key,
-            output[key],
-            (value, evidence) => inRange(value, NUMBER_RULES[key]) && isNumberGrounded(value, evidence)
-        )
+        const isGrounded = COUNT_KEYS.has(key) ? isCountGrounded.bind(null, key) : isNumberGrounded
+        accept(key, output[key], (value, evidence) => inRange(value, NUMBER_RULES[key]) && isGrounded(value, evidence))
     }
     if (
         fields.flatFloor !== undefined &&
