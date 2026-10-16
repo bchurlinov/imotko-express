@@ -31,7 +31,7 @@ export {
     seededShuffle,
     featuredIdsForPage,
     activeFeaturedCondition,
-    inactiveFeaturedCondition,
+    isActiveFeatured,
 } from "./featuredPagination.js"
 
 export { PropertyFeaturesDictionary, isValidPropertyFeature, getAllPropertyFeatureNames } from "./propertyFeatures.js"

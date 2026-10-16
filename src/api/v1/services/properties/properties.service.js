@@ -19,7 +19,7 @@ import {
     FEATURED_PER_PAGE,
     featuredIdsForPage,
     activeFeaturedCondition,
-    inactiveFeaturedCondition,
+    isActiveFeatured,
 } from "./utils/index.js"
 import prisma from "#database/client.js"
 import { HIDDEN_AGENCY_IDS, isHiddenAgency } from "#config/hiddenAgencies.config.js"
@@ -290,7 +290,6 @@ export const getPropertiesService = async (params = {}, options = {}) => {
             safeLimit > FEATURED_PER_PAGE
 
         if (shouldMixFeatured) {
-            const normalFilters = appendAndCondition(filters, inactiveFeaturedCondition(now))
             const promotedAndConditions = [activeFeaturedCondition(now)]
 
             if (!includeHiddenAgencies && HIDDEN_AGENCY_IDS.length) {
@@ -315,20 +314,21 @@ export const getPropertiesService = async (params = {}, options = {}) => {
                 promotedFilters.propertyLocationId = promotedLocationIds.length ? { in: promotedLocationIds } : location
             }
 
-            const [strictTotal, featuredRows, normalTotal] = await Promise.all([
+            // Promoted properties keep their natural spot in the normal results too, so `total` is both the strict
+            // match count and what the normal results page over; page offsets never drift.
+            const [strictTotal, featuredRows] = await Promise.all([
                 prisma.property.count({ where: filters }),
                 prisma.property.findMany({
                     where: promotedFilters,
                     select: { id: true },
                     orderBy: { id: "asc" },
                 }),
-                prisma.property.count({ where: normalFilters }),
             ])
 
             total = strictTotal
             const featuredIds = featuredRows.map(property => property.id)
             const normalPageSize = featuredIds.length ? safeLimit - FEATURED_PER_PAGE : safeLimit
-            totalPages = Math.max(Math.ceil(normalTotal / normalPageSize), featuredIds.length ? 1 : 0)
+            totalPages = Math.max(Math.ceil(total / normalPageSize), featuredIds.length ? 1 : 0)
 
             page = positiveInt(params.page) ?? 1
             if (page > totalPages && totalPages > 0) page = 1
@@ -342,18 +342,27 @@ export const getPropertiesService = async (params = {}, options = {}) => {
                       })
                     : [],
                 prisma.property.findMany({
-                    where: normalFilters,
+                    where: filters,
                     orderBy,
                     ...propertyQueryOptions,
+                    // Read only to tell expired promotions apart; stripped before responding.
+                    omit: { ...propertyQueryOptions.omit, featuredUntil: false },
                     take: normalPageSize,
                     skip: (page - 1) * normalPageSize,
                 }),
             ])
 
             const featuredById = new Map(featuredProperties.map(property => [property.id, property]))
+            const slotIds = new Set(pageFeaturedIds)
             properties = [
                 ...pageFeaturedIds.map(id => featuredById.get(id)).filter(Boolean),
-                ...normalProperties.map(property => ({ ...property, featured: false })),
+                // A property holding a promoted slot on this page is not repeated in the normal results.
+                ...normalProperties
+                    .filter(property => !slotIds.has(property.id))
+                    .map(({ featuredUntil, ...property }) => ({
+                        ...property,
+                        featured: isActiveFeatured({ ...property, featuredUntil }, now),
+                    })),
             ]
         } else {
             total = await prisma.property.count({ where: filters })
@@ -517,8 +526,3 @@ const normalizeCountry = value => {
     const country = stringValue(value)?.toLowerCase()
     return country && Object.values(PropertyCountry).includes(country) ? country : undefined
 }
-
-const appendAndCondition = (where, condition) => ({
-    ...where,
-    AND: [...(Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : []), condition],
-})

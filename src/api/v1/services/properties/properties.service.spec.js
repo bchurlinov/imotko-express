@@ -27,7 +27,7 @@ test("puts active promoted properties first and reserves twelve regular slots", 
 
     prisma.property.count = async query => {
         countQueries.push(query)
-        return countQueries.length === 1 ? 2 : 20
+        return 20
     }
 
     prisma.property.findMany = async query => {
@@ -42,8 +42,8 @@ test("puts active promoted properties first and reserves twelve regular slots", 
         }
 
         return [
-            { id: "expired", featured: true },
-            { id: "regular", featured: false },
+            { id: "expired", featured: true, featuredUntil: new Date(Date.now() - 1000) },
+            { id: "regular", featured: false, featuredUntil: null },
         ]
     }
 
@@ -51,16 +51,16 @@ test("puts active promoted properties first and reserves twelve regular slots", 
 
     assert.equal(result.data.length, 5)
     assert.ok(result.data.slice(0, 3).every(property => property.id.startsWith("promoted-")))
-    assert.deepEqual(
-        result.data.slice(3).map(property => property.id),
-        ["expired", "regular"]
-    )
-    assert.ok(result.data.slice(3).every(property => property.featured === false))
+    assert.deepEqual(result.data.slice(3), [
+        { id: "expired", featured: false },
+        { id: "regular", featured: false },
+    ])
+    assert.equal(countQueries.length, 1)
     assert.deepEqual(result.pagination, {
         currentPage: 1,
         pageSize: 15,
         totalPages: 2,
-        total: 2,
+        total: 20,
         hasMore: true,
     })
 
@@ -72,7 +72,34 @@ test("puts active promoted properties first and reserves twelve regular slots", 
 
     const normalQuery = findManyQueries.find(query => query.take === 12)
     assert.equal(normalQuery.skip, 0)
-    assert.ok(normalQuery.where.AND.some(condition => condition.OR?.some(branch => branch.featured === false)))
+    assert.equal(JSON.stringify(normalQuery.where).includes('"featured"'), false)
+    assert.equal(normalQuery.omit.featuredUntil, false)
+})
+
+test("keeps promoted properties in their natural spot, except on the page where they take a promoted slot", async () => {
+    const promotedIds = ["promoted-a", "promoted-b", "promoted-c", "promoted-d", "promoted-e"]
+    const activeUntil = new Date(Date.now() + 60 * 60 * 1000)
+
+    prisma.property.count = async () => 6
+    prisma.property.findMany = async query => {
+        if (query.select?.id) return promotedIds.map(id => ({ id }))
+        if (query.where?.id?.in) return query.where.id.in.map(id => ({ id, featured: true }))
+
+        return [
+            ...promotedIds.map(id => ({ id, featured: true, featuredUntil: activeUntil })),
+            { id: "regular", featured: false, featuredUntil: null },
+        ]
+    }
+
+    const result = await getPropertiesService({ page: "1" })
+    const ids = result.data.map(property => property.id)
+    const slotIds = ids.slice(0, 3)
+
+    assert.equal(new Set(ids).size, ids.length)
+    assert.deepEqual(ids.slice(3), [...promotedIds.filter(id => !slotIds.includes(id)), "regular"])
+    // Still an active promotion in its natural spot, so it keeps the badge.
+    assert.ok(result.data.slice(3, -1).every(property => property.featured === true))
+    assert.ok(result.data.every(property => !("featuredUntil" in property)))
 })
 
 test("falls back to page one when the requested promoted search page is out of range", async () => {
@@ -81,7 +108,7 @@ test("falls back to page one when the requested promoted search page is out of r
 
     prisma.property.count = async () => {
         countCall += 1
-        return countCall === 1 ? 10 : 13
+        return 13
     }
 
     prisma.property.findMany = async query => {

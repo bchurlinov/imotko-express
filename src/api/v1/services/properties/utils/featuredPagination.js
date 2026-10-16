@@ -55,9 +55,10 @@ export const activeFeaturedCondition = now => ({
 })
 
 /**
+ * Promotions that expired since the last cron run still carry `featured: true`; this tells them apart.
+ * @param {{ featured: boolean, featuredUntil: Date | null }} property
  * @param {Date} now
- * @returns {import('#generated/prisma/client.ts').Prisma.PropertyWhereInput}
+ * @returns {boolean}
  */
-export const inactiveFeaturedCondition = now => ({
-    OR: [{ featured: false }, { featuredUntil: { lte: now } }],
-})
+export const isActiveFeatured = ({ featured, featuredUntil }, now) =>
+    featured && (!featuredUntil || featuredUntil > now)
