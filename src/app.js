@@ -12,6 +12,7 @@ import initializeRoutes from "./api/v1/routes/index.js"
 // Middlewares
 import { errorMiddleware } from "./api/v1/middlewares/errorMiddleware.js"
 import { attachRateLimitKey } from "./api/v1/middlewares/rateLimitKey.js"
+import { createFaultInjection } from "./api/v1/middlewares/fault_injection.js"
 
 // Config
 import { corsOptions } from "./config/cors.config.js"
@@ -67,6 +68,9 @@ app.use(limiter)
 // Client listings carry four-language texts and up to 20 photo objects; web allows 1 MB too.
 app.use(express.json({ limit: "1mb" }))
 app.use(cookieParser(process.env.JWT_SECRET))
+
+// Local development only (ENV=development + ENABLE_FAULT_INJECTION=true): X-Imotko-Fault forces error responses
+app.use(createFaultInjection())
 
 initializeRoutes(app)
 app.use(errorMiddleware)
