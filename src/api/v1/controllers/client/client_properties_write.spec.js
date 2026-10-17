@@ -20,14 +20,19 @@ const originals = {
     propertyFindUnique: prisma.property.findUnique,
     propertyUpdateMany: prisma.property.updateMany,
     scheduleAi: clientListingEffects.scheduleAi,
+    afterCreated: clientListingEffects.afterCreated,
 }
 let scheduled = []
+let conversions = []
 beforeEach(() => {
     scheduled = []
+    conversions = []
     clientListingEffects.scheduleAi = args => scheduled.push(args)
+    clientListingEffects.afterCreated = args => conversions.push(args)
 })
 afterEach(() => {
     clientListingEffects.scheduleAi = originals.scheduleAi
+    clientListingEffects.afterCreated = originals.afterCreated
     prisma.$transaction = originals.transaction
     prisma.property.findUnique = originals.propertyFindUnique
     prisma.property.updateMany = originals.propertyUpdateMany
@@ -103,6 +108,33 @@ test("create stores a PENDING private listing with the web's forced fields", asy
     assert.equal(scheduled.length, 1)
     assert.equal(scheduled[0].propertyId, "p1")
     assert.equal(scheduled[0].userId, "u1")
+})
+
+test("create schedules conversion tracking and keeps the response shape unchanged", async () => {
+    fakeTx({
+        property: {
+            count: async () => 0,
+            create: async () => ({
+                id: "p1",
+                slug: "svetol",
+                status: "PENDING",
+                listingType: "for_sale",
+                type: "flat",
+                updatedAt: new Date(0),
+            }),
+        },
+    })
+    const res = fakeRes()
+    await createClientPropertyController(request(), res)
+
+    assert.equal(conversions.length, 1)
+    assert.equal(conversions[0].userId, "u1")
+    assert.equal(conversions[0].clientId, "c1")
+    assert.equal(conversions[0].city, cases.baseListing.city)
+    assert.equal(conversions[0].property.id, "p1")
+    assert.equal(conversions[0].property.type, "flat")
+    assert.equal(res.statusCode, 201)
+    assert.equal("type" in res.body.data, false)
 })
 
 test("create replaces any title with the placeholder, marks aiStatus PENDING and schedules the private AI step", async () => {

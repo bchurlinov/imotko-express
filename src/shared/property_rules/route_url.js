@@ -19,6 +19,7 @@ export const ROUTE_URL = {
     FEATURES_BUYER: "/zosto-imotko",
     OWNER_LISTING_LANDING: "/stani-oglasuvac",
     HOST_LANDING: "/stani-domakin",
+    OWNER_LISTING_START: "/nov-oglas",
     SEARCH: "/prebaruvanje",
     SEARCH_PROPERTIES: "/prebaruvanje/nedviznini",
     SEARCH_PROPERTIES_FOR_SALE: "/prebaruvanje/nedviznini/prodazba",

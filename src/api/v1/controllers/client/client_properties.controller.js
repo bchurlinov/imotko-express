@@ -19,6 +19,7 @@ import { resolvePropertyLocation } from "#shared/property_rules/property_locatio
 import { upsertPropertyTaxonomy } from "#shared/property_rules/property_dto.js"
 import { slugifyText } from "#shared/property_rules/strings.js"
 import { scheduleAiPostprocess } from "#services/client/client_ai.service.js"
+import { scheduleClientListingConversions } from "#services/client/client_listing_tracking.service.js"
 import { clientJson } from "./client_listing_response.js"
 import { notifyTemplates } from "#utils/templates_revalidation.js"
 
@@ -45,7 +46,7 @@ export const getClientPropertyController = async (req, res) => {
 const EDIT_SELECT = { listingType: true, slug: true, photos: true, propertyPlan: true }
 
 // Side effects that run after the response; specs replace them (no network in tests).
-export const clientListingEffects = { scheduleAi: scheduleAiPostprocess }
+export const clientListingEffects = { scheduleAi: scheduleAiPostprocess, afterCreated: scheduleClientListingConversions }
 
 const ownedOr404 = async (req, select = { slug: true, agencyId: true }) => {
     const property = await loadOwnedProperty(prisma, {
@@ -82,7 +83,7 @@ export const createClientPropertyController = async (req, res) => {
                     category: { connect: { id: categoryId } },
                     subcategory: { connect: { id: subcategoryId } },
                 },
-                select: { id: true, slug: true, status: true, listingType: true, updatedAt: true },
+                select: { id: true, slug: true, status: true, listingType: true, type: true, updatedAt: true },
             })
         },
         { timeout: 10000 }
@@ -96,7 +97,11 @@ export const createClientPropertyController = async (req, res) => {
         userId,
         listerKind: "private",
     })
-    return clientJson(res, 201, "clientListingSubmitted", property)
+    // Owner listing conversion: PropertySubmitted + the owner's empty location, after the response.
+    clientListingEffects.afterCreated({ property, userId, clientId: req.client.id, city: body.city, req })
+    // `type` is only for tracking; the app's response keeps exactly its old shape.
+    const { type: _type, ...responseProperty } = property
+    return clientJson(res, 201, "clientListingSubmitted", responseProperty)
 }
 
 // Decision 111a: like agency edits, a published listing is saved in place and hidden until the admin approves again.

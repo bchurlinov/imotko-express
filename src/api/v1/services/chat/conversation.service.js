@@ -12,7 +12,8 @@ import { LEGACY_CAPABILITIES } from "#config/client_capabilities.js"
 import { hiddenPropertyConditions } from "#services/properties/utils/visibility.js"
 import { CHAT_ERRORS, CHAT_LIMITS, DAY_MS } from "./chat_constants.js"
 import { ChatError } from "./chat_error.js"
-import { fullName } from "./chat_format.js"
+import { getDisplayName } from "#shared/property_rules/seller_name.js"
+import { trackFirstContactOf } from "./chat_effects.js"
 import { queueChatNewMessageEmail } from "./chat_email.service.js"
 import { queueChatPushNotification } from "./chat_push.service.js"
 import { deliverMessage } from "./message_delivery.service.js"
@@ -48,6 +49,7 @@ const loadSender = async userId => {
             role: true,
             name: true,
             lastName: true,
+            email: true,
             emailVerified: true,
             messagingFlagged: true,
             messagingUnflaggedAt: true,
@@ -169,6 +171,7 @@ const appendMessage = async (
         message,
         notifyParticipantId: delivery?.notifyParticipantId || null,
         pushMessageId: delivery?.pushMessageId || null,
+        deliveredMessageId: delivery?.delivered ? message.id : null,
     }
 }
 
@@ -214,6 +217,7 @@ export const sendMessage = async ({
     )
     queueChatNewMessageEmail(result.notifyParticipantId)
     queueChatPushNotification(result.pushMessageId)
+    trackFirstContactOf(result.deliveredMessageId)
     return result.message
 }
 
@@ -277,7 +281,7 @@ export const startAgencyInquiry = async ({
                     propertySnapshot: buildPropertySnapshot(property) || undefined,
                     participants: {
                         create: [
-                            { userId, displayName: fullName(user) || user.id },
+                            { userId, displayName: getDisplayName(user) || user.id },
                             {
                                 agencyId: agency.id,
                                 assignedMemberId: property?.createdByMemberId || null,
@@ -437,10 +441,12 @@ export const startPrivateInquiry = async ({
                 messageId: appended.message.id,
                 notifyParticipantId: appended.notifyParticipantId,
                 pushMessageId: appended.pushMessageId,
+                deliveredMessageId: appended.deliveredMessageId,
             }
         })
         queueChatNewMessageEmail(result.notifyParticipantId)
         queueChatPushNotification(result.pushMessageId)
+        trackFirstContactOf(result.deliveredMessageId)
         return { conversationId: result.conversationId, messageId: result.messageId, created: true }
     } catch (error) {
         if (error?.code !== PRISMA_UNIQUE_CONSTRAINT) throw error

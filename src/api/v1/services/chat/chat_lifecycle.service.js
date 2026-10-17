@@ -5,6 +5,7 @@ import { queueChatNewMessageEmail } from "./chat_email.service.js"
 import { queueChatPushNotification } from "./chat_push.service.js"
 import { notifyParticipant } from "./chat_notifications.service.js"
 import { deliverMessage } from "./message_delivery.service.js"
+import { trackFirstContactOf } from "./chat_effects.js"
 
 export const releasePendingForUser = async userId => {
     if (!userId) return 0
@@ -18,7 +19,11 @@ export const releasePendingForUser = async userId => {
     let released = 0
     for (const message of pending) {
         const delivery = await prisma.$transaction(tx => deliverMessage(tx, message.id))
-        if (delivery.delivered) released += 1
+        if (delivery.delivered) {
+            released += 1
+            // A held first message becomes the listing's first contact the moment it is released.
+            trackFirstContactOf(message.id)
+        }
         queueChatNewMessageEmail(delivery.notifyParticipantId)
         queueChatPushNotification(delivery.pushMessageId)
     }

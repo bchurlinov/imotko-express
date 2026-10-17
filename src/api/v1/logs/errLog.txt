@@ -1481,3 +1481,88 @@ An operation failed because it depends on one or more records that were required
 20261004	08:50:15	7b72e6fb-45b6-4339-9b3b-76d2b271b4aa	NotFoundError: User not found
 20261008	14:48:38	a6dbb2e3-8385-4755-a168-ddb406ea0899	NotFoundError: User not found
 20261008	14:48:38	fb20799d-6d58-4963-ac2b-f509306c6538	NotFoundError: User not found
+20261015	07:36:11	a3643af4-c0e7-434c-a876-06c270431e91	Error: Failed to load properties
+20261015	07:36:11	7ecd490a-5378-40e1-a316-f218f2dad7af	Error: Failed to load properties
+20261015	07:36:11	0bd7ba18-5be0-4853-80c5-77e8145d99a0	Error: Failed to load agencies.
+20261015	07:36:11	03517a4c-f43d-4726-a01b-40fb3845fe13	Error: Failed to load properties
+20261015	07:36:11	3ba9411d-a9a6-4843-b5ba-238888907836	Error: Failed to load properties
+20261015	07:36:12	be701b5e-6a45-4532-b773-1d6122a1d8e3	Error: Failed to load properties
+20261015	07:36:12	16500e75-93a4-4c3e-b29a-816b196b7daa	Error: Failed to load agencies.
+20261015	07:36:12	ed95ebfb-1839-43fa-8750-ed60bf0015f9	Error: Failed to load properties
+20261015	07:36:12	15d817ac-93c9-48b5-8d6d-25f360b4c875	Error: Failed to load properties
+20261015	07:36:12	e99d2942-a399-4f65-843e-5d9873d68622	Error: Failed to load properties
+20261015	07:36:24	32910547-c733-4e82-a95a-25d0ce2c7072	Error: Failed to load properties
+20261015	07:36:24	b31fad2d-b633-4101-b00e-c12bed366291	Error: Failed to load properties
+20261015	07:36:24	25123b4d-e648-47f0-8569-9a8eed3230d8	Error: Failed to load agencies.
+20261015	07:36:24	85df675a-c2da-4ea9-829a-d088f4029c02	Error: Failed to load properties
+20261015	07:36:24	c3be5dea-df2e-4ab4-9ccd-e6997d9324d2	Error: Failed to load properties
+20261015	07:36:25	df680a61-15b9-4e63-bc25-2a85cf332fb1	Error: Failed to load properties
+20261015	07:36:26	f1a96672-36f0-47a4-9a93-39d6932df0e0	Error: Failed to load agencies.
+20261015	07:36:26	15b0b218-5511-4d91-8829-51a7d86fbd4b	Error: Failed to load properties
+20261015	07:36:26	feeee357-4cc4-48f8-acf4-f44b4479acba	Error: Failed to load properties
+20261015	07:36:26	280345a4-7735-41e2-9a45-4e3f22c93aa7	Error: Failed to load properties
+20261015	14:06:16	4c7c7431-0d2e-438c-a513-c066e08e0810	ChatError: unauthorized
+20261015	14:06:17	69fc45c6-6393-46b1-9d4e-be5a44961a1c	ChatError: unauthorized
+20261015	14:06:26	75d92b4f-0184-4d09-ad6f-211de65e5b7c	ChatError: unauthorized
+20261015	14:06:27	84264b4f-3e23-498b-b231-e619d665e137	ChatError: unauthorized
+20261015	14:06:39	e0d3708e-75ed-4ef4-a937-e30b98787901	ChatError: unauthorized
+20261015	14:06:40	4014e010-3444-4f35-b10d-ebbe936be957	ChatError: unauthorized
+20261015	14:06:58	c38b34c4-6b34-4c3a-9ef9-fbf9878097bc	ChatError: unauthorized
+20261015	14:06:59	05e2b329-8e7d-4c9a-9f2d-e607914bcd33	ChatError: unauthorized
+20261015	14:07:13	c1ac8e26-6b3c-446b-873b-17603a0e7476	ChatError: unauthorized
+20261015	14:07:14	557a00cf-ce53-4c9a-b67e-8e6c9641432a	ChatError: unauthorized
+20261015	14:07:51	7695e54f-3fd7-4ce1-bd0e-8a00de69c390	ChatError: unauthorized
+20261015	14:07:52	7c29dfd1-3058-41a7-8b97-b7a6fe39935e	ChatError: unauthorized
+20261015	14:08:52	ec582c95-7eec-4909-b77f-85ca2b9c8858	ChatError: unauthorized
+20261015	14:08:53	3f072b7a-4576-455d-a93c-1a736c7861f5	ChatError: unauthorized
+20261015	14:09:54	f186c368-4df7-41aa-96f6-6776edb1e60f	ChatError: unauthorized
+20261015	14:09:55	4370cc07-dcea-464c-9875-9cd906c07fd9	ChatError: unauthorized
+20261015	14:10:55	089b7e13-1f37-47cc-a451-178cc2bf8311	ChatError: unauthorized
+20261015	14:10:56	3e8fde5f-668d-410e-86a2-2e2648a0446d	ChatError: unauthorized
+20261015	14:11:56	5af3e786-9d30-42cf-af63-e8de2900fe5a	ChatError: unauthorized
+20261015	14:11:58	3979c126-0487-4f38-b966-de5a630a6951	ChatError: unauthorized
+20261015	14:12:58	a9a3f7d0-b38a-404f-969b-7848b358535b	ChatError: unauthorized
+20261015	14:12:59	9f2b1cce-c63e-48cb-b1d6-1ef3ff6aee52	ChatError: unauthorized
+20261015	14:13:59	f1ea9233-aa67-4288-b9b1-b4b8eab52e6b	ChatError: unauthorized
+20261015	14:14:00	1651429a-e0c2-4113-b05b-9f7a06aa7a0a	ChatError: unauthorized
+20261016	08:00:06	844110bf-c503-4e6d-b45f-68ce448149b7	ChatError: unauthorized
+20261016	08:00:07	a931f851-0342-4161-8694-054524da0ec4	ChatError: unauthorized
+20261016	10:51:05	107448b3-a210-4108-96ce-558cad35053c	UnauthorizedError: Недостасува или е невалиден токенот.
+20261016	10:51:05	4e03ab8b-544c-4896-9681-3ad069d33d61	UnauthorizedError: Недостасува или е невалиден токенот.
+20261016	10:51:05	be2dc06c-1bd6-4deb-8156-b7c7d258aedb	ChatError: unauthorized
+20261016	10:55:45	f8f68195-3b09-47f9-9c69-7a1b971eb043	UnauthorizedError: Недостасува или е невалиден токенот.
+20261016	10:55:45	36a4cb6e-b3f4-4d94-90ac-3fd22d98186c	UnauthorizedError: Недостасува или е невалиден токенот.
+20261016	10:55:45	5bebacda-e274-4b18-a9b0-7285be3856ac	ChatError: unauthorized
+20261016	11:17:25	6752e743-12af-4fbb-8d86-2274886db0b6	UnauthorizedError: Недостасува или е невалиден токенот.
+20261016	11:17:25	2610dcd1-c93d-4358-8027-5d3d09e6d523	UnauthorizedError: Недостасува или е невалиден токенот.
+20261016	11:17:25	46e44d52-d37f-4395-92eb-7023b5ba36b7	ChatError: unauthorized
+20261016	11:17:41	cb35b2d5-aef2-4255-b2ab-e203b87c3254	NotFoundError: User not found
+20261016	11:17:41	3f6481f3-01f6-4e42-a80c-903171897cc2	NotFoundError: User not found
+20261016	11:32:54	2e3c0ede-6277-4ed1-9c49-116eb3a2de80	ChatError: unauthorized
+20261016	11:32:54	05b95dfd-2824-4d6c-beb2-f14f7a6f7a05	UnauthorizedError: Недостасува или е невалиден токенот.
+20261016	11:32:54	24a90b20-d693-4146-a64e-3977d4cc7d6a	UnauthorizedError: Недостасува или е невалиден токенот.
+20261016	11:32:54	78dcafc0-67ee-467e-89bc-763490f7c98b	ChatError: unauthorized
+20261016	11:39:24	0555abee-32f4-46c0-8716-a829132ae2e1	BadRequestError: Проблем со валидирање на податоците.
+20261016	11:39:24	66b80c9c-799d-495f-a387-d439a69a9547	UnauthorizedError: Unauthorized
+20261016	11:39:24	79992dca-1b7d-4e5a-8237-5e25165ec530	NotFoundError: Not Found
+20261016	11:39:24	2bd0de16-063c-41dc-907e-b65f6248264c	UnprocessableEntityError: Проблем со валидирање на податоците.
+20261016	11:39:24	daf8eb6c-44fa-47ca-812b-5e5b694a22fb	InternalServerError: Internal Server Error
+20261016	11:39:24	9355811d-c5fd-459c-9f51-4902d0e3be36	ServiceUnavailableError: Service Unavailable
+20261016	11:39:24	be7647f7-24d1-4642-9f5f-c50c38acbcc3	ConflictError: Огласот веќе постои
+20261016	11:42:55	8df388d7-3cad-4453-8f60-0d9bd617ff0e	UnprocessableEntityError: Проблем со валидирање на податоците.
+20261016	11:45:44	18178d2f-8a8e-415d-ae54-a522225e4c36	UnprocessableEntityError: Проблем со валидирање на податоците.
+20261016	11:46:09	e263e221-0f57-4a2c-a700-bb3927fe6569	UnprocessableEntityError: Проблем со валидирање на податоците.
+20261016	11:49:50	3dd4ce3d-e719-414c-bdd0-c22f10f623bb	UnprocessableEntityError: Проблем со валидирање на податоците.
+20261016	11:50:53	2d1cb379-6d5b-40c5-8f9e-55df4f9528b7	ConflictError: Conflict
+20261016	11:55:40	e4fd116f-4da5-4e5c-b690-cf9b29a57eb0	UnprocessableEntityError: Проблем со валидирање на податоците.
+20261016	11:56:58	ed8af4cd-230b-4503-bdfa-f9be0eca3102	UnprocessableEntityError: Проблем со валидирање на податоците.
+20261016	11:57:07	9802fd9b-0f2c-4b7f-94e4-a220cc07ddba	UnprocessableEntityError: Проблем со валидирање на податоците.
+20261016	12:05:34	5267f6b5-09b7-48ad-8dc4-095f96159b5e	NotFoundError: User not found
+20261016	12:05:34	4f0a7e61-fcf6-4ddf-b31b-0a7b1afc6bfb	NotFoundError: User not found
+20261016	12:41:55	05267bd5-b6b7-472f-9cd3-ef00dd544025	ChatError: unauthorized
+20261016	12:41:55	93aca8da-e96f-4c36-b7f2-a192f49922af	UnauthorizedError: Недостасува или е невалиден токенот.
+20261016	12:41:56	9e899a46-087d-4e7e-854d-c7695f918113	UnauthorizedError: Недостасува или е невалиден токенот.
+20261016	12:41:56	42ed413f-dbf5-4574-866d-061087f2c67d	ChatError: unauthorized
+20261016	12:42:40	b5ca3599-efda-4e25-a66e-33f32c5996e7	BadRequestError: Проблем со валидирање на податоците.
+20261016	12:43:15	31ff7615-a3ef-4da0-8e2e-173784458af9	BadRequestError: Проблем со валидирање на податоците.
+20261016	12:43:41	ced0cb1d-2cc5-4b4d-937a-d8957bdceff0	BadRequestError: Проблем со валидирање на податоците.

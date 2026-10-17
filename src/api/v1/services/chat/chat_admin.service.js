@@ -5,6 +5,7 @@ import { ChatError } from "./chat_error.js"
 import { queueChatNewMessageEmail } from "./chat_email.service.js"
 import { queueChatPushNotification } from "./chat_push.service.js"
 import { deliverMessage } from "./message_delivery.service.js"
+import { trackFirstContactOf } from "./chat_effects.js"
 import { flagUser, unflagUser } from "./messaging_flag.service.js"
 
 const PAGE_SIZE = 20
@@ -113,6 +114,8 @@ export const approveMessage = async ({ messageId, adminId }) => {
     })
     queueChatNewMessageEmail(delivery.notifyParticipantId)
     queueChatPushNotification(delivery.pushMessageId)
+    // approveMessage only returns when the message was delivered, so this one may be the listing's first contact.
+    trackFirstContactOf(messageId)
 }
 
 export const rejectMessage = async ({ messageId, adminId }) =>
