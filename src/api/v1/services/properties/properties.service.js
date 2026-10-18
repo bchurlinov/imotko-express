@@ -475,7 +475,8 @@ export const getPropertyService = async (propertyId, viewContext = {}, options =
             where: { id: propertyId },
             include: {
                 agency: true,
-                propertyLocation: true,
+                // The parent's name lets the app label a price trend that falls back to the wider area.
+                propertyLocation: { include: { parent: { select: { id: true, name: true } } } },
                 createdByMember: {
                     include: {
                         user: true,
