@@ -9,6 +9,7 @@ import {
     getUserController,
     patchNotificationStatusController,
     deleteNotificationController,
+    deleteAllNotificationsController,
     propertyFavoriteController,
     propertyUnfavoriteController,
     getPropertiesFavoritesController,
@@ -163,6 +164,8 @@ router.patch(
     validateRequest,
     patchNotificationStatusController
 )
+
+router.delete("/:id/notifications", resolveChatViewer, deleteAllNotificationsController)
 
 router.delete("/:id/notifications/:notificationId", resolveChatViewer, deleteNotificationController)
 

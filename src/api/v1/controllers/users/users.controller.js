@@ -11,6 +11,7 @@ import { getUserNotificationsService } from "#services/users/users_notifications
 import {
     patchNotificationStatusService,
     deleteNotificationsService,
+    deleteAllNotificationsService,
 } from "#services/users/users_notifications.service.js"
 import {
     usersCreatePropertiesFavoriteService,
@@ -170,6 +171,19 @@ export const deleteNotificationController = asyncHandler(async (req, res) => {
     if (req.chatViewer?.type !== "admin" && req.chatViewer?.userId !== req.params.id)
         throw createError(403, "Forbidden")
     const result = await deleteNotificationsService(notificationId, req.params.id)
+    return res.status(200).json(result)
+})
+
+/**
+ * Controller to delete all notifications of a user
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>}
+ */
+export const deleteAllNotificationsController = asyncHandler(async (req, res) => {
+    if (req.chatViewer?.type !== "admin" && req.chatViewer?.userId !== req.params.id)
+        throw createError(403, "Forbidden")
+    const result = await deleteAllNotificationsService(req.params.id)
     return res.status(200).json(result)
 })
 

@@ -66,3 +66,21 @@ export const deleteNotificationsService = async (notificationId, recipientId) =>
         throw err
     }
 }
+
+/**
+ * Delete every notification of a user, including ones hidden from older apps
+ * @param {string} recipientId - The ID of the user whose notifications to delete
+ * @returns {Promise<{data: {count: number}, message: string}>} Promise resolving to the delete count and success message
+ * @throws {Error} Throws any database errors that occur during the query
+ */
+export const deleteAllNotificationsService = async recipientId => {
+    try {
+        const result = await prisma.notification.deleteMany({ where: { recipientId } })
+        return {
+            data: result,
+            message: "Notifications deleted successfully.",
+        }
+    } catch (err) {
+        throw err
+    }
+}
