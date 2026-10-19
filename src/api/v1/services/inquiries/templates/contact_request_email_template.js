@@ -7,6 +7,20 @@ const escapeHtml = value =>
         .replaceAll("'", "&#39;")
 
 /**
+ * Formats the optional price of a contact request ("—" when it was left empty)
+ * @param {number | null | undefined} price - Requested price
+ * @returns {string} Formatted price
+ */
+export const formatContactRequestPrice = price => {
+    if (!Number.isFinite(price)) return "—"
+
+    return new Intl.NumberFormat("mk-MK", {
+        minimumFractionDigits: Number.isInteger(price) ? 0 : 2,
+        maximumFractionDigits: 2,
+    }).format(price)
+}
+
+/**
  * Creates HTML email template for mobile app contact requests
  * @param {Object} data - Form data
  * @param {string} data.helpType - Requested help type
@@ -22,10 +36,7 @@ const escapeHtml = value =>
 export function createContactRequestEmailTemplate(data) {
     const { helpType, category, price, location, name, email, phone, message } = data
 
-    const formattedPrice = new Intl.NumberFormat("mk-MK", {
-        minimumFractionDigits: Number.isInteger(price) ? 0 : 2,
-        maximumFractionDigits: 2,
-    }).format(price)
+    const formattedPrice = formatContactRequestPrice(price)
 
     const receivedAt = new Date().toLocaleString("mk-MK", { timeZone: "Europe/Skopje" })
 

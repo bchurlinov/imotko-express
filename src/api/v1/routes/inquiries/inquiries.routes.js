@@ -37,11 +37,14 @@ router.post(
             .customSanitizer(normalizeSingleLine)
             .notEmpty()
             .withMessage("Категорија е задолжителна."),
+        // Price and size are optional in the mobile wizard, which sends null when they are left empty.
         body("price")
+            .optional({ values: "falsy" })
             .customSanitizer(normalizePrice)
             .custom(value => Number.isFinite(value))
             .withMessage("Невалидна цена."),
         body("size")
+            .optional({ values: "falsy" })
             .isNumeric()
             .withMessage("Невалидна големина.")
             .customSanitizer(normalizeSingleLine)

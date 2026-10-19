@@ -17,8 +17,10 @@ export const errorMiddleware = async (error, req, res, next) => {
     // `express.json()` reports these when the client disconnects before its
     // request body has arrived. There is no response channel left to use and
     // recording them as 500s turns a client-side cancellation loop into noisy
-    // server errors.
-    if (req.destroyed || res.destroyed || error?.type === "request.aborted") return
+    // server errors. `req.destroyed` is not a disconnect signal: Node destroys
+    // the request stream once its body has been read, so checking it here
+    // silently dropped every error on requests with a JSON body.
+    if (res.destroyed || error?.type === "request.aborted") return
 
     const status = error.status || 500 // Default to 500 if no status provided
     const message = error.message || "Something went wrong" // Default error message

@@ -1,5 +1,8 @@
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses"
-import { createContactRequestEmailTemplate } from "./templates/contact_request_email_template.js"
+import {
+    createContactRequestEmailTemplate,
+    formatContactRequestPrice,
+} from "./templates/contact_request_email_template.js"
 
 const emailClient = new SESClient({
     region: process.env.AWS_SES_REGION,
@@ -40,10 +43,7 @@ export async function postContactRequestService(body) {
             message,
         })
 
-        const formattedPrice = new Intl.NumberFormat("mk-MK", {
-            minimumFractionDigits: Number.isInteger(price) ? 0 : 2,
-            maximumFractionDigits: 2,
-        }).format(price)
+        const formattedPrice = formatContactRequestPrice(price)
 
         const receivedAt = new Date().toLocaleString("mk-MK", { timeZone: "Europe/Skopje" })
         const emailSubject = `Ново барање од мобилна апликација: ${safeHelpType}`
@@ -69,7 +69,7 @@ export async function postContactRequestService(body) {
                             Потреба: ${safeHelpType}
                             Категорија: ${category}
                             Цена: ${formattedPrice}
-                            Големина: ${size}
+                            Големина: ${size || "—"}
                             Локација: ${location}
                             Име: ${name}
                             Е-пошта: ${email}
