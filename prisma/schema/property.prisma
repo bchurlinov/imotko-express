@@ -148,6 +148,7 @@ model Property {
   outreaches                    PropertyOutreach[]
   // Private listing AI cleanup: null for agency rows and rows created before it.
   aiStatus                      PropertyAiStatus?
+  propertyReports               PropertyReport[]
 
   @@index([propertyLocationId, listingType])
   @@index([country, propertyLocationId, listingType])
@@ -249,4 +250,33 @@ model PropertyEngagement {
   createdAt      DateTime       @default(now()) @db.Timestamptz(3)
   updatedAt      DateTime       @updatedAt @db.Timestamptz(3)
   additionalInfo Json?
+}
+
+enum PropertyReportReason {
+  SCAM
+  MISLEADING
+  UNAVAILABLE
+  DUPLICATE
+  INAPPROPRIATE
+  OTHER
+}
+
+// A signed-in user flags a listing for the moderation team (App Store guideline 1.2). One open report per user and
+// listing: reporting again updates it. Admins resolve reports in the web dashboard (Пораки → Reports).
+model PropertyReport {
+  id             String               @id @default(cuid())
+  propertyId     String
+  property       Property             @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  reporterUserId String?
+  reporterUser   User?                @relation(fields: [reporterUserId], references: [id], onDelete: SetNull)
+  reason         PropertyReportReason
+  message        String?
+  resolvedAt     DateTime?            @db.Timestamptz(3)
+  resolvedById   String?
+  createdAt      DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime             @updatedAt @db.Timestamptz(3)
+
+  @@index([resolvedAt, createdAt])
+  @@index([propertyId])
+  @@index([reporterUserId, propertyId])
 }

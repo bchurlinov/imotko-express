@@ -82,6 +82,7 @@ model User {
   sentMessages                Message[]                 @relation("MessageSender")
   createdAt                   DateTime?                 @default(now()) @db.Timestamptz(3)
   updatedAt                   DateTime?                 @updatedAt @db.Timestamptz(3)
+  propertyReports             PropertyReport[]
 
   @@index([agencyId])
   @@index([clientId])
