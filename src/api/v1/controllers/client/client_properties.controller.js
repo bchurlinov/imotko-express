@@ -32,6 +32,7 @@ export const listClientPropertiesController = async (req, res) => {
         counts: overview.counts,
         agencyRequest: overview.agencyRequest,
         properties: overview.properties,
+        totalViews: overview.views,
     })
 }
 

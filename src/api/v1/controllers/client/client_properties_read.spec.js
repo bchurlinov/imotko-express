@@ -62,7 +62,7 @@ test("agency accounts and users without a client row get 403 forbidden", async (
     assert.equal(await nextError(requireClientAccount, req), undefined)
     assert.deepEqual(req.client, { id: "c1", credits: 150 })
 })
-test("the list returns credits, limits, counts, the agency request and public photos", async () => {
+test("the list returns credits, limits, counts, total views, the agency request and public photos", async () => {
     prisma.client.findUnique = async () => ({ id: "c1", credits: 140 })
     prisma.property.findMany = async () => [
         {
@@ -78,10 +78,16 @@ test("the list returns credits, limits, counts, the agency request and public ph
     ]
     prisma.property.groupBy = async () => [{ listingType: "for_sale", _count: { _all: 1 } }]
     prisma.agency.findFirst = async () => null
-    prisma.propertyView.count = async () => 0
+    let viewsWhere
+    prisma.propertyView.count = async ({ where }) => {
+        viewsWhere = where
+        return 37
+    }
     const res = fakeRes()
     await listClientPropertiesController({ chatViewer: { type: "client", userId: "u1" }, client: { id: "c1" } }, res)
     assert.equal(res.statusCode, 200)
+    assert.equal(res.body.data.totalViews, 37)
+    assert.deepEqual(viewsWhere, { property: { clientId: "c1", status: { not: "DELETED" } } })
     assert.equal(res.body.data.credits, 140)
     assert.equal(res.body.data.limitPerType, 5)
     assert.equal(res.body.data.counts.for_sale, 1)
