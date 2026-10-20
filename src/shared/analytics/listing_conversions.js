@@ -37,12 +37,10 @@ export const trackListingPublished = ({ property, user, previousFirstPublishedAt
 
 const EMPTY_LOCATION = [{ location: null }, { location: "" }]
 
-// Owners sign up without a location; the city of their first listing becomes it. Only empty values are filled.
-export const backfillUserLocationFromListing = async (tx, { userId, clientId, city }) => {
+// Owners sign up without a location; the city of their first listing becomes it. Only an empty value is filled.
+// Only User has a location column; Client does not.
+export const backfillUserLocationFromListing = async (tx, { userId, city }) => {
     if (!city) return
 
     await tx.user.updateMany({ where: { id: userId, OR: EMPTY_LOCATION }, data: { location: city } })
-    if (clientId) {
-        await tx.client.updateMany({ where: { id: clientId, OR: EMPTY_LOCATION }, data: { location: city } })
-    }
 }
