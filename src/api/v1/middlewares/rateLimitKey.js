@@ -1,4 +1,28 @@
+import { timingSafeEqual } from "node:crypto"
 import { resolveVerifiedUserId } from "#utils/auth/supabaseJwt.js"
+
+/** Sent only server-to-server by imotko (Next) and imotko-templates; browsers and the mobile apps never have it */
+export const INTERNAL_SECRET_HEADER = "x-imotko-internal-secret"
+
+/**
+ * Whether the request comes from one of our own servers (imotko web, imotko-templates).
+ *
+ * Those call Express from a handful of shared Vercel egress IPs on behalf of every visitor, so they must not be
+ * bucketed per IP. They prove who they are with INTERNAL_API_SECRET; with the env var unset nobody is trusted.
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {NodeJS.ProcessEnv} [env] - Environment to read from
+ * @returns {boolean} True when the header matches INTERNAL_API_SECRET
+ */
+export const isTrustedInternalCaller = (req, env = process.env) => {
+    const expected = env.INTERNAL_API_SECRET
+    const provided = req.headers?.[INTERNAL_SECRET_HEADER]
+    if (!expected || typeof provided !== "string" || !provided) return false
+
+    const a = Buffer.from(provided)
+    const b = Buffer.from(expected)
+    return a.length === b.length && timingSafeEqual(a, b)
+}
 
 /**
  * Collapses an IPv6 address to its /64 prefix.
@@ -65,7 +89,8 @@ export const resolveRateLimitKey = async req => {
 /**
  * Attaches `req.rateLimitKey` before the limiter runs, so both `keyGenerator`
  * and `limit` read the same already-resolved value instead of verifying the
- * token twice.
+ * token twice. Also flags `req.trustedInternalCaller`, which the global
+ * limiter skips.
  *
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -73,6 +98,7 @@ export const resolveRateLimitKey = async req => {
  * @returns {Promise<void>}
  */
 export const attachRateLimitKey = async (req, res, next) => {
+    req.trustedInternalCaller = isTrustedInternalCaller(req)
     try {
         req.rateLimitKey = await resolveRateLimitKey(req)
     } catch {

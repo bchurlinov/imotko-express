@@ -1,7 +1,6 @@
 import "dotenv/config"
 import express from "express"
 import cookieParser from "cookie-parser"
-import rateLimit from "express-rate-limit"
 import helmet from "helmet"
 import cors from "cors"
 import morgan from "morgan"
@@ -12,11 +11,12 @@ import initializeRoutes from "./api/v1/routes/index.js"
 // Middlewares
 import { errorMiddleware } from "./api/v1/middlewares/errorMiddleware.js"
 import { attachRateLimitKey } from "./api/v1/middlewares/rateLimitKey.js"
+import { createGlobalRateLimiter } from "./api/v1/middlewares/globalRateLimit.js"
 import { createFaultInjection } from "./api/v1/middlewares/fault_injection.js"
 
 // Config
 import { corsOptions } from "./config/cors.config.js"
-import { createRateLimitStore, sharedRateLimitOptions } from "./config/rateLimit.config.js"
+import { createRateLimitStore } from "./config/rateLimit.config.js"
 import { closeRedisClient } from "./config/redis.js"
 import { isDebugIpRouteEnabled, resolveTrustProxyHops } from "./config/server.config.js"
 
@@ -43,30 +43,9 @@ if (isDebugIpRouteEnabled()) {
     })
 }
 
-// Rate limiting - only apply in production, skip in development
-// Authenticated requests are bucketed per Supabase user id, so mobile clients
-// sharing a carrier NAT address do not exhaust each other's budget. Anonymous
-// traffic still falls back to a (IPv6 /64 normalized) IP bucket.
-const AUTHENTICATED_REQUEST_LIMIT = 500
-const ANONYMOUS_REQUEST_LIMIT = 100
-
-const limiter =
-    process.env.ENV === "production"
-        ? rateLimit({
-              ...sharedRateLimitOptions,
-              windowMs: 15 * 60 * 1000,
-              limit: req => (req.rateLimitKey?.kind === "user" ? AUTHENTICATED_REQUEST_LIMIT : ANONYMOUS_REQUEST_LIMIT),
-              keyGenerator: req => req.rateLimitKey?.key ?? `ip:${req.ip}`,
-              store: createRateLimitStore("global"),
-              standardHeaders: "draft-7",
-              legacyHeaders: false,
-              message: {
-                  data: null,
-                  code: 429,
-                  message: "rateLimited",
-              },
-          })
-        : (req, res, next) => next()
+// Global rate limiting: off unless RATE_LIMIT_ENABLED=true (see globalRateLimit.js).
+// Requests carrying a valid X-Imotko-Internal-Secret (imotko web, imotko-templates) are not limited.
+const limiter = createGlobalRateLimiter({ createStore: () => createRateLimitStore("global") })
 
 // Railway: 2 hops (default). Dokploy VPS: TRUST_PROXY_HOPS=1 (Traefik -> app).
 app.set("trust proxy", resolveTrustProxyHops())

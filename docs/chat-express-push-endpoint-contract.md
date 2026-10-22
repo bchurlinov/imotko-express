@@ -116,7 +116,7 @@ Use the common chat envelope:
 
 | Where | Variable | Value |
 |---|---|---|
-| Next.js (Vercel + `.env.local`) | `EXPRESS_API_URL` | Express base URL without `/api/v1`, e.g. `https://api.imotko.mk`. Already used by price trends; must be set for push. If unset, push requests are skipped silently. |
+| Next.js (Vercel + `.env.local`) | `EXPRESS_API_URL` | Express base URL without `/api/v1`, e.g. `https://express.imotko.mk`. Already used by price trends; must be set for push. If unset, push requests are skipped silently. |
 | Express only | `EXPO_ACCESS_TOKEN` | Unchanged. It never goes to the web app. |
 | Express only | Supabase admin credentials used by `resolveChatViewer` | Unchanged. Must point at the same Supabase project as the web app, so web tokens verify. |
 

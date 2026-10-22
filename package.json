@@ -28,7 +28,10 @@
         "test:analytics": "tsx --test src/shared/ai/posthog_server.spec.js src/shared/analytics/*.spec.js src/api/v1/services/client/*.spec.js",
         "test:ai-prefill": "tsx --test src/api/v1/middlewares/resolve_property_writer.spec.js src/api/v1/services/ai/property_prefill_input.spec.js src/api/v1/controllers/ai/property_prefill.controller.spec.js",
         "test:fault-injection": "node --test src/api/v1/middlewares/fault_injection.spec.js",
-        "test:server-config": "node --test src/config/server.config.spec.js",
+        "start:config-only": "node --experimental-transform-types scripts/config_only_server.js",
+    "test:config-only": "node --test scripts/config_only_server.spec.js",
+    "test:server-config": "node --test src/config/server.config.spec.js",
+        "test:rate-limit": "node --test src/api/v1/middlewares/rateLimitKey.spec.js src/api/v1/middlewares/globalRateLimit.spec.js",
         "test:property-reports": "tsx --test src/api/v1/services/properties/property_report.service.spec.js",
         "announce:app-update": "node --experimental-transform-types scripts/announce_app_update.js"
     },
