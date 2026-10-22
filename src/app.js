@@ -18,18 +18,30 @@ import { createFaultInjection } from "./api/v1/middlewares/fault_injection.js"
 import { corsOptions } from "./config/cors.config.js"
 import { createRateLimitStore, sharedRateLimitOptions } from "./config/rateLimit.config.js"
 import { closeRedisClient } from "./config/redis.js"
+import { isDebugIpRouteEnabled, resolveTrustProxyHops } from "./config/server.config.js"
 
 // Database
 import prisma from "./database/client.js"
 
 const app = express()
 
+// Liveness probe for the container orchestrator. Registered before logging, CORS and rate limiting so 30s probes
+// neither flood the logs nor spend rate-limit budget, and it never touches the DB so a Supabase blip can't kill
+// healthy containers.
+app.get("/health", (req, res) => {
+    res.set("Cache-Control", "no-store")
+    res.status(200).json({ status: "ok" })
+})
+
 // Log middleware - filter out Chrome DevTools inspector requests
 app.use(morgan("dev"))
 
-// app.get("/debug-ip-test-imotko", (req, res) => {
-//     res.json({ ip: req.ip, ips: req.ips, xff: req.headers["x-forwarded-for"] })
-// })
+// Verifies the proxy chain on a new host (req.ip must be the caller's public IP). Enabled only by DEBUG_IP_ROUTE=true.
+if (isDebugIpRouteEnabled()) {
+    app.get("/debug-ip-test-imotko", (req, res) => {
+        res.json({ ip: req.ip, ips: req.ips, xff: req.headers["x-forwarded-for"] })
+    })
+}
 
 // Rate limiting - only apply in production, skip in development
 // Authenticated requests are bucketed per Supabase user id, so mobile clients
@@ -56,7 +68,8 @@ const limiter =
           })
         : (req, res, next) => next()
 
-app.set("trust proxy", 2)
+// Railway: 2 hops (default). Dokploy VPS: TRUST_PROXY_HOPS=1 (Traefik -> app).
+app.set("trust proxy", resolveTrustProxyHops())
 
 // CORS runs before the rate limiter so 429 responses still carry CORS headers
 // and the browser surfaces the real status instead of a generic CORS error

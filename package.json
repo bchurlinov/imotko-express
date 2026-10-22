@@ -19,6 +19,7 @@
         "worker:dev": "dotenv -e .env.development -- nodemon --watch workers --ext js --ignore 'workers/**/*.spec.js' --exec 'node --experimental-transform-types workers/index.js'",
         "worker:stage": "dotenv -e .env.stage -- node --experimental-transform-types workers/index.js",
         "worker:facebook": "node --experimental-transform-types workers/facebook-property-publication/index.js",
+        "queue:facebook": "node --experimental-transform-types scripts/facebook_queue.js",
         "test:facebook-worker": "node --experimental-transform-types --test workers/facebook-property-publication/*.spec.js",
         "test:chat": "tsx --test src/api/v1/services/chat/*.spec.js",
         "test:email": "tsx --test src/utils/email/*.spec.js",
@@ -27,6 +28,7 @@
         "test:analytics": "tsx --test src/shared/ai/posthog_server.spec.js src/shared/analytics/*.spec.js src/api/v1/services/client/*.spec.js",
         "test:ai-prefill": "tsx --test src/api/v1/middlewares/resolve_property_writer.spec.js src/api/v1/services/ai/property_prefill_input.spec.js src/api/v1/controllers/ai/property_prefill.controller.spec.js",
         "test:fault-injection": "node --test src/api/v1/middlewares/fault_injection.spec.js",
+        "test:server-config": "node --test src/config/server.config.spec.js",
         "test:property-reports": "tsx --test src/api/v1/services/properties/property_report.service.spec.js",
         "announce:app-update": "node --experimental-transform-types scripts/announce_app_update.js"
     },

@@ -1,0 +1,21 @@
+# Secrets never enter the build context
+.env
+.env.*
+!.env.example
+
+# Rebuilt inside the image
+node_modules
+generated
+
+# Not needed at runtime
+.git
+.github
+.claude
+.idea
+.DS_Store
+**/.DS_Store
+docs
+spec
+src/logs
+supabase_backup.sql
+*.md
