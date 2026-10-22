@@ -31,7 +31,8 @@ const viewerForUser = async user => {
         where: { userId: user.id, status: AgencyMemberStatus.active, agencyId: { not: null } },
         select: { id: true, role: true, agencyId: true },
     })
-    if (!membership) throw new ChatError(CHAT_ERRORS.FORBIDDEN, 403)
+    // Still an agency account, only without a seat; /client/* tells it apart from the other 403s (never serialized).
+    if (!membership) throw Object.assign(new ChatError(CHAT_ERRORS.FORBIDDEN, 403), { agencyAccount: true })
     return {
         type: "agency",
         userId: user.id,

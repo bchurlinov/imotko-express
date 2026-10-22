@@ -5,7 +5,7 @@ model Client {
   propertyViews              PropertyView[]
   clientSearches             ClientSearch[]
   reviews                    AgencyReview[]
-  receiveCompanyEmail        Boolean?                     @default(false)
+  receiveCompanyEmail        Boolean                      @default(true)
   receiveCompanySMS          Boolean?                     @default(false)
   receiveAgentEmail          Boolean?                     @default(false)
   receiveAgentSMS            Boolean?                     @default(false)

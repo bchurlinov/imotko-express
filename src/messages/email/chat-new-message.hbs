@@ -1,11 +1,57 @@
+<!doctype html>
 <html lang="{{locale}}">
-    <body style="font-family:Arial,sans-serif;color:#111827;line-height:1.5">
-        <p><img src="https://imotko.mk/icons/logo_email.png" width="164" alt="Имотко" style="display:block;border:0"></p>
-        <h1>{{headline}}</h1>
-        <p>{{intro}}</p>
-        {{#if propertyTitle}}<p><strong>{{propertyLabel}}:</strong> {{propertyTitle}}</p>{{/if}}
-        <p>{{instructions}}</p>
-        <p><a href="{{link}}">{{openLabel}}</a></p>
-        {{#if unsubscribeLink}}<p style="color:#6b7280;font-size:13px">{{unsubscribeText}} <a href="{{unsubscribeLink}}">{{unsubscribeLabel}}</a></p>{{/if}}
-    </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{{headline}}</title>
+  <style>
+    @media only screen and (max-width: 620px) {
+      .email-shell { width: 100% !important; }
+      .email-pad { padding: 28px 24px !important; }
+      .email-title { font-size: 25px !important; line-height: 32px !important; }
+      .email-logo { width: 112px !important; height: auto !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background-color:#f5f3f8;color:#302b38;font-family:Arial,Helvetica,sans-serif;">
+  <div style="display:none;font-size:1px;line-height:1px;color:#f5f3f8;max-height:0;max-width:0;opacity:0;overflow:hidden;">{{preheader}}</div>
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;background-color:#f5f3f8;">
+    <tr><td align="center" style="padding:32px 16px 48px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" class="email-shell" style="width:600px;max-width:600px;border-collapse:collapse;">
+        <tr><td align="center" style="padding:0 0 24px 4px;">
+          <img style="display:block;width:112px;max-width:112px;height:auto;margin:0 auto;border:0;" class="email-logo" src="https://imotko.mk/icons/logo_email.png" width="112" alt="Имотко">
+        </td></tr>
+        <tr><td style="background-color:#ffffff;border:1px solid #e8e3ee;border-top:4px solid #7f54b6;border-radius:10px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;">
+            <tr><td class="email-pad" style="padding:40px 42px 38px;">
+              <p style="margin:0 0 12px;color:#625b6d;font-size:15px;line-height:22px;">{{greeting}}</p>
+              <h1 class="email-title" style="margin:0 0 19px;color:#292331;font-size:29px;font-weight:700;line-height:36px;letter-spacing:-0.4px;">{{headline}}</h1>
+              <p style="margin:0 0 26px;color:#494350;font-size:16px;line-height:25px;">{{intro}}</p>
+              {{#if propertyTitle}}
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;background-color:#f7f4fb;">
+                <tr><td style="border-left:3px solid #7f54b6;padding:20px 22px;">
+                  <p style="margin:0 0 6px;color:#625b6d;font-size:13px;line-height:19px;">{{propertyLabel}}</p>
+                  <p style="margin:0;color:#30243d;font-size:17px;font-weight:700;line-height:25px;">{{propertyTitle}}</p>
+                </td></tr>
+              </table>
+              {{/if}}
+              <p style="margin:25px 0 23px;color:#494350;font-size:15px;line-height:24px;">{{instructions}}</p>
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;">
+                <tr><td bgcolor="#56317d" style="border-radius:6px;background-color:#56317d;">
+                  <a href="{{link}}" style="display:inline-block;padding:14px 24px;border:1px solid #56317d;border-radius:6px;color:#ffffff;font-size:15px;font-weight:700;line-height:20px;text-align:center;text-decoration:none;">{{openLabel}}</a>
+                </td></tr>
+              </table>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td style="padding:22px 5px 0;color:#716b7a;font-size:13px;line-height:21px;text-align:center;">
+          {{footerNote}}<br>
+          {{#if unsubscribeLink}}{{unsubscribeText}} <a href="{{unsubscribeLink}}" style="color:#56317d;text-decoration:underline;">{{unsubscribeLabel}}</a><br>{{/if}}
+          <a href="https://imotko.mk" style="color:#56317d;text-decoration:underline;">imotko.mk</a> &nbsp;·&nbsp; © {{year}} Имотко
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
 </html>

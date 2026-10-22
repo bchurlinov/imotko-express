@@ -5,7 +5,13 @@ import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses"
 import prisma from "#database/client.js"
 import { resolveEmailDelivery } from "#utils/email/delivery_policy.js"
 import { pickLocalized } from "./chat_format.js"
-import { chatEmailAllowed, chatEmailUnsubscribeLink } from "./chat_email_preferences.js"
+import { appendImotkoEmailFooter } from "#utils/email/email_footer.js"
+import {
+    chatEmailAllowed,
+    chatEmailUnsubscribeLink,
+    clientOptedOutOfImotkoEmails,
+    imotkoEmailUnsubscribeLink,
+} from "./chat_email_preferences.js"
 import { chatLocaleText } from "./chat_locales.js"
 import { conversationLink, resolveParticipantRecipient } from "./chat_notifications.service.js"
 import { userLanguageToLocale } from "./chat_policy.js"
@@ -39,7 +45,17 @@ export const sendChatNewMessageEmail = async participantId => {
                 agencyId: true,
                 assignedMemberId: true,
                 agency: { select: { emailNotificationsEnabled: true } },
-                user: { select: { client: { select: { chatEmailsEnabled: true, chatEmailsUnsubscribeToken: true } } } },
+                user: {
+                    select: {
+                        client: {
+                            select: {
+                                receiveCompanyEmail: true,
+                                chatEmailsEnabled: true,
+                                chatEmailsUnsubscribeToken: true,
+                            },
+                        },
+                    },
+                },
                 conversation: {
                     select: {
                         id: true,
@@ -57,6 +73,7 @@ export const sendChatNewMessageEmail = async participantId => {
         if (participant.agencyId && !participant.agency?.emailNotificationsEnabled) {
             return skip(participantId, "agency-notifications-off")
         }
+        if (clientOptedOutOfImotkoEmails(participant)) return skip(participantId, "client-opted-out")
         if (!chatEmailAllowed(participant)) return skip(participantId, "opted-out")
         const recipient = await resolveParticipantRecipient(prisma, participant)
         if (!recipient?.email) return skip(participantId, "no-recipient")
@@ -67,35 +84,62 @@ export const sendChatNewMessageEmail = async participantId => {
         const appUrl = (process.env.IMOTKO_WEB_URL || "https://imotko.mk").replace(/\/$/, "")
         const link = `${appUrl}${conversationLink(recipient.side, locale, participant.conversation.id)}`
         const unsubscribeLink = chatEmailUnsubscribeLink(participant, appUrl, locale)
-        const html = template({
-            locale,
-            headline: chatLocaleText(locale, "emailHeadline"),
-            intro: counterpart?.displayName || "Imotko",
-            propertyLabel: propertyTitle ? "Listing" : "",
-            propertyTitle,
-            instructions: chatLocaleText(locale, "emailInstructions"),
-            openLabel: chatLocaleText(locale, "emailOpen"),
-            link,
-            unsubscribeLink,
-            unsubscribeText: chatLocaleText(locale, "emailUnsubscribeText"),
-            unsubscribeLabel: chatLocaleText(locale, "emailUnsubscribeLabel"),
-        })
+        const imotkoUnsubscribeLink = imotkoEmailUnsubscribeLink(participant, appUrl, locale)
+        const sender = counterpart?.displayName || "Imotko"
+        // Same copy and layout as the web app's chat email; outreach to a listing owner gets its own wording.
+        const isOutreach = participant.conversation.kind === "AGENCY_OUTREACH" && Boolean(participant.userId)
+        const subject = chatLocaleText(locale, isOutreach ? "emailOutreachSubject" : "emailSubject")
+        const headline = chatLocaleText(locale, isOutreach ? "emailOutreachTitle" : "emailHeadline")
+        const intro = isOutreach
+            ? chatLocaleText(locale, "emailOutreachIntro", { name: sender })
+            : chatLocaleText(locale, propertyTitle ? "emailIntroWithProperty" : "emailIntroNoProperty", {
+                  name: sender,
+              })
+        const instructions = `${chatLocaleText(locale, "emailInstructions")} ${chatLocaleText(locale, "emailAccountNote")}`
+        const imotkoUnsubscribe = imotkoUnsubscribeLink
+            ? {
+                  text: chatLocaleText(locale, "emailImotkoUnsubscribeText"),
+                  label: chatLocaleText(locale, "emailImotkoUnsubscribeLabel"),
+                  link: imotkoUnsubscribeLink,
+              }
+            : undefined
+        const html = appendImotkoEmailFooter(
+            template({
+                locale,
+                preheader: chatLocaleText(locale, "emailPreheader", { name: sender }),
+                greeting: chatLocaleText(locale, "emailGreeting", { name: recipient.name || recipient.email }),
+                headline,
+                intro,
+                propertyLabel: chatLocaleText(locale, "emailPropertyLabel"),
+                propertyTitle,
+                instructions,
+                openLabel: chatLocaleText(locale, "emailOpen"),
+                footerNote: chatLocaleText(locale, "emailFooterNote"),
+                link,
+                unsubscribeLink,
+                unsubscribeText: chatLocaleText(locale, "emailUnsubscribeText"),
+                unsubscribeLabel: chatLocaleText(locale, "emailUnsubscribeLabel"),
+                year: new Date().getFullYear(),
+            }),
+            { unsubscribe: imotkoUnsubscribe }
+        )
         const text = [
-            chatLocaleText(locale, "emailHeadline"),
-            counterpart?.displayName || "Imotko",
+            headline,
+            intro,
             propertyTitle,
-            chatLocaleText(locale, "emailInstructions"),
+            instructions,
             link,
             unsubscribeLink
                 ? `${chatLocaleText(locale, "emailUnsubscribeText")} ${chatLocaleText(locale, "emailUnsubscribeLabel")}: ${unsubscribeLink}`
                 : "",
+            imotkoUnsubscribe ? `${imotkoUnsubscribe.text} ${imotkoUnsubscribe.label}: ${imotkoUnsubscribe.link}` : "",
         ]
             .filter(Boolean)
             .join("\n\n")
 
         const delivery = resolveEmailDelivery({
             to: [recipient.email],
-            subject: chatLocaleText(locale, "emailSubject"),
+            subject,
         })
         const result = await emailClient.send(
             new SendEmailCommand({

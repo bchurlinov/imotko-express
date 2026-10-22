@@ -1566,3 +1566,15 @@ An operation failed because it depends on one or more records that were required
 20261016	12:42:40	b5ca3599-efda-4e25-a66e-33f32c5996e7	BadRequestError: Проблем со валидирање на податоците.
 20261016	12:43:15	31ff7615-a3ef-4da0-8e2e-173784458af9	BadRequestError: Проблем со валидирање на податоците.
 20261016	12:43:41	ced0cb1d-2cc5-4b4d-937a-d8957bdceff0	BadRequestError: Проблем со валидирање на податоците.
+20261019	09:19:52	be5955c0-864d-4032-9cf8-2426d32b62b5	UnauthorizedError: Недостасува или е невалиден токенот.
+20261019	09:19:52	dd92568c-2362-4767-b58d-096f8475ce90	UnauthorizedError: Недостасува или е невалиден токенот.
+20261019	09:19:53	1eef24f8-8b33-4de4-a068-0ac77144012e	ChatError: unauthorized
+20261021	09:24:39	f527f56c-47bd-48ae-a4e4-e7676b111c4a	UnauthorizedError: Недостасува или е невалиден токенот.
+20261021	09:24:39	0ed78f20-e6ae-47d1-9b68-58fc8afa143e	ChatError: unauthorized
+20261021	09:24:39	e5c4a52b-714c-4163-9d11-bafc4c16ae0d	UnauthorizedError: Недостасува или е невалиден токенот.
+20261021	09:27:20	e8da8155-9ecb-465b-8400-ad70f58e618e	UnauthorizedError: Недостасува или е невалиден токенот.
+20261021	09:27:20	180253ad-47ad-44e4-8c7c-a603ddc3943a	ChatError: unauthorized
+20261021	09:27:20	091e8e0c-ff67-4eb4-92ab-154b4690a887	UnauthorizedError: Недостасува или е невалиден токенот.
+20261021	09:27:28	b9212ff0-dcce-4031-9557-5bde1af3d9ef	UnauthorizedError: Недостасува или е невалиден токенот.
+20261021	09:27:28	2509c334-10bb-4126-b860-5645ba071c59	UnauthorizedError: Недостасува или е невалиден токенот.
+20261021	09:27:28	ee796c1b-0fe5-40a5-a1b2-f71d6e9c222b	ChatError: unauthorized

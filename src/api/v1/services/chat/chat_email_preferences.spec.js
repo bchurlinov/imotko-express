@@ -1,6 +1,11 @@
 import assert from "node:assert/strict"
 import test from "node:test"
-import { chatEmailAllowed, chatEmailUnsubscribeLink } from "./chat_email_preferences.js"
+import {
+    chatEmailAllowed,
+    chatEmailUnsubscribeLink,
+    clientOptedOutOfImotkoEmails,
+    imotkoEmailUnsubscribeLink,
+} from "./chat_email_preferences.js"
 
 const client = clientRow => ({ userId: "u1", user: { client: clientRow } })
 
@@ -18,4 +23,22 @@ test("links a client to the web opt-out page in their language; agencies get no 
     )
     assert.equal(chatEmailUnsubscribeLink(client(null), "https://imotko.mk", "mk"), "")
     assert.equal(chatEmailUnsubscribeLink({ userId: null, agencyId: "a1" }, "https://imotko.mk", "mk"), "")
+})
+
+test("a client who turned off all Imotko emails gets no chat email even with chat emails on", () => {
+    const optedOut = client({ receiveCompanyEmail: false, chatEmailsEnabled: true })
+    assert.equal(chatEmailAllowed(optedOut), false)
+    assert.equal(clientOptedOutOfImotkoEmails(optedOut), true)
+    assert.equal(clientOptedOutOfImotkoEmails(client({ receiveCompanyEmail: true, chatEmailsEnabled: false })), false)
+    assert.equal(clientOptedOutOfImotkoEmails(client(null)), false)
+    assert.equal(chatEmailAllowed(client({ receiveCompanyEmail: true, chatEmailsEnabled: true })), true)
+})
+
+test("links a client to the general web opt-out page; agencies get no link", () => {
+    assert.equal(
+        imotkoEmailUnsubscribeLink(client({ chatEmailsUnsubscribeToken: "t1" }), "https://imotko.mk", "mk"),
+        "https://imotko.mk/mk/otkazi-izvestuvanja/t1"
+    )
+    assert.equal(imotkoEmailUnsubscribeLink(client(null), "https://imotko.mk", "mk"), "")
+    assert.equal(imotkoEmailUnsubscribeLink({ userId: null, agencyId: "a1" }, "https://imotko.mk", "mk"), "")
 })

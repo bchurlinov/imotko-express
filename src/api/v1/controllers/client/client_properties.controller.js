@@ -21,11 +21,12 @@ import { slugifyText } from "#shared/property_rules/strings.js"
 import { scheduleAiPostprocess } from "#services/client/client_ai.service.js"
 import { scheduleClientListingConversions } from "#services/client/client_listing_tracking.service.js"
 import { clientJson } from "./client_listing_response.js"
+import { accountUnavailableError } from "#middlewares/client_listings_guard.js"
 import { notifyTemplates } from "#utils/templates_revalidation.js"
 
 export const listClientPropertiesController = async (req, res) => {
     const overview = await getClientListingsOverview(req.chatViewer.userId)
-    if (!overview) throw new ClientListingError(CLIENT_LISTING_ERRORS.FORBIDDEN, 403)
+    if (!overview) throw accountUnavailableError()
     return clientJson(res, 200, null, {
         credits: overview.client.credits,
         limitPerType: CLIENT_LISTING_LIMIT_PER_TYPE,

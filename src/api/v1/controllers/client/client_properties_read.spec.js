@@ -2,13 +2,20 @@ import assert from "node:assert/strict"
 import { afterEach, test } from "node:test"
 import prisma from "#database/client.js"
 import { LEGACY_CAPABILITIES } from "#config/client_capabilities.js"
-import { requireClientAccount, requireClientListingsCapability } from "#middlewares/client_listings_guard.js"
+import {
+    remapViewerError,
+    requireClientAccount,
+    requireClientListingsCapability,
+} from "#middlewares/client_listings_guard.js"
+import { ChatError } from "#services/chat/chat_error.js"
 import { getClientPropertyController, listClientPropertiesController } from "./client_properties.controller.js"
 import { clientListingErrorResponder } from "./client_listing_response.js"
 
 const CAPABLE = { shortTermRent: true, clientListings: true }
 const originals = {
     clientFindUnique: prisma.client.findUnique,
+    clientUpsert: prisma.client.upsert,
+    userUpdateMany: prisma.user.updateMany,
     propertyFindMany: prisma.property.findMany,
     propertyFindFirst: prisma.property.findFirst,
     propertyGroupBy: prisma.property.groupBy,
@@ -17,6 +24,8 @@ const originals = {
 }
 afterEach(() => {
     prisma.client.findUnique = originals.clientFindUnique
+    prisma.client.upsert = originals.clientUpsert
+    prisma.user.updateMany = originals.userUpdateMany
     prisma.propertyView.count = originals.propertyViewCount
     prisma.property.findMany = originals.propertyFindMany
     prisma.property.findFirst = originals.propertyFindFirst
@@ -51,16 +60,44 @@ test("callers without client listings get 404 before any auth", async () => {
     assert.equal(error.code, "propertyNotFound")
     assert.equal(await nextError(requireClientListingsCapability, { capabilities: CAPABLE }), undefined)
 })
-test("agency accounts and users without a client row get 403 forbidden", async () => {
+test("only agency accounts get 403 forbidden, the app reads it as 'your account is now an agency'", async () => {
     const agency = await nextError(requireClientAccount, { chatViewer: { type: "agency", userId: "u2" } })
     assert.deepEqual([agency.status, agency.code], [403, "forbidden"])
-    prisma.client.findUnique = async () => null
-    const noClient = await nextError(requireClientAccount, { chatViewer: { type: "client", userId: "u1" } })
-    assert.deepEqual([noClient.status, noClient.code], [403, "forbidden"])
+    const admin = await nextError(requireClientAccount, { chatViewer: { type: "admin", userId: "u3" } })
+    assert.deepEqual([admin.status, admin.code], [403, "unauthorized"])
     prisma.client.findUnique = async () => ({ id: "c1", credits: 150 })
     const req = { chatViewer: { type: "client", userId: "u1" } }
     assert.equal(await nextError(requireClientAccount, req), undefined)
     assert.deepEqual(req.client, { id: "c1", credits: 150 })
+})
+test("a client user without a client row gets one back instead of a 403", async () => {
+    prisma.client.findUnique = async () => null
+    let upserted
+    let relinked
+    prisma.client.upsert = async args => {
+        upserted = args
+        return { id: "c9", credits: 150 }
+    }
+    prisma.user.updateMany = async args => {
+        relinked = args
+        return { count: 1 }
+    }
+    const req = { chatViewer: { type: "client", userId: "u1" } }
+    assert.equal(await nextError(requireClientAccount, req), undefined)
+    assert.deepEqual(req.client, { id: "c9", credits: 150 })
+    assert.deepEqual(upserted.where, { userId: "u1" })
+    assert.deepEqual(upserted.create, { userId: "u1" })
+    assert.deepEqual(relinked.data, { clientId: "c9" })
+    assert.equal(relinked.where.id, "u1")
+})
+test("identity 403s keep 'forbidden' only for agency accounts", () => {
+    const agency = Object.assign(new ChatError("forbidden", 403), { agencyAccount: true })
+    assert.equal(remapViewerError(agency), agency)
+    const emailTaken = remapViewerError(new ChatError("forbidden", 403))
+    assert.deepEqual([emailTaken.status, emailTaken.code], [403, "unauthorized"])
+    const unauthorized = new ChatError("unauthorized", 401)
+    assert.equal(remapViewerError(unauthorized), unauthorized)
+    assert.equal(remapViewerError(undefined), undefined)
 })
 test("the list returns credits, limits, counts, total views, the agency request and public photos", async () => {
     prisma.client.findUnique = async () => ({ id: "c1", credits: 140 })
