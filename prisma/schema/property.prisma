@@ -152,7 +152,26 @@ model Property {
 
   @@index([propertyLocationId, listingType])
   @@index([country, propertyLocationId, listingType])
-  @@index([agencyId])
+  // PERF(DB-02): replaces @@index([agencyId]); agencyId stays the leading column, so the agencyId FK stays covered.
+  // Why: agency websites and the mobile app (imotko-express) list an agency's listings with
+  // `WHERE agencyId = ? AND status = ? ORDER BY bumpedAt DESC NULLS LAST, createdAt DESC, updatedAt DESC LIMIT ?` (~290k
+  // calls) and count them with `WHERE agencyId = ? AND status = ?` (~656k calls). The old index found the agency's rows
+  // but Postgres still had to read and sort all of them on every page. This one hands them over already in feed order,
+  // so a page stops after LIMIT rows, and the count is answered from the index alone.
+  // The migration creates bumpedAt as `DESC NULLS LAST` (hand-edited, Prisma cannot express NULLS LAST): a plain DESC
+  // index sorts NULLs first and would not match the query's order. Prisma does not compare NULLS FIRST/LAST, so this
+  // line and the migration stay in sync (checked with `prisma migrate diff`).
+  @@index([agencyId, status, bumpedAt(sort: Desc), createdAt(sort: Desc), updatedAt(sort: Desc)], map: "Property_agencyId_status_feed_idx")
+  // PERF(DB-02): same feed order for the public search (`WHERE status = 'PUBLISHED' ... ORDER BY bumpedAt DESC NULLS
+  // LAST, createdAt DESC, updatedAt DESC LIMIT ?`) and the capped map (DB-01). Postgres walks the index in order and
+  // stops at LIMIT instead of reading and sorting every published listing. NULLS LAST is set in the migration as above.
+  @@index([status, bumpedAt(sort: Desc), createdAt(sort: Desc), updatedAt(sort: Desc)], map: "Property_status_feed_idx")
+  // PERF(DB-03): ownerId, renterId and createdByMemberId are FKs without an index (Supabase lint 0001). The agency CRM
+  // counts/lists a client's owned and rented listings by them, the dashboard scopes a member's listings by
+  // createdByMemberId, and deleting an AgencyClient/AgencyMember had to scan the whole Property table to check them.
+  @@index([ownerId])
+  @@index([renterId])
+  @@index([createdByMemberId])
   @@index([clientId, listingType, status])
   @@index([clientId, status, firstPublishedAt])
   @@index([bumpedAt])
@@ -199,6 +218,10 @@ model PropertySubmissionReview {
   description Json
   createdAt   DateTime @default(now()) @db.Timestamptz(3)
   updatedAt   DateTime @updatedAt @db.Timestamptz(3)
+
+  // PERF(DB-03): FK had no index (Supabase lint 0001). Reviews are read per property (dashboard listing details), and
+  // every Property delete cascades here, which scanned the whole table.
+  @@index([propertyId])
 }
 
 model PropertySale {
@@ -211,6 +234,10 @@ model PropertySale {
   soldAt       DateTime @default(now()) @db.Timestamptz(3)
   soldFor      Int
   visibility   Boolean  @default(true)
+
+  // PERF(DB-03): FK had no index (Supabase lint 0001). Sales are listed per agency (sales history, agency profile), and
+  // deleting an agency cascades here.
+  @@index([agencyId])
 }
 
 model PropertyView {
@@ -250,6 +277,11 @@ model PropertyEngagement {
   createdAt      DateTime       @default(now()) @db.Timestamptz(3)
   updatedAt      DateTime       @updatedAt @db.Timestamptz(3)
   additionalInfo Json?
+
+  // PERF(DB-03): FK had no index (Supabase lint 0001). Engagement (share/subscribe/favorite) is counted per property in
+  // the agency stats, and every Property delete cascades here, which scanned the whole table. clientId stays unindexed:
+  // it is only hit when a client is deleted.
+  @@index([propertyId])
 }
 
 enum PropertyReportReason {

@@ -42,6 +42,10 @@ model ClientSearch {
   agencyIdsJson              Json?
   unsubscribeToken           String?                     @unique
   unsubscribedAt             DateTime?                   @db.Timestamptz(3)
+
+  // PERF(DB-03): FK had no index (Supabase lint 0001). A client's saved searches are always read by clientId (account
+  // page, mobile, menu summary), and deleting a client cascades here.
+  @@index([clientId])
 }
 
 model ClientPropertySubscription {
@@ -62,4 +66,7 @@ model ClientPropertySubscription {
   clientSearch   ClientSearch?        @relation(fields: [clientSearchId], references: [id], onDelete: Cascade)
 
   @@index([listingType, category, location])
+  // PERF(DB-03): FK had no index (Supabase lint 0001). Subscriptions are read per client and deleting a client
+  // cascades here.
+  @@index([clientId])
 }

@@ -117,6 +117,9 @@ model ExpoPushTicket {
 
   @@index([receiptCheckedAt, createdAt])
   @@index([messageId])
+  // PERF(DB-03): FK had no index (Supabase lint 0001). When Expo reports DeviceNotRegistered the token is deleted and
+  // the delete cascades here; without this index every such delete scanned the whole (insert-heavy) ticket table.
+  @@index([tokenId])
 }
 
 model Account {
@@ -147,6 +150,12 @@ model Notification {
   createdAt   DateTime           @default(now())
   readAt      DateTime?
   metadata    Json?
+
+  // PERF(DB-03): this table had no index besides the primary key (Supabase lint 0001 on recipientId). Every
+  // notification list, unread count and mark-all-read (web + express) filters by recipientId and sorts by createdAt
+  // desc, so each one scanned and sorted every user's notifications. Postgres can also read this index backwards for
+  // createdAt asc.
+  @@index([recipientId, createdAt(sort: Desc)])
 }
 
 model UserFeatureRequest {

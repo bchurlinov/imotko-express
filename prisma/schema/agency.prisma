@@ -218,6 +218,10 @@ model AgencyClientNotes {
   createdByMember AgencyMember @relation(fields: [createdById], references: [id])
   createdAt       DateTime     @default(now()) @db.Timestamptz(3)
   updatedAt       DateTime     @updatedAt @db.Timestamptz(3)
+
+  // PERF(DB-03): FK had no index (Supabase lint 0001). Notes are always loaded per client (CRM client details), and
+  // deleting a client cascades here; both scanned every agency's notes.
+  @@index([agencyClientId])
 }
 
 enum AgencyClientStatus {
@@ -243,6 +247,11 @@ model AgencyClient {
   rentedProperties Property[]               @relation("PropertyRenter")
   createdAt        DateTime                 @default(now()) @db.Timestamptz(3)
   updatedAt        DateTime                 @updatedAt @db.Timestamptz(3)
+
+  // PERF(DB-03): FK had no index (Supabase lint 0001). The CRM client list always filters by agencyId, so it scanned
+  // every agency's clients; deleting an agency also cascades here. createdById stays unindexed: it is only hit when a
+  // member is deleted.
+  @@index([agencyId])
 }
 
 enum AgencyClientPreferenceStatus {
@@ -329,6 +338,10 @@ model AgencyMember {
   privateListingsSeenAt  DateTime?                 @db.Timestamptz(3)
   createdAt              DateTime?                 @default(now()) @db.Timestamptz(3)
   updatedAt              DateTime?                 @updatedAt @db.Timestamptz(3)
+
+  // PERF(DB-03): FK had no index (Supabase lint 0001). An agency's members are read by agencyId on the team page,
+  // chat routing and notifications (who to notify about a lead/message).
+  @@index([agencyId])
 }
 
 model AgencyInvitation {
@@ -380,6 +393,10 @@ model AgencyReview {
   agency     Agency   @relation(fields: [agencyId], references: [id], onDelete: Cascade)
   clientId   String
   client     Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  // PERF(DB-03): FK had no index (Supabase lint 0001). Reviews and the rating are loaded per agency on every public
+  // agency profile. clientId stays unindexed: it is only hit when a client is deleted.
+  @@index([agencyId])
 }
 
 enum ReminderStatus {

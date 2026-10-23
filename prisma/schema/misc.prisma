@@ -12,7 +12,9 @@ model SearchQuery {
   createdAt   DateTime            @default(now()) @db.Timestamptz(3)
   updatedAt   DateTime            @updatedAt @db.Timestamptz(3)
 
-  @@index([location, listingType, category])
+  // PERF(DB-04): dropped @@index([location, listingType, category]). Never used (Supabase lint 0005): SearchQuery is a
+  // write-only log (only `searchQuery.create` in src/app/api/search/route.js, nothing reads it), so the index only
+  // slowed down every logged search. Re-add it if a report ever queries this table.
 }
 
 enum ExternalListingCategory {
@@ -87,7 +89,8 @@ model Lead {
 
   @@index([intent])
   @@index([location])
-  @@index([isActive])
+  // PERF(DB-04): dropped @@index([isActive]). Never used (Supabase lint 0005) and redundant: the three composite indexes
+  // below all start with isActive and serve the same lookups. Saves: one less index to update on every Lead write.
   @@index([createdAt])
   @@index([isActive, createdAt(sort: Desc)])
   @@index([isActive, paidUnlockCount])
