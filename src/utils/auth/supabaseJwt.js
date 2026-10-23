@@ -1,5 +1,5 @@
-import { jwtVerify } from "jose"
-import { getSupabaseJwtSecret, getSupabaseUrl } from "#supabase"
+import { createRemoteJWKSet, decodeProtectedHeader, jwtVerify } from "jose"
+import { getSupabaseJwksUrl, getSupabaseJwtSecret, getSupabaseUrl } from "#supabase"
 
 const BEARER_PREFIX = "Bearer "
 
@@ -10,8 +10,23 @@ const BEARER_PREFIX = "Bearer "
  */
 const normalizeBaseUrl = url => url.replace(/\/$/, "")
 
-const hmacSecret = new TextEncoder().encode(getSupabaseJwtSecret())
+const legacySecret = getSupabaseJwtSecret()
+const hmacSecret = legacySecret ? new TextEncoder().encode(legacySecret) : undefined
+// Supabase signing keys (ES256/RS256); jose caches the set and refetches on an unknown kid, so key rotation needs no restart
+const supabaseJwks = createRemoteJWKSet(new URL(getSupabaseJwksUrl()))
 const supabaseIssuer = `${normalizeBaseUrl(getSupabaseUrl())}/auth/v1`
+
+/**
+ * Picks the verification key from the token's alg: HS256 only while the legacy secret is configured, JWKS otherwise
+ * @param {string} token - JWT token
+ * @returns {Uint8Array | ReturnType<typeof createRemoteJWKSet>} Key or key set for jwtVerify
+ * @throws When the token is HS256 but no legacy secret is configured
+ */
+const resolveVerificationKey = token => {
+    if (decodeProtectedHeader(token).alg !== "HS256") return supabaseJwks
+    if (!hmacSecret) throw new Error("HS256 Supabase tokens are not accepted: SUPABASE_JWT_SECRET is not set")
+    return hmacSecret
+}
 
 /**
  * Extracts the raw bearer token from an Express request
@@ -30,13 +45,13 @@ export const extractBearerToken = req => {
 }
 
 /**
- * Verifies a Supabase JWT (HS256) and returns its payload
+ * Verifies a Supabase JWT (signing keys via JWKS, or legacy HS256) and returns its payload
  * @param {string} token - JWT token to verify
  * @returns {Promise<import('jose').JWTPayload>} Verified payload
  * @throws When the signature, issuer or expiry is invalid
  */
 export const verifySupabaseJwt = async token => {
-    const { payload } = await jwtVerify(token, hmacSecret, { issuer: supabaseIssuer })
+    const { payload } = await jwtVerify(token, resolveVerificationKey(token), { issuer: supabaseIssuer })
     return payload
 }
 

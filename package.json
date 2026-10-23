@@ -32,6 +32,7 @@
     "test:config-only": "node --test scripts/config_only_server.spec.js",
     "test:server-config": "node --test src/config/server.config.spec.js",
         "test:rate-limit": "node --test src/api/v1/middlewares/rateLimitKey.spec.js src/api/v1/middlewares/globalRateLimit.spec.js",
+        "test:supabase-jwt": "node --test src/utils/auth/supabaseJwt.spec.js src/utils/auth/supabaseJwt.no_secret.spec.js",
         "test:property-reports": "tsx --test src/api/v1/services/properties/property_report.service.spec.js",
         "announce:app-update": "node --experimental-transform-types scripts/announce_app_update.js"
     },

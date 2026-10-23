@@ -16,7 +16,8 @@ export const supabaseConfig = {
     url: getEnvValue("SUPABASE_URL"),
     anonKey: getEnvValue("SUPABASE_ANON_KEY"),
     serviceRoleKey: getEnvValue("SUPABASE_SERVICE_ROLE_KEY"),
-    jwtSecret: getEnvValue("SUPABASE_JWT_SECRET"),
+    // Legacy HS256 secret: optional. Projects on asymmetric signing keys verify via JWKS only — leave it unset there.
+    jwtSecret: process.env.SUPABASE_JWT_SECRET || "",
     jwksUrl: getEnvValue("SUPABASE_JWKS_URL"),
 }
 
@@ -45,7 +46,7 @@ export const getSupabaseAnonKey = () => supabaseConfig.anonKey
 export const getSupabaseServiceRoleKey = () => supabaseConfig.serviceRoleKey
 
 /**
- * Get Supabase JWT secret
+ * Get Supabase legacy JWT secret (empty string when unset)
  * @returns {string}
  */
 export const getSupabaseJwtSecret = () => supabaseConfig.jwtSecret
