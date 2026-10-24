@@ -14,6 +14,9 @@ import { FACEBOOK_QUEUE_NAME } from "../../../../../workers/facebook-property-pu
 
 const JOB_NAME = "publish-approved-property"
 
+// imotko gives up after 5s; answering 503 before that lets its single retry run instead of timing out twice
+export const ENQUEUE_TIMEOUT_MS = 4000
+
 // Same options imotko used when it enqueued directly, so job retention and retries do not change
 const DEFAULT_JOB_OPTIONS = Object.freeze({
     attempts: 5,
@@ -47,6 +50,9 @@ export const parseFacebookPublicationRequest = body => {
  */
 export const getFacebookPublicationJobId = ({ propertyId, revision }) => `facebook-property-${propertyId}-${revision}`
 
+// AggregateError (e.g. ECONNREFUSED on both ::1 and 127.0.0.1) has an empty message, so log the code instead
+const describeRedisError = error => error?.code || error?.message || String(error)
+
 /** @type {Queue | undefined} */
 let queue
 /** @type {IORedis | undefined} */
@@ -66,22 +72,47 @@ const getQueue = () => {
     })
     // Without a listener ioredis emits an unhandled 'error' event and crashes the process
     queueConnection.on("error", error => {
-        console.error("[facebookPublicationQueue] redis error:", error?.message || error)
+        console.error("[facebookPublicationQueue] redis error:", describeRedisError(error))
     })
 
     queue = new Queue(FACEBOOK_QUEUE_NAME, { connection: queueConnection, defaultJobOptions: DEFAULT_JOB_OPTIONS })
+    // The queue re-emits connection errors; already logged above, but an 'error' event needs a listener
+    queue.on("error", () => {})
     return queue
 }
 
 /**
  * Adds a publication job. The payload stays identifiers-only; the worker loads and re-checks the property.
  *
+ * BullMQ waits for the connection to become ready without a deadline, so while Redis is down `add` would hang the
+ * request. It is capped here; a job that still lands later is harmless because the job id is per revision.
+ *
  * @param {{ propertyId: string, agencyId: string, revision: number }} request
- * @param {{ getQueueImpl?: () => Pick<Queue, "add"> }} [deps]
+ * @param {{ getQueueImpl?: () => Pick<Queue, "add">, timeoutMs?: number }} [deps]
  * @returns {Promise<import('bullmq').Job>} The added (or already existing) job
  */
-export const enqueueFacebookPublication = ({ propertyId, agencyId, revision }, { getQueueImpl = getQueue } = {}) =>
-    getQueueImpl().add(JOB_NAME, { propertyId, agencyId }, { jobId: getFacebookPublicationJobId({ propertyId, revision }) })
+export const enqueueFacebookPublication = async (
+    { propertyId, agencyId, revision },
+    { getQueueImpl = getQueue, timeoutMs = ENQUEUE_TIMEOUT_MS } = {}
+) => {
+    let timer
+    const timeout = new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`Redis did not answer within ${timeoutMs}ms`)), timeoutMs)
+    })
+
+    try {
+        const adding = getQueueImpl().add(
+            JOB_NAME,
+            { propertyId, agencyId },
+            { jobId: getFacebookPublicationJobId({ propertyId, revision }) }
+        )
+        // A late rejection after the timeout won must not become an unhandled rejection (fatal in app.js)
+        adding.catch(() => {})
+        return await Promise.race([adding, timeout])
+    } finally {
+        clearTimeout(timer)
+    }
+}
 
 /**
  * Closes the queue and its Redis connection, if one was ever opened

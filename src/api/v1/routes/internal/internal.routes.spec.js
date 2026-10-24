@@ -99,3 +99,13 @@ test("facebook publication: job payload is identifiers-only, deduplicated by rev
         { jobId: "facebook-property-property-1-1788948930000" },
     ])
 })
+
+test("facebook publication: enqueue gives up instead of hanging while Redis is unreachable", async () => {
+    await assert.rejects(
+        enqueueFacebookPublication(validBody, {
+            getQueueImpl: () => ({ add: () => new Promise(() => {}) }),
+            timeoutMs: 20,
+        }),
+        /did not answer/
+    )
+})
