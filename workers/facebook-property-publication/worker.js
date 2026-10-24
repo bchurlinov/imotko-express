@@ -4,6 +4,7 @@ import { decryptMetaToken } from "./crypto.js"
 import { createFacebookClient } from "./facebook.client.js"
 import { createFacebookPropertyProcessor } from "./processor.js"
 import { createPropertyRepository } from "./property.repository.js"
+import { redisTlsOptions } from "./redis_url.js"
 import { startFacebookWorker } from "./runtime.js"
 import IORedis from "ioredis"
 import prisma from "#database/client.js"
@@ -15,7 +16,7 @@ export async function startFacebookPropertyPublicationWorker({ logger }) {
     try {
         connection = new IORedis(config.redisUrl, {
             maxRetriesPerRequest: null,
-            tls: {},
+            tls: redisTlsOptions(config.redisUrl),
         })
         connection.on("error", error => {
             logger.error("facebook_redis_error", { errorCode: error?.name || "unknown" })

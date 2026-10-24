@@ -18,7 +18,9 @@ service and does not need a listening port or public domain.
 `DATABASE_URL`, `UPSTASH_REDIS_URL`, `META_TOKEN_ENCRYPTION_KEY`,
 `META_GRAPH_API_VERSION`, and `PUBLIC_APP_URL`.
 
-`UPSTASH_REDIS_URL` must be an Upstash TCP `rediss://` URL. The worker uses
+`UPSTASH_REDIS_URL` must be a TCP `rediss://` URL, or a plain `redis://` URL to
+an internal host (a Docker service name such as `imotko-redis`, localhost, or a
+private IP) for the self-hosted Redis on the VPS. The worker uses
 the shared database client, so the optional `DATABASE_POOL_MAX`,
 `DATABASE_POOL_ACQUIRE_TIMEOUT_MS`, and `DATABASE_POOL_IDLE_TIMEOUT_MS`
 settings remain available. `META_TOKEN_ENCRYPTION_KEY` must be standard

@@ -33,9 +33,14 @@ describe("loadFacebookWorkerConfig", () => {
         })
     }
 
-    test("rejects a non-TLS Redis URL", () => {
+    test("accepts plain redis:// to the internal VPS Redis", () => {
+        const redisUrl = "redis://default:secret@imotko-redis:6379"
+        assert.equal(loadFacebookWorkerConfig({ ...validEnv, UPSTASH_REDIS_URL: redisUrl }).redisUrl, redisUrl)
+    })
+
+    test("rejects plain redis:// to a public host", () => {
         assert.throws(
-            () => loadFacebookWorkerConfig({ ...validEnv, UPSTASH_REDIS_URL: "redis://localhost:6379" }),
+            () => loadFacebookWorkerConfig({ ...validEnv, UPSTASH_REDIS_URL: "redis://default:secret@redis.imotko.mk:6379" }),
             /UPSTASH_REDIS_URL/
         )
     })

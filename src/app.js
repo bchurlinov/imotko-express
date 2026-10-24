@@ -18,6 +18,7 @@ import { createFaultInjection } from "./api/v1/middlewares/fault_injection.js"
 import { corsOptions } from "./config/cors.config.js"
 import { createRateLimitStore } from "./config/rateLimit.config.js"
 import { closeRedisClient } from "./config/redis.js"
+import { closeFacebookPublicationQueue } from "#services/properties/facebook_publication_queue.service.js"
 import { isDebugIpRouteEnabled, resolveTrustProxyHops } from "./config/server.config.js"
 
 // Database
@@ -113,6 +114,7 @@ const shutdown = async (signal, code = 0) => {
         console.log("✅ Database connections closed")
 
         await closeRedisClient()
+        await closeFacebookPublicationQueue()
         console.log("✅ Redis connection closed")
 
         console.log("👋 Graceful shutdown complete")

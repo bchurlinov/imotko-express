@@ -1,3 +1,5 @@
+import { assertRedisUrl } from "./redis_url.js"
+
 const requiredString = (env, key) => {
     const value = env[key]
     if (typeof value !== "string" || !value.trim()) throw new Error(`${key} is required`)
@@ -7,9 +9,7 @@ const requiredString = (env, key) => {
 export function loadFacebookWorkerConfig(env = process.env) {
     requiredString(env, "DATABASE_URL")
 
-    const redisUrl = requiredString(env, "UPSTASH_REDIS_URL")
-    const parsedRedisUrl = new URL(redisUrl)
-    if (parsedRedisUrl.protocol !== "rediss:") throw new Error("UPSTASH_REDIS_URL must use rediss://")
+    const redisUrl = assertRedisUrl(requiredString(env, "UPSTASH_REDIS_URL"))
 
     const tokenEncryptionKey = requiredString(env, "META_TOKEN_ENCRYPTION_KEY")
     const decodedTokenEncryptionKey = Buffer.from(tokenEncryptionKey, "base64")
