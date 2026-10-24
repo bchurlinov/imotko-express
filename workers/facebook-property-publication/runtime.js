@@ -1,3 +1,5 @@
+import { redisErrorFields } from "./logger.js"
+
 export async function startFacebookWorker({ WorkerClass, connection, processor, logger }) {
     const worker = new WorkerClass("facebook-property-publication", processor, {
         connection,
@@ -35,7 +37,7 @@ export async function startFacebookWorker({ WorkerClass, connection, processor, 
         })
     })
     worker.on("error", error => {
-        logger.error("facebook_worker_error", { errorCode: error?.name || "unknown" })
+        logger.error("facebook_worker_error", redisErrorFields(error))
     })
 
     try {

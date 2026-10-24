@@ -20,6 +20,21 @@ const ALLOWED_FIELDS = new Set([
 const sanitize = fields =>
     Object.fromEntries(Object.entries(fields || {}).filter(([key, value]) => ALLOWED_FIELDS.has(key) && value != null))
 
+/**
+ * Log fields for a Redis/BullMQ error. A Redis ReplyError's message is the server's reply ("NOAUTH ...",
+ * "ERR max requests limit exceeded ...") and never echoes credentials, so it is kept as `reason`; other
+ * errors only log their name, as before.
+ *
+ * @param {unknown} error
+ * @returns {{ errorCode: string, reason?: string }}
+ */
+export const redisErrorFields = error => ({
+    errorCode: error?.name || "unknown",
+    ...(error?.name === "ReplyError" && typeof error.message === "string"
+        ? { reason: error.message.slice(0, 160) }
+        : {}),
+})
+
 export function createLogger(output = console) {
     const write = (method, event, fields) =>
         output[method](

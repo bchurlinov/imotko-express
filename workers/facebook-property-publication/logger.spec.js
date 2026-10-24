@@ -1,6 +1,6 @@
 import assert from "node:assert/strict"
 import { test } from "node:test"
-import { createLogger } from "./logger.js"
+import { createLogger, redisErrorFields } from "./logger.js"
 
 test("logger emits only explicitly allowed structured fields", () => {
     const lines = []
@@ -43,4 +43,11 @@ test("logger preserves completion and worker error metadata without unapproved f
         event: "facebook_worker_error",
         errorCode: "Error",
     })
+})
+
+test("redisErrorFields keeps a Redis reply text but not other error messages", () => {
+    const reply = Object.assign(new Error("NOAUTH Authentication required."), { name: "ReplyError" })
+    assert.deepEqual(redisErrorFields(reply), { errorCode: "ReplyError", reason: "NOAUTH Authentication required." })
+    assert.deepEqual(redisErrorFields(new Error("connect to redis://default:secret@host")), { errorCode: "Error" })
+    assert.deepEqual(redisErrorFields(undefined), { errorCode: "unknown" })
 })
