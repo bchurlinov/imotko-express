@@ -1,5 +1,6 @@
 const ALLOWED_FIELDS = new Set([
     "jobId",
+    "campaignId",
     "jobName",
     "propertyId",
     "agencyId",

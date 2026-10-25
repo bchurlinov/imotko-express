@@ -47,4 +47,32 @@ describe("appendImotkoEmailFooter", () => {
         assert.ok(buttons[0].includes("App Store"))
         assert.ok(buttons[1].includes("Google Play"))
     })
+
+    it("drops the 'Imotko app' label above the store buttons", () => {
+        const html = appendImotkoEmailFooter("<body></body>")
+        assert.ok(!html.includes("Imotko app"))
+    })
+
+    it("puts the opt-out link on its own line under the question", () => {
+        const html = appendImotkoEmailFooter("<body></body>", { unsubscribe })
+        const line = html.slice(html.indexOf(unsubscribe.text), html.indexOf(`>${unsubscribe.label}</a>`))
+        assert.match(line, /^[^<]*<br \/>\s*<a href="/)
+    })
+
+    it("pulls the App Store label closer to its icon than before (6px → 1px left padding)", () => {
+        const html = appendImotkoEmailFooter("<body></body>")
+        const [appStore, googlePlay] = html.match(/<table[^>]*width="170"[\s\S]*?<\/table>/g) ?? []
+        assert.ok(appStore.includes("padding:10px 19px 10px 1px"))
+        assert.ok(googlePlay.includes("padding:10px 14px 10px 6px"))
+    })
+
+    it("links the privacy policy and the terms, below the company details", () => {
+        const html = appendImotkoEmailFooter("<body></body>")
+        const privacy = html.indexOf('href="https://imotko.mk/mk/odredbi/politika-privatnost"')
+        const terms = html.indexOf('href="https://imotko.mk/mk/odredbi/pravila-uslovi"')
+        assert.ok(privacy > html.indexOf("ЕМБС"))
+        assert.ok(terms > privacy)
+        assert.ok(html.includes(">Политика за приватност</a>"))
+        assert.ok(html.includes(">Правила и услови</a>"))
+    })
 })

@@ -2,15 +2,16 @@
 # tagged with the commit SHA (immutable; the deploy step pins both Dokploy apps to it) and `main` (latest build,
 # for manual pulls).
 #
-# The API and the Facebook worker are pinned to the same `:<sha>` and redeployed together, so they never run
-# different code. Redeploying the worker is safe on its own: its swarm service is stop-first with a 6-minute stop
-# grace period, and on SIGTERM the worker finishes its current job before exiting. The pause -> drain -> resume
+# The API and the workers (Facebook publication, bulk email) are pinned to the same `:<sha>` and redeployed together,
+# so they never run different code. Redeploying a worker is safe on its own: its swarm service is stop-first with a
+# stop grace period, and on SIGTERM the worker finishes its current jobs before exiting. The pause -> drain -> resume
 # routine is only needed when moving the worker to another host (docs: express-vps-migration-runbook.md).
 #
 # Repository settings needed before the deploy step runs:
 #   Variables: DOKPLOY_DEPLOY_ENABLED=true, DOKPLOY_URL=https://dock.imotko.mk
-#   Secrets:   DOKPLOY_API_KEY, DOKPLOY_API_APPLICATION_ID, DOKPLOY_WORKER_FACEBOOK_APPLICATION_ID
-#              (without the worker secret only the API is deployed, with a warning)
+#   Secrets:   DOKPLOY_API_KEY, DOKPLOY_API_APPLICATION_ID, DOKPLOY_WORKER_FACEBOOK_APPLICATION_ID,
+#              DOKPLOY_WORKER_BULK_EMAIL_APPLICATION_ID
+#              (a worker whose secret is missing is skipped with a warning)
 name: Build and deploy image
 
 on:
@@ -55,13 +56,14 @@ jobs:
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
 
-            - name: Deploy API and worker on Dokploy
+            - name: Deploy API and workers on Dokploy
               if: ${{ github.ref == 'refs/heads/main' && vars.DOKPLOY_DEPLOY_ENABLED == 'true' }}
               env:
                   DOKPLOY_URL: ${{ vars.DOKPLOY_URL }}
                   DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
                   API_APPLICATION_ID: ${{ secrets.DOKPLOY_API_APPLICATION_ID }}
-                  WORKER_APPLICATION_ID: ${{ secrets.DOKPLOY_WORKER_FACEBOOK_APPLICATION_ID }}
+                  FACEBOOK_WORKER_APPLICATION_ID: ${{ secrets.DOKPLOY_WORKER_FACEBOOK_APPLICATION_ID }}
+                  BULK_EMAIL_WORKER_APPLICATION_ID: ${{ secrets.DOKPLOY_WORKER_BULK_EMAIL_APPLICATION_ID }}
                   IMAGE: ghcr.io/${{ github.repository }}:${{ github.sha }}
               # Pin each app to this commit's immutable tag first, so the deploy can't reuse a cached `:main` and the
               # Dokploy UI always shows which commit is live. Rollback = set the image to an older `:<sha>` and deploy.
@@ -69,7 +71,7 @@ jobs:
               # Retries: a GitHub runner is sometimes dropped on its way to the VPS (connect timeout to dock.imotko.mk
               # while the panel is up). Both calls are safe to repeat: `update` sets the same image, and a repeated
               # `deploy` of the same image only restarts the app once more.
-              # The worker goes second, so a failed API deploy stops the job before the two apps can drift apart.
+              # Workers go after the API, so a failed API deploy stops the job before the apps can drift apart.
               run: |
                   dokploy() {
                     curl --fail-with-body -sS -X POST "${DOKPLOY_URL}/api/$1" \
@@ -89,8 +91,13 @@ jobs:
 
                   deploy_app API "$API_APPLICATION_ID"
 
-                  if [ -n "$WORKER_APPLICATION_ID" ]; then
-                    deploy_app worker "$WORKER_APPLICATION_ID"
-                  else
-                    echo "::warning::DOKPLOY_WORKER_FACEBOOK_APPLICATION_ID is not set; the Facebook worker was not deployed"
-                  fi
+                  deploy_worker() {
+                    if [ -n "$2" ]; then
+                      deploy_app "$1 worker" "$2"
+                    else
+                      echo "::warning::$3 is not set; the $1 worker was not deployed"
+                    fi
+                  }
+
+                  deploy_worker Facebook "$FACEBOOK_WORKER_APPLICATION_ID" DOKPLOY_WORKER_FACEBOOK_APPLICATION_ID
+                  deploy_worker "bulk email" "$BULK_EMAIL_WORKER_APPLICATION_ID" DOKPLOY_WORKER_BULK_EMAIL_APPLICATION_ID

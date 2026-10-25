@@ -19,6 +19,7 @@ import { corsOptions } from "./config/cors.config.js"
 import { createRateLimitStore } from "./config/rateLimit.config.js"
 import { closeRedisClient } from "./config/redis.js"
 import { closeFacebookPublicationQueue } from "#services/properties/facebook_publication_queue.service.js"
+import { closeBulkEmailQueue } from "#services/email/bulk_email_queue.service.js"
 import { isDebugIpRouteEnabled, resolveTrustProxyHops } from "./config/server.config.js"
 
 // Database
@@ -115,6 +116,7 @@ const shutdown = async (signal, code = 0) => {
 
         await closeRedisClient()
         await closeFacebookPublicationQueue()
+        await closeBulkEmailQueue()
         console.log("✅ Redis connection closed")
 
         console.log("👋 Graceful shutdown complete")
