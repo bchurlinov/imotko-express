@@ -5,6 +5,7 @@ import prisma from "#database/client.js"
 import { v4 as uuidv4 } from "uuid"
 import { closeConversationsForDeletedUser } from "#services/chat/chat_lifecycle.service.js"
 import { retireClientAccount } from "./retire_client_account.js"
+import { findOwnedAgency, handOverMemberNotes } from "./member_account_deletion.js"
 
 /**
  * @typedef {import("@prisma/client").User} User
@@ -314,6 +315,11 @@ export const deleteUserService = async (userId, actor, authenticatedSupabaseUser
         if (!supabaseUserId || (actor?.type !== "admin" && target.supabaseUserId !== supabaseUserId)) {
             throw createError(403, "Forbidden")
         }
+        // Checked before the Supabase login goes, which cannot be undone: an agency owner is refused so the agency
+        // keeps its owner (the web admin delete refuses the same way).
+        const ownedAgency = await findOwnedAgency(prisma, userId)
+        if (ownedAgency) throw createError(409, "agencyOwnerDelete")
+
         const { error: supabaseError } = await supabaseAdmin.auth.admin.deleteUser(supabaseUserId)
         if (supabaseError) {
             console.error("[deleteUserService] Supabase deletion failed:", supabaseError)
@@ -326,6 +332,8 @@ export const deleteUserService = async (userId, actor, authenticatedSupabaseUser
             // Decision 121a: order unchanged (Supabase first); private listings are retired in the same transaction.
             const client = await tx.client.findUnique({ where: { userId }, select: { id: true } })
             await retireClientAccount(tx, { userId, clientId: client?.id || null })
+            // A member's CRM notes stay with the agency; the owner takes them over.
+            await handOverMemberNotes(tx, userId)
             await closeConversationsForDeletedUser(tx, userId)
             await tx.user.delete({
                 where: {

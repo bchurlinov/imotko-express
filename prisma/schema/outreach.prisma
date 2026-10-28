@@ -1,0 +1,205 @@
+enum OutreachStatus {
+  NEW
+  CONTACTED
+  REPLIED
+  INTERESTED
+  CONVERTED
+  NOT_INTERESTED
+  DO_NOT_CONTACT
+}
+
+enum OutreachChannel {
+  EMAIL
+  PHONE
+  VIBER
+  WHATSAPP
+  SMS
+  FACEBOOK
+  INSTAGRAM
+  LINKEDIN
+  MEETING
+  OTHER
+}
+
+enum OutreachDirection {
+  OUTBOUND
+  INBOUND
+}
+
+enum OutreachOutcome {
+  NO_ANSWER
+  REPLIED
+  INTERESTED
+  NOT_INTERESTED
+  CALL_BACK_LATER
+  WRONG_CONTACT
+  OTHER
+}
+
+enum OutreachSource {
+  PAZAR3
+  REKLAMA5
+  FACEBOOK
+  INSTAGRAM
+  GOOGLE
+  BOOKING
+  AIRBNB
+  REFERRAL
+  OTHER
+}
+
+enum OutreachOwnerIntent {
+  SHORT_TERM
+  LONG_TERM
+  SALE
+}
+
+model OutreachAgency {
+  id                String                   @id @default(cuid())
+  name              String
+  city              String?
+  address           String?
+  website           String?
+  facebookUrl       String?
+  instagramUrl      String?
+  estimatedListings Int?
+  source            OutreachSource?
+  sourceDetail      String?
+  tags              String[]                 @default([])
+  notes             String?
+  status            OutreachStatus           @default(NEW)
+  nextFollowUpAt    DateTime?                @db.Timestamptz(3)
+  archivedAt        DateTime?                @db.Timestamptz(3)
+  convertedAgencyId String?
+  convertedAgency   Agency?                  @relation(fields: [convertedAgencyId], references: [id], onDelete: SetNull)
+  createdById       String?
+  createdBy         User?                    @relation("OutreachAgencyCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  contacts          OutreachAgencyContact[]
+  activities        OutreachAgencyActivity[]
+  createdAt         DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime                 @updatedAt @db.Timestamptz(3)
+
+  @@index([archivedAt, status])
+  @@index([archivedAt, nextFollowUpAt])
+  @@index([convertedAgencyId])
+}
+
+model OutreachAgencyContact {
+  id         String                   @id @default(cuid())
+  agencyId   String
+  agency     OutreachAgency           @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  name       String
+  role       String?
+  email      String?
+  phone      String?
+  viber      Boolean                  @default(false)
+  isPrimary  Boolean                  @default(false)
+  notes      String?
+  activities OutreachAgencyActivity[]
+  createdAt  DateTime                 @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime                 @updatedAt @db.Timestamptz(3)
+
+  @@index([agencyId])
+  @@index([email])
+}
+
+model OutreachAgencyActivity {
+  id          String                 @id @default(cuid())
+  agencyId    String
+  agency      OutreachAgency         @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  contactId   String?
+  contact     OutreachAgencyContact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  campaignId  String?
+  campaign    OutreachEmailCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  channel     OutreachChannel
+  direction   OutreachDirection
+  outcome     OutreachOutcome?
+  note        String?
+  occurredAt  DateTime               @default(now()) @db.Timestamptz(3)
+  createdById String?
+  createdBy   User?                  @relation("OutreachAgencyActivityCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime               @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime               @updatedAt @db.Timestamptz(3)
+
+  @@index([agencyId, occurredAt(sort: Desc)])
+  @@index([channel, direction, occurredAt])
+  @@index([campaignId])
+}
+
+model OutreachEmailTemplate {
+  id          String                  @id @default(cuid())
+  name        String
+  subject     String
+  html        String
+  createdById String?
+  createdBy   User?                   @relation("OutreachEmailTemplateCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  campaigns   OutreachEmailCampaign[]
+  createdAt   DateTime                @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime                @updatedAt @db.Timestamptz(3)
+}
+
+model OutreachEmailCampaign {
+  id             String                   @id @default(cuid())
+  campaignId     String                   @unique // bulk email campaign id sent to express
+  subject        String
+  html           String
+  templateId     String?
+  template       OutreachEmailTemplate?   @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  agencyCount    Int
+  recipientCount Int
+  excludedCount  Int                      @default(0)
+  sentById       String?
+  sentBy         User?                    @relation("OutreachEmailCampaignSentBy", fields: [sentById], references: [id], onDelete: SetNull)
+  activities     OutreachAgencyActivity[]
+  createdAt      DateTime                 @default(now()) @db.Timestamptz(3)
+
+  @@index([createdAt])
+}
+
+model OutreachOwner {
+  id              String                  @id @default(cuid())
+  firstName       String
+  lastName        String
+  phone           String                  @unique // normalised +389…
+  propertyName    String?
+  email           String?
+  city            String?
+  intents         OutreachOwnerIntent[]   @default([])
+  source          OutreachSource?
+  sourceDetail    String?
+  listingUrl      String?
+  tags            String[]                @default([])
+  notes           String?
+  status          OutreachStatus          @default(NEW)
+  nextFollowUpAt  DateTime?               @db.Timestamptz(3)
+  archivedAt      DateTime?               @db.Timestamptz(3)
+  convertedUserId String?
+  convertedUser   User?                   @relation("OutreachOwnerConvertedUser", fields: [convertedUserId], references: [id], onDelete: SetNull)
+  createdById     String?
+  createdBy       User?                   @relation("OutreachOwnerCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  activities      OutreachOwnerActivity[]
+  createdAt       DateTime                @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime                @updatedAt @db.Timestamptz(3)
+
+  @@index([archivedAt, status])
+  @@index([archivedAt, nextFollowUpAt])
+  @@index([convertedUserId])
+}
+
+model OutreachOwnerActivity {
+  id          String            @id @default(cuid())
+  ownerId     String
+  owner       OutreachOwner     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  channel     OutreachChannel
+  direction   OutreachDirection
+  outcome     OutreachOutcome?
+  note        String?
+  occurredAt  DateTime          @default(now()) @db.Timestamptz(3)
+  createdById String?
+  createdBy   User?             @relation("OutreachOwnerActivityCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime          @updatedAt @db.Timestamptz(3)
+
+  @@index([ownerId, occurredAt(sort: Desc)])
+  @@index([channel, direction, occurredAt])
+}
