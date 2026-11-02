@@ -25,8 +25,15 @@
 
     <tr>
         <td style="padding: 20px; background: white">
+            {{#if founderSignature}}
+            <p style="color: #3a3a3a; font-family: 'Arial'; font-size: 14px; line-height: 20px">Со почит,</p>
+            <p style="color: #3a3a3a; font-family: 'Arial'; font-size: 14px; line-height: 20px">Бојан Чурлинов<br/>Основач | Имотко</p>
+            <p style="color: #3a3a3a; font-family: 'Arial'; font-size: 14px; line-height: 20px">тел: 071-360-169<br/>е-пошта: <a href="mailto:bojan@imotko.mk">bojan@imotko.mk</a><br/>веб: <a href="https://imotko.mk">www.imotko.mk</a></p>
+            <img style="display:block;width:180px;max-width:180px;height:auto;border:0;" src="https://imotko.mk/icons/logo_email.png" alt="Имотко" width="180"/>
+            {{else}}
             <p style="color: #3a3a3a; font-family: 'Arial'; font-size: 14px; line-height: 20px">Со почит,<br/> <strong>
                 Тимот на Имотко</strong><br/>
+            {{/if}}
         </td>
     </tr>
 </table>

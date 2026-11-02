@@ -119,7 +119,11 @@ export const createBulkEmailHandler =
             const result = await queueCampaign({
                 campaignId: request.campaignId,
                 subject: request.subject,
-                html: renderBulkEmailHtml({ title: request.subject, content: sanitizeBulkEmailMessage(request.message) }),
+                html: renderBulkEmailHtml({
+                    title: request.subject,
+                    content: sanitizeBulkEmailMessage(request.message),
+                    founderSignature: request.founderSignature,
+                }),
                 replyTo: request.replyTo,
                 deliveryMode: request.deliveryMode,
                 recipients,

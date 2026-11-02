@@ -26,8 +26,14 @@ describe("parseBulkEmailRequest", () => {
                 recipientMode: "agencies",
                 recipients: ["a@x.mk", "b@x.mk"],
                 deliveryMode: "real",
+                founderSignature: false,
             },
         })
+    })
+
+    it("only turns the founder signature on for an explicit true", () => {
+        assert.equal(parseBulkEmailRequest(body({ founderSignature: true })).request.founderSignature, true)
+        assert.equal(parseBulkEmailRequest(body({ founderSignature: "true" })).request.founderSignature, false)
     })
 
     it("treats anything but an explicit 'real' as a redirected (test) campaign", () => {
@@ -83,5 +89,17 @@ describe("renderBulkEmailHtml", () => {
         assert.ok(html.includes("&lt;b&gt;Новост&lt;/b&gt;"))
         assert.ok(html.includes("<p>Здраво</p>"))
         assert.ok(html.includes("Тимот на Имотко"))
+        assert.ok(!html.includes("Бојан Чурлинов"))
+    })
+
+    it("swaps the team sign-off for the founder's contact details and logo", () => {
+        const html = renderBulkEmailHtml({ title: "Новост", content: "<p>Здраво</p>", founderSignature: true })
+        assert.ok(html.includes("Бојан Чурлинов"))
+        assert.ok(html.includes("Основач | Имотко"))
+        assert.ok(html.includes("071-360-169"))
+        assert.ok(html.includes('href="mailto:bojan@imotko.mk"'))
+        assert.ok(html.includes('href="https://imotko.mk">www.imotko.mk'))
+        assert.equal(html.split("https://imotko.mk/icons/logo_email.png").length - 1, 2)
+        assert.ok(!html.includes("Тимот на Имотко"))
     })
 })

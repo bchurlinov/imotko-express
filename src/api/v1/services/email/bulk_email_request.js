@@ -27,7 +27,7 @@ const fail = (message, extra = {}) => ({ ok: false, message, ...extra })
 /**
  * @param {unknown} body - Parsed JSON body sent by imotko
  * @returns {{ ok: true, request: { campaignId: string, subject: string, replyTo: string, message: string,
- *   recipientMode: string, recipients: string[], deliveryMode: "real" | "redirect" } }
+ *   recipientMode: string, recipients: string[], deliveryMode: "real" | "redirect", founderSignature: boolean } }
  *   | { ok: false, message: string, invalidEmails?: string[] }}
  */
 export const parseBulkEmailRequest = body => {
@@ -66,6 +66,8 @@ export const parseBulkEmailRequest = body => {
             recipients: [...unique],
             // Only a production web app may reach real inboxes; Preview/local campaigns go to the dev inbox
             deliveryMode: body?.deliveryMode === "real" ? "real" : "redirect",
+            // Sales outreach signs off as the founder, everything else as the team
+            founderSignature: body?.founderSignature === true,
         },
     }
 }
@@ -82,10 +84,10 @@ export const sanitizeBulkEmailMessage = html =>
     })
 
 /**
- * @param {{ title: string, content: string }} data - content must already be sanitized
+ * @param {{ title: string, content: string, founderSignature?: boolean }} data - content must already be sanitized
  * @returns {string} Email HTML without the Imotko footer (the worker adds it per recipient)
  */
-export const renderBulkEmailHtml = ({ title, content }) => {
+export const renderBulkEmailHtml = ({ title, content, founderSignature = false }) => {
     template ||= Handlebars.compile(fs.readFileSync(templatePath, "utf8"))
-    return template({ title, content })
+    return template({ title, content, founderSignature })
 }
