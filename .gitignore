@@ -10,3 +10,6 @@ node_modules
 dist
 generated
 supabase_backup.sql
+
+# Runtime error logs (written by src/api/v1/middlewares/logger.js, can contain user data)
+errLog.txt

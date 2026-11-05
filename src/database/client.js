@@ -19,6 +19,7 @@ const prisma = new PrismaClient({
             accessToken: true,
             refreshToken: true,
             ipAddress: true,
+            hashedPassword: true,
         },
     },
 })

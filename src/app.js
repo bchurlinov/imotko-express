@@ -3,7 +3,6 @@ import express from "express"
 import cookieParser from "cookie-parser"
 import helmet from "helmet"
 import cors from "cors"
-import morgan from "morgan"
 
 // Routes
 import initializeRoutes from "./api/v1/routes/index.js"
@@ -17,6 +16,7 @@ import { createFaultInjection } from "./api/v1/middlewares/fault_injection.js"
 // Config
 import { corsOptions } from "./config/cors.config.js"
 import { createRateLimitStore } from "./config/rateLimit.config.js"
+import { createRequestLogger } from "./config/requestLog.config.js"
 import { closeRedisClient } from "./config/redis.js"
 import { closeFacebookPublicationQueue } from "#services/properties/facebook_publication_queue.service.js"
 import { closePropertyAiQueue } from "#services/properties/property_ai_queue.service.js"
@@ -37,7 +37,7 @@ app.get("/health", (req, res) => {
 })
 
 // Log middleware - filter out Chrome DevTools inspector requests
-app.use(morgan("dev"))
+app.use(createRequestLogger())
 
 // Verifies the proxy chain on a new host (req.ip must be the caller's public IP). Enabled only by DEBUG_IP_ROUTE=true.
 if (isDebugIpRouteEnabled()) {

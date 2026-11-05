@@ -37,6 +37,8 @@
         "start:config-only": "node --experimental-transform-types scripts/config_only_server.js",
         "test:config-only": "node --test scripts/config_only_server.spec.js",
         "test:server-config": "node --test src/config/server.config.spec.js",
+        "test:request-log": "node --test src/config/requestLog.config.spec.js",
+        "test:property-public-response": "tsx --test src/api/v1/services/properties/property_public_response.spec.js",
         "test:rate-limit": "node --test src/api/v1/middlewares/rateLimitKey.spec.js src/api/v1/middlewares/globalRateLimit.spec.js",
         "test:users-routes": "tsx --test src/api/v1/routes/users/users.routes.spec.js",
         "test:supabase-jwt": "node --test src/utils/auth/supabaseJwt.spec.js src/utils/auth/supabaseJwt.no_secret.spec.js",

@@ -463,6 +463,45 @@ const privateListingFields = async (property, viewerSupabaseUserId) => {
     }
 }
 
+/**
+ * Allowlists for the unauthenticated property detail response. Anything not listed never leaves the database, so a
+ * new column stays private by default. Agent phone and email stay because agency sites and the app display them.
+ */
+export const PUBLIC_PROPERTY_AGENCY_SELECT = {
+    id: true,
+    name: true,
+    slug: true,
+    logo: true,
+    location: true,
+    description: true,
+    address: true,
+    phone: true,
+    email: true,
+    social: true,
+}
+
+export const PUBLIC_PROPERTY_MEMBER_SELECT = {
+    id: true,
+    position: true,
+    user: { select: { name: true, lastName: true, image: true, phone: true, email: true } },
+}
+
+/** Internal agency CRM fields that no public client reads */
+export const PRIVATE_PROPERTY_FIELDS_OMIT = { remarks: true, ownerId: true, renterId: true }
+
+/**
+ * Drops the pending edits from a published listing. Unpublished rows keep them because the app falls back to
+ * `modifications` when a top-level field is still empty.
+ * @param {object | null} property - Loaded property
+ * @returns {object | null} Property safe to return
+ */
+const withoutPublishedModifications = property => {
+    if (property?.status !== PropertyStatus.PUBLISHED) return property
+
+    const { modifications: _modifications, ...publicProperty } = property
+    return publicProperty
+}
+
 export const getPropertyService = async (propertyId, viewContext = {}, options = {}) => {
     try {
         const {
@@ -473,15 +512,12 @@ export const getPropertyService = async (propertyId, viewContext = {}, options =
 
         const property = await prisma.property.findUnique({
             where: { id: propertyId },
+            omit: PRIVATE_PROPERTY_FIELDS_OMIT,
             include: {
-                agency: true,
+                agency: { select: PUBLIC_PROPERTY_AGENCY_SELECT },
                 // The parent's name lets the app label a price trend that falls back to the wider area.
                 propertyLocation: { include: { parent: { select: { id: true, name: true } } } },
-                createdByMember: {
-                    include: {
-                        user: true,
-                    },
-                },
+                createdByMember: { select: PUBLIC_PROPERTY_MEMBER_SELECT },
             },
         })
 
@@ -514,7 +550,7 @@ export const getPropertyService = async (propertyId, viewContext = {}, options =
                 : property
 
         return {
-            data,
+            data: withoutPublishedModifications(data),
             message: "Property loaded successfully",
         }
     } catch (err) {

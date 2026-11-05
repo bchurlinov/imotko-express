@@ -5,15 +5,17 @@ import { CACHE_TTL } from "#config/cache.config.js"
 
 /**
  * Fields loaded for an agency website, shared by the referer lookup and the dev id lookup so both
- * resolve to the same shape.
+ * resolve to the same shape. The Referer header is trivial to forge, so this response counts as public.
  */
-const AGENCY_WEBSITE_SELECT = {
+export const AGENCY_WEBSITE_SELECT = {
     agencyMembers: {
         orderBy: {
             updatedAt: "desc",
         },
-        include: {
-            user: true,
+        select: {
+            id: true,
+            position: true,
+            user: { select: { name: true, lastName: true, phone: true } },
         },
     },
     id: true,
