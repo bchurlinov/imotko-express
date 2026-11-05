@@ -2,11 +2,11 @@
 
 ## Why it was off
 
-The global limiter (100 requests / 15 min per IP, 500 per signed-in user) used to run only when `ENV=production`.
+The global limiter (250 requests / 15 min per IP, 500 per signed-in user) used to run only when `ENV=production`.
 `ENV` was never set on Railway or the Dokploy VPS, so production has had no global limit.
 
 Setting `ENV=production` alone would have broken things: imotko (web) and imotko-templates call Express from the
-server, from a few shared Vercel IPs, on behalf of every visitor. All of them would share one 100-request bucket and
+server, from a few shared Vercel IPs, on behalf of every visitor. All of them would share one anonymous bucket and
 get 429s within minutes.
 
 ## What changed
@@ -63,7 +63,7 @@ only matters while the limiter is on (web/templates fall back to per-IP limits).
 
 ## Risk to watch
 
-Anonymous mobile users behind carrier NAT share one IP and one 100-request bucket. If 429s show up for anonymous
+Anonymous mobile users behind carrier NAT share one IP and one 250-request bucket. If 429s show up for anonymous
 mobile traffic, raise `ANONYMOUS_REQUEST_LIMIT` in `src/api/v1/middlewares/globalRateLimit.js`.
 
 Tests: `npm run test:rate-limit`.

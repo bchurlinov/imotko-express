@@ -5,7 +5,7 @@ import { sharedRateLimitOptions } from "#config/rateLimit.config.js"
 // sharing a carrier NAT address do not exhaust each other's budget. Anonymous
 // traffic still falls back to a (IPv6 /64 normalized) IP bucket.
 export const AUTHENTICATED_REQUEST_LIMIT = 500
-export const ANONYMOUS_REQUEST_LIMIT = 100
+export const ANONYMOUS_REQUEST_LIMIT = 250
 const WINDOW_MS = 15 * 60 * 1000
 
 /**
