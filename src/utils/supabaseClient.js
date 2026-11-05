@@ -1,19 +1,15 @@
 import { createClient } from "@supabase/supabase-js"
 import { supabaseConfig } from "../config/supabase.js"
-
-const adminClientOptions = {
-    auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false,
-    },
-}
+import { createSupabaseAdminClient } from "./supabaseAdminFactory.js"
 
 /**
  * Supabase admin client with service role key
  * @type {import('@supabase/supabase-js').SupabaseClient}
  */
-export const supabaseAdmin = createClient(supabaseConfig.url, supabaseConfig.serviceRoleKey, adminClientOptions)
+export const supabaseAdmin = createSupabaseAdminClient({
+    url: supabaseConfig.url,
+    key: supabaseConfig.serviceRoleKey,
+})
 
 /**
  * Create a Supabase client with optional access token

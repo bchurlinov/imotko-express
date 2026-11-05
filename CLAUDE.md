@@ -11,6 +11,8 @@ This is an Express.js REST API backend for a property management platform (Imotk
 ### Running
 - `npm run dev` - Start development server with hot reload (uses nodemon)
 - `npm start` - Run production server
+- `pnpm dev:all` - Start local Redis (Docker), the dev server and all workers together
+- `pnpm redis:up` / `pnpm redis:down` - Start or stop local Redis (docker-compose.yml)
 
 ### Database (Prisma)
 - `npx prisma migrate dev` - Run migrations in development

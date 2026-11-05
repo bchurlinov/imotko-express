@@ -243,22 +243,22 @@ export const PropertyListingTypeDictionary = {
     en: [
         { id: 1, value: PropertyListingType.for_sale, label: "For sale" },
         { id: 2, value: PropertyListingType.for_rent, label: "Long-term rent" },
-        { id: 3, value: PropertyListingType.short_term_rent, label: "Short-term rent" },
+        { id: 3, value: PropertyListingType.short_term_rent, label: "Stay" },
     ],
     mk: [
         { id: 1, value: PropertyListingType.for_sale, label: "За продажба" },
-        { id: 2, value: PropertyListingType.for_rent, label: "За долгорочно изнајмување" },
-        { id: 3, value: PropertyListingType.short_term_rent, label: "За краткорочно изнајмување" },
+        { id: 2, value: PropertyListingType.for_rent, label: "Изнајмување" },
+        { id: 3, value: PropertyListingType.short_term_rent, label: "Сместување" },
     ],
     sq: [
         { id: 1, value: PropertyListingType.for_sale, label: "Për shitje" },
         { id: 2, value: PropertyListingType.for_rent, label: "Me qira afatgjatë" },
-        { id: 3, value: PropertyListingType.short_term_rent, label: "Me qira afatshkurtër" },
+        { id: 3, value: PropertyListingType.short_term_rent, label: "Akomodim" },
     ],
     tr: [
         { id: 1, value: PropertyListingType.for_sale, label: "Satılık" },
         { id: 2, value: PropertyListingType.for_rent, label: "Uzun dönem kiralık" },
-        { id: 3, value: PropertyListingType.short_term_rent, label: "Kısa dönem kiralık" },
+        { id: 3, value: PropertyListingType.short_term_rent, label: "Konaklama" },
     ],
 }
 

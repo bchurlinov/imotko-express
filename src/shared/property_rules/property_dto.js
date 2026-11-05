@@ -57,6 +57,14 @@ const localized = (body, key) => ({
     tr: sanitizeServer(body[`${key}Tr`] || body[key]),
 })
 
+// A body that carries both the typed text (name, description) and the stored Macedonian text (nameMk, descriptionMk):
+// the typed text is what the seller just wrote, so it wins for the Macedonian locale.
+export const preferTypedMacedonianText = body => ({
+    ...body,
+    nameMk: body.name || body.nameMk,
+    descriptionMk: body.description || body.descriptionMk,
+})
+
 export const buildPropertyText = body => ({
     name: localized(body, "name"),
     description: localized(body, "description"),

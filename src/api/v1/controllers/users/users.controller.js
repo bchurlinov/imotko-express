@@ -22,8 +22,16 @@ import createError from "http-errors"
 import { getIpAddress } from "#utils/auth/ip_address.js"
 import { chatResponse } from "#controllers/chat/chat_response.js"
 
+// SECURITY: the email comes from the verified token, never the body. Taking it from the body returned the full record
+// (with client, agency and admin data) of any email, and body fields could also mark an address as confirmed.
+export const toFindOrCreateUserInput = req => ({
+    email: req.user?.email,
+    fullName: req.body?.fullName,
+    avatarUrl: req.body?.avatarUrl,
+})
+
 /**
- * Controller to find or create user from Supabase auth data
+ * Controller to find or create the signed-in user
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
  * @param {import('express').NextFunction} next - Express next function
@@ -31,9 +39,9 @@ import { chatResponse } from "#controllers/chat/chat_response.js"
  */
 export const findOrCreateUserController = async (req, res, next) => {
     try {
-        const email = req.body.email
-        if (!email) throw createError(400, "Supabase user data is required")
-        const { data } = await findOrCreateUserService(req.body)
+        const input = toFindOrCreateUserInput(req)
+        if (!input.email) throw createError(400, "Supabase user data is required")
+        const { data } = await findOrCreateUserService(input)
 
         res.status(200).json({
             message: "User retrieved successfully",

@@ -9,6 +9,9 @@
     "scripts": {
         "start": "node --experimental-transform-types src/app.js",
         "dev": "dotenv -e .env.development -- nodemon",
+        "dev:all": "pnpm redis:up && concurrently --names api,workers,bulk-email --prefix-colors blue,magenta,green \"pnpm:dev\" \"pnpm:worker:dev\" \"pnpm:worker:bulk-email:dev\"",
+        "redis:up": "docker compose up -d --wait redis",
+        "redis:down": "docker compose down",
         "stage": "dotenv -e .env.stage -- nodemon",
         "prod": "dotenv -e .env.production -- nodemon",
         "start:dev": "dotenv -e .env.development -- node --experimental-transform-types src/app.js",
@@ -20,6 +23,7 @@
         "worker:stage": "dotenv -e .env.stage -- node --experimental-transform-types workers/index.js",
         "worker:facebook": "node --experimental-transform-types workers/facebook-property-publication/index.js",
         "worker:bulk-email": "node --experimental-transform-types workers/bulk-email/index.js",
+        "worker:bulk-email:dev": "dotenv -e .env.development -- nodemon --watch workers --watch src --ext js --ignore 'workers/**/*.spec.js' --ignore 'src/**/*.spec.js' --exec 'node --experimental-transform-types workers/bulk-email/index.js'",
         "queue:facebook": "node --experimental-transform-types scripts/facebook_queue.js",
         "test:facebook-worker": "node --experimental-transform-types --test workers/facebook-property-publication/*.spec.js",
         "test:bulk-email": "node --experimental-transform-types --test workers/bulk-email/*.spec.js src/utils/email/raw_mime.spec.js src/utils/email/inline_images.spec.js src/utils/email/email_footer.spec.js",
@@ -34,8 +38,10 @@
         "test:config-only": "node --test scripts/config_only_server.spec.js",
         "test:server-config": "node --test src/config/server.config.spec.js",
         "test:rate-limit": "node --test src/api/v1/middlewares/rateLimitKey.spec.js src/api/v1/middlewares/globalRateLimit.spec.js",
+        "test:users-routes": "tsx --test src/api/v1/routes/users/users.routes.spec.js",
         "test:supabase-jwt": "node --test src/utils/auth/supabaseJwt.spec.js src/utils/auth/supabaseJwt.no_secret.spec.js",
         "test:property-reports": "tsx --test src/api/v1/services/properties/property_report.service.spec.js",
+        "test:property-ai": "tsx --test workers/property-ai-postprocess/*.spec.js src/shared/ai/property_postprocess.spec.js src/shared/ai/property_enrichment.spec.js src/shared/ai/private_property_enrichment.spec.js src/api/v1/services/properties/property_ai_queue.service.spec.js src/api/v1/services/client/client_ai.service.spec.js",
         "announce:app-update": "node --experimental-transform-types scripts/announce_app_update.js"
     },
     "prisma": {

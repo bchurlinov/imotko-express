@@ -1,7 +1,7 @@
 import sharp from "sharp";
-import { createClient } from "@supabase/supabase-js";
 import { v4 as uuidv4 } from "uuid";
 import { importConfig } from "../config.js";
+import { createSupabaseAdminClient } from "../../utils/supabaseAdminFactory.js";
 
 /**
  * Image processing module for property imports
@@ -9,10 +9,10 @@ import { importConfig } from "../config.js";
  */
 
 // Initialize Supabase client for storage operations
-const supabase = createClient(
-    importConfig.supabaseUrl,
-    importConfig.supabaseServiceRoleKey
-);
+const supabase = createSupabaseAdminClient({
+    url: importConfig.supabaseUrl,
+    key: importConfig.supabaseServiceRoleKey,
+});
 
 // Configure Sharp for optimal performance in batch processing
 sharp.cache(false);

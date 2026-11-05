@@ -1,5 +1,3 @@
-// COPIED FROM imotko/src/lib/ai/private_property_enrichment.js by scripts/export_property_rules.mjs — do not edit here.
-// Change the web file, then re-run the script (design D §3).
 import { generateText, Output } from "ai"
 import { openai } from "@ai-sdk/openai"
 import { z } from "zod"
@@ -124,16 +122,18 @@ ${toAttributePromptList(getEligibleAttributeKeys(body.type))}
 - Use null when unknown.
 `
 
-// Throws on failure: runPropertyAiPostprocess records aiStatus FAILED and falls back to the regex cleanup.
-export const enrichPrivateProperty = async (body, aiContext) => {
+// Throws on failure: the caller records aiStatus FAILED and falls back to the regex cleanup.
+// `generate` is injectable so specs run without a model.
+export const enrichPrivateProperty = async (body, aiContext, { generate = generateText } = {}) => {
     try {
-        const { output } = await generateText({
+        const { output } = await generate({
             model: observeLanguageModel(openai("gpt-5"), { ...aiContext, traceName: "private_property_enrichment" }),
             output: Output.object({ schema: PRIVATE_ENRICHMENT_SCHEMA }),
             // gpt-5 is a reasoning model: no temperature.
             providerOptions: { openai: { reasoningEffort: "low" } },
             system: SYSTEM,
             prompt: buildPrivateEnrichmentPrompt(body),
+            abortSignal: AbortSignal.timeout(120_000),
         })
 
         const name = mapLocales(output.name, title => clampTitle(stripContactDetails(title)))
@@ -155,6 +155,13 @@ export const enrichPrivateProperty = async (body, aiContext) => {
             address: address || body.address,
             ...mergeAttributes(body, output.attributes),
         }
+    } catch (err) {
+        // The provider error carries the whole request (listing text): log its name and status only.
+        console.error("[AI_PRIVATE_PROPERTY_ENRICHMENT] Failed to enrich property", {
+            name: err?.name,
+            statusCode: err?.statusCode,
+        })
+        throw err
     } finally {
         flushAiObservability()
     }

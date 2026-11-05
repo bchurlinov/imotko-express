@@ -1,5 +1,3 @@
-// COPIED FROM imotko/src/lib/ai/property_postprocess.js (without: revalidateProperty) by scripts/export_property_rules.mjs — do not edit here.
-// Change the web file, then re-run the script (design D §3).
 import { PropertyAiStatus } from "#generated/prisma/enums.ts"
 import { enrichPropertyOnCreate } from "./property_enrichment.js"
 import { enrichPrivateProperty } from "./private_property_enrichment.js"
@@ -7,7 +5,6 @@ import { stripContactDetails } from "../property_rules/contact_details.js"
 import { slugifyText } from "../property_rules/strings.js"
 import { sanitizeServer } from "../property_rules/sanitize_server.js"
 import prisma from "#database/client.js"
-import { notifyTemplates } from "#utils/templates_revalidation.js"
 
 const ATTRIBUTE_KEYS = [
     "numOfBathrooms",
@@ -130,8 +127,12 @@ const toFailedPrivatePatch = property => ({
     updatedAt: new Date(),
 })
 
+// The agency step only flags the failure: its text was never touched, so there is nothing to strip.
+export const toFailurePatch = property =>
+    property.clientId ? toFailedPrivatePatch(property) : { aiStatus: PropertyAiStatus.FAILED, updatedAt: new Date() }
+
 // Both outcomes are guarded: a newer edit has its own run and must not be overwritten.
-const writeIfUnchanged = async (propertyId, baselineUpdatedAt, data) => {
+export const writeIfUnchanged = async (propertyId, baselineUpdatedAt, data) => {
     const result = await prisma.property.updateMany({ where: { id: propertyId, updatedAt: baselineUpdatedAt }, data })
     if (result.count === 0) console.info(`[AI_PROPERTY_POSTPROCESS] Skipped stale property update: ${propertyId}`)
     return result.count > 0
@@ -152,42 +153,36 @@ const PROPERTY_SELECT = {
     updatedAt: true,
 }
 
-const recordPrivateFailure = async (property, baselineUpdatedAt, submittedBody) => {
-    try {
-        if (!(await writeIfUnchanged(property.id, baselineUpdatedAt, toFailedPrivatePatch(property)))) return
-        void notifyTemplates({ agencyId: property.agencyId, propertyId: property.id })
-    } catch (err) {
-        console.error("[AI_PROPERTY_POSTPROCESS] Failed to record the AI failure", err)
-    }
+export const STORED_PROPERTY_SELECT = {
+    ...PROPERTY_SELECT,
+    clientId: true,
+    status: true,
+    photos: true,
+    district: true,
+    propertyLocation: { select: { name: true, parent: { select: { name: true } } } },
+    subcategory: { select: { value: true } },
 }
 
-export const runPropertyAiPostprocess = async ({
-    propertyId,
-    submittedBody,
-    baselineUpdatedAt,
-    userId,
-    listerKind = "agency",
-}) => {
-    const isPrivate = listerKind === "private"
-    let property = null
-    try {
-        property = await prisma.property.findUnique({ where: { id: propertyId }, select: PROPERTY_SELECT })
-        if (!property) return
+// Enrichment input from the stored row alone (the worker has no request body). The city is the location path,
+// e.g. "Скопје-Центар"; a location with no parent is just its own name.
+export const toStoredEnrichmentInput = property => {
+    const location = property.propertyLocation
+    const city = location?.parent?.name ? `${location.parent.name}-${location.name}` : location?.name
+    return toEnrichmentInput(property, {
+        city,
+        district: property.district,
+        propertySubType: property.subcategory?.value,
+    })
+}
 
-        const enrichmentInput = toEnrichmentInput(property, submittedBody)
-        const aiContext = { sessionId: `property-${propertyId}`, distinctId: userId }
-        const enrichedBody = isPrivate
-            ? await enrichPrivateProperty(enrichmentInput, aiContext)
-            : await enrichPropertyOnCreate(enrichmentInput, aiContext)
-        const propertyPatch = {
-            ...toPropertyPatch(property, enrichedBody),
-            ...(isPrivate ? { aiStatus: PropertyAiStatus.DONE } : {}),
-        }
-
-        if (!(await writeIfUnchanged(propertyId, baselineUpdatedAt, propertyPatch))) return
-        void notifyTemplates({ agencyId: property.agencyId, propertyId: property.id })
-    } catch (err) {
-        console.error("[AI_PROPERTY_POSTPROCESS] Failed to postprocess property", err)
-        if (isPrivate && property) await recordPrivateFailure(property, baselineUpdatedAt, submittedBody)
-    }
+// Throws when the AI step fails: the caller decides between a retry and toFailurePatch.
+// The enrichers are injectable so specs run without a model.
+export const enrichStoredProperty = async (
+    property,
+    aiContext,
+    { enrichPrivate = enrichPrivateProperty, enrichAgency = enrichPropertyOnCreate } = {}
+) => {
+    const input = toStoredEnrichmentInput(property)
+    const enrichedBody = property.clientId ? await enrichPrivate(input, aiContext) : await enrichAgency(input, aiContext)
+    return { ...toPropertyPatch(property, enrichedBody), aiStatus: PropertyAiStatus.DONE }
 }

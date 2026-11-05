@@ -1,0 +1,20 @@
+# Local development only. Deployments use Dockerfile.vps and the Redis on the VPS network.
+services:
+    redis:
+        image: redis:7.4-alpine
+        # BullMQ jobs must never be evicted; AOF keeps queued jobs across container restarts
+        command: ["redis-server", "--maxmemory-policy", "noeviction", "--appendonly", "yes"]
+        ports:
+            # No password on this instance, so it is only reachable from this machine
+            - "127.0.0.1:6379:6379"
+        volumes:
+            - redis-data:/data
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 2s
+            timeout: 3s
+            retries: 15
+        restart: unless-stopped
+
+volumes:
+    redis-data:

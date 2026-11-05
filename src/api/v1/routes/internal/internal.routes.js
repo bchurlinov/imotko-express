@@ -6,6 +6,7 @@ import {
     enqueueFacebookPublication,
     parseFacebookPublicationRequest,
 } from "#services/properties/facebook_publication_queue.service.js"
+import { enqueuePropertyAi, parsePropertyAiRequest } from "#services/properties/property_ai_queue.service.js"
 import {
     parseBulkEmailRequest,
     renderBulkEmailHtml,
@@ -61,6 +62,33 @@ export const createFacebookPublicationHandler =
     }
 
 router.post("/facebook-publication", createFacebookPublicationHandler())
+
+/**
+ * Handler for imotko (Next) asking for AI post-processing of a saved property. Same authentication as the Facebook
+ * handler. The body is never logged: it is parsed down to identifiers before anything else sees it.
+ * The job id is per baseline updatedAt, so a retried call does not process twice.
+ *
+ * @param {{ enqueue?: typeof enqueuePropertyAi, isTrusted?: typeof isTrustedInternalCaller }} [deps]
+ * @returns {import('express').RequestHandler}
+ */
+export const createPropertyAiHandler =
+    ({ enqueue = enqueuePropertyAi, isTrusted = isTrustedInternalCaller } = {}) =>
+    async (req, res) => {
+        if (!isTrusted(req)) return res.status(401).json({ message: "Unauthorized" })
+
+        const request = parsePropertyAiRequest(req.body)
+        if (!request) return res.status(400).json({ message: "Invalid request" })
+
+        try {
+            const job = await enqueue(request)
+            return res.status(202).json({ jobId: job?.id ?? null })
+        } catch (error) {
+            console.error("[propertyAi] enqueue failed", request.propertyId, error?.message || error)
+            return res.status(503).json({ message: "Queue unavailable" })
+        }
+    }
+
+router.post("/property-ai-postprocess", createPropertyAiHandler())
 
 const CUSTOM_RECIPIENT_MODE = "custom"
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i

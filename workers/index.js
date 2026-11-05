@@ -1,6 +1,7 @@
 import "dotenv/config"
 import { createLogger } from "./facebook-property-publication/logger.js"
 import { startFacebookPropertyPublicationWorker } from "./facebook-property-publication/worker.js"
+import { startPropertyAiWorker } from "./property-ai-postprocess/worker.js"
 import { startWorkerProcess } from "./runtime.js"
 import prisma from "#database/client.js"
 
@@ -8,7 +9,10 @@ const logger = createLogger()
 
 try {
     await startWorkerProcess({
-        workerFactories: [() => startFacebookPropertyPublicationWorker({ logger })],
+        workerFactories: [
+            () => startFacebookPropertyPublicationWorker({ logger }),
+            () => startPropertyAiWorker({ logger }),
+        ],
         prisma,
         logError: error => {
             logger.error("workers_shutdown_failed", { errorCode: error?.name || "unknown" })

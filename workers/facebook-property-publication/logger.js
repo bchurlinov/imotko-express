@@ -16,6 +16,7 @@ const ALLOWED_FIELDS = new Set([
     "fbtraceId",
     "facebookPostId",
     "persistenceOutcome",
+    "count",
 ])
 
 const sanitize = fields =>

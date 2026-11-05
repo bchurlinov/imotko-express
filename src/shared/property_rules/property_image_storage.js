@@ -186,13 +186,53 @@ const uploadBuffer = async (supabase, storageKey, buffer, contentType) => {
     return getPublicUrl(supabase, storageKey)
 }
 
-const removeStorageKeys = async (supabase, keys = []) => {
-    const uniqueKeys = [...new Set((keys || []).filter(Boolean))]
-    if (!uniqueKeys.length) return
+// SECURITY(N-11): the service role key skips every Supabase policy, so these checks are the only thing between a route
+// bug and someone else's files. The one bucket .remove() call lives in removeKeysFromBucket, which is not exported:
+// every delete goes through removeStorageKeys or removeAdminImageKeys.
+const isSafeStorageKey = key => typeof key === "string" && key.length > 0 && !key.includes("..") && !key.includes("%")
 
-    const { error } = await supabase.storage.from(PROPERTY_IMAGE_BUCKET).remove(uniqueKeys)
+const isRootStorageKey = key => !key.includes("/")
+
+const removeKeysFromBucket = async (supabase, keys) => {
+    const { error } = await supabase.storage.from(PROPERTY_IMAGE_BUCKET).remove(keys)
     if (error) console.error("Error deleting from Supabase:", error)
+
+    return { error: error || null }
 }
+
+const removeAllowedStorageKeys = async (supabase, keys, isAllowed) => {
+    const uniqueKeys = [...new Set((keys || []).filter(Boolean))]
+    const allowed = []
+    const refused = []
+
+    for (const key of uniqueKeys) {
+        if (isSafeStorageKey(key) && isAllowed(key)) allowed.push(key)
+        else refused.push(key)
+    }
+
+    if (refused.length) console.error("[storage-guard] refused keys", refused)
+    if (!allowed.length) return { error: null, refused }
+
+    const { error } = await removeKeysFromBucket(supabase, allowed)
+    return { error, refused }
+}
+
+// For normal routes: only the caller's own folder, plus old root-level files when the caller says a saved record
+// supplied them. With no scope nothing is allowed, so a forgotten argument fails closed.
+const removeStorageKeys = async (supabase, keys = [], { scope, allowLegacyRoot = false } = {}) => {
+    const hasScope = typeof scope === "string" && scope.length > 0
+    const ownedPrefix = hasScope ? `uploads/${scope}/` : null
+
+    return removeAllowedStorageKeys(
+        supabase,
+        keys,
+        key => (ownedPrefix !== null && key.startsWith(ownedPrefix)) || (allowLegacyRoot && isRootStorageKey(key))
+    )
+}
+
+// For admin hard delete: any upload folder and old root-level files. Still refuses everything else (screenshots/).
+const removeAdminImageKeys = async (supabase, keys = []) =>
+    removeAllowedStorageKeys(supabase, keys, key => key.startsWith("uploads/") || isRootStorageKey(key))
 
 const downloadStorageKey = async (supabase, storageKey) => {
     const { data, error } = await supabase.storage.from(PROPERTY_IMAGE_BUCKET).download(storageKey)
@@ -281,7 +321,7 @@ const storeNormalizedImageSet = async ({ supabase, normalizedBuffer, fileInfo, s
             ...(watermark ? { watermarked: true } : {}),
         }
     } catch (error) {
-        await removeStorageKeys(supabase, uploadedKeys)
+        await removeStorageKeys(supabase, uploadedKeys, { scope })
         throw error
     }
 }
@@ -303,7 +343,11 @@ const hasScopedImageOwnership = ({ image, scope }) => {
     const prefix = getOwnedImagePrefix({ scope, imageId: image?.id })
     const storageKeys = [image?.originalKey, ...(image?.s3Urls || [])].filter(Boolean)
 
-    return storageKeys.length > 0 && storageKeys.every(storageKey => storageKey.startsWith(prefix))
+    const isInsideFolder = storageKey =>
+        typeof storageKey === "string" && storageKey.startsWith(prefix) && !/\.\.|%/.test(storageKey)
+
+    // SECURITY(N-10): size URLs turn into storage keys too, so a forged one must not pass on the other keys' strength.
+    return storageKeys.length > 0 && [...storageKeys, ...getLegacyStorageKeys(image)].every(isInsideFolder)
 }
 
 // SECURITY(F-19): `images` from a request body later become storage keys that are downloaded/deleted with a
@@ -317,7 +361,9 @@ const areImagesOwnedOrUnchanged = ({ images, existingImages, scope }) => {
     const sameStoredKeys = (a, b) =>
         (a?.originalKey ?? null) === (b?.originalKey ?? null) &&
         JSON.stringify(a?.s3Urls ?? null) === JSON.stringify(b?.s3Urls ?? null) &&
-        (a?.sizes?.large ?? null) === (b?.sizes?.large ?? null)
+        (a?.sizes?.large ?? null) === (b?.sizes?.large ?? null) &&
+        // SECURITY(N-10): an older image's files are found through these URLs: they can be left out, never changed.
+        ["small", "medium"].every(size => !b?.sizes?.[size] || b.sizes[size] === a?.sizes?.[size])
 
     return images.every(image => {
         if (!image || typeof image !== "object") return false
@@ -338,6 +384,14 @@ const getStorageKeyFromPublicUrl = (publicUrl = "") => {
 const getLegacyStorageKeys = (image = {}) => {
     if (!image?.sizes || typeof image.sizes !== "object") return []
     return ["small", "medium", "large"].map(size => getStorageKeyFromPublicUrl(image.sizes[size])).filter(Boolean)
+}
+
+// SECURITY(N-10): an image's own keys win. Size URLs are only for older images that record nothing else, so call this
+// on a saved record or on an image that passed hasScopedImageOwnership, never on raw request data.
+const getImageFileKeys = image => {
+    const storedKeys = [image?.originalKey, ...(Array.isArray(image?.s3Urls) ? image.s3Urls : [])].filter(Boolean)
+
+    return storedKeys.length > 0 ? storedKeys : getLegacyStorageKeys(image)
 }
 
 const getImageLargeKey = (image = {}) => {
@@ -398,11 +452,12 @@ export {
     getImageStorageScope,
     getImageStorageScopeKey,
     getStorageKeyFromPublicUrl,
-    getLegacyStorageKeys,
+    getImageFileKeys,
     isMatchingPropertyImage,
     getPropertyImagePool,
     areImagesOwnedOrUnchanged,
     hasScopedImageOwnership,
+    removeAdminImageKeys,
     removeStorageKeys,
     rotateImageSet,
     sanitizeStorageSegment,

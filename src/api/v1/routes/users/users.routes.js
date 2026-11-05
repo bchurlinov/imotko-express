@@ -23,7 +23,7 @@ import {
 } from "#controllers/users/users_search.controller.js"
 import { validateRequest } from "#middlewares/validate_request.js"
 import { verifySupabaseToken } from "#middlewares/verifySupabaseToken.js"
-import { resolveChatViewer } from "#middlewares/resolveChatViewer.js"
+import { requireChatAdmin, resolveChatViewer } from "#middlewares/resolveChatViewer.js"
 import { chatErrorResponder } from "#controllers/chat/chat_response.js"
 import {
     registerPushTokenController,
@@ -70,21 +70,25 @@ router.post(
 
 router.post(
     "/create-user",
+    verifySupabaseToken,
     [
         body("fullName")
             .notEmpty()
             .withMessage("User name is required")
             .isString()
             .withMessage("User ID must be a string"),
-        body("email").notEmpty().withMessage("User email is required").isEmail().withMessage("Invalid email"),
         body("avatarUrl").isString().optional().isURL().withMessage("Avatar URL must be a valid URL"),
     ],
     validateRequest,
     findOrCreateUserController
 )
 
+// SECURITY: this creates a confirmed login with any role, ADMIN included, so only a platform admin may call it. It was
+// public, which let anyone mint an admin account. Sign-ups go through Supabase and /create-user, never this route.
 router.post(
     "/",
+    resolveChatViewer,
+    requireChatAdmin,
     [
         body("email").notEmpty().withMessage("Email is required").isEmail().withMessage("Invalid email"),
         body("password")
@@ -113,7 +117,8 @@ router.post(
         body("metadata").optional().isObject().withMessage("Metadata must be an object"),
     ],
     validateRequest,
-    createUserController
+    createUserController,
+    chatErrorResponder
 )
 
 router.post(

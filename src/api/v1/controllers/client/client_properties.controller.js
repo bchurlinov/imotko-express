@@ -16,7 +16,7 @@ import { spendClientCredits } from "#shared/property_rules/credits.js"
 import { renewPropertyOncePerDay } from "#shared/property_rules/renew_policy.js"
 import { PRICING_CREDITS } from "#shared/property_rules/pricing_credits.js"
 import { resolvePropertyLocation } from "#shared/property_rules/property_location.js"
-import { upsertPropertyTaxonomy } from "#shared/property_rules/property_dto.js"
+import { preferTypedMacedonianText, upsertPropertyTaxonomy } from "#shared/property_rules/property_dto.js"
 import { slugifyText } from "#shared/property_rules/strings.js"
 import { scheduleAiPostprocess } from "#services/client/client_ai.service.js"
 import { scheduleClientListingConversions } from "#services/client/client_listing_tracking.service.js"
@@ -50,6 +50,9 @@ const EDIT_SELECT = { listingType: true, slug: true, photos: true, propertyPlan:
 // Side effects that run after the response; specs replace them (no network in tests).
 export const clientListingEffects = { scheduleAi: scheduleAiPostprocess, afterCreated: scheduleClientListingConversions }
 
+// The AI worker rewrites the Macedonian text from the saved row, so it must hold what the seller typed.
+const listingDataFor = body => buildClientListingData(preferTypedMacedonianText(body))
+
 const ownedOr404 = async (req, select = { slug: true, agencyId: true }) => {
     const property = await loadOwnedProperty(prisma, {
         sessionUser: req.chatUser,
@@ -73,7 +76,7 @@ export const createClientPropertyController = async (req, res) => {
             const { categoryId, subcategoryId } = await upsertPropertyTaxonomy(tx, { type: body.type, ...taxonomy })
             return tx.property.create({
                 data: {
-                    ...buildClientListingData(body),
+                    ...listingDataFor(body),
                     // Decision 102a: checked by default; only an explicit false opts out. Edits never touch it (127a).
                     agencyContactAllowed: body.agencyContactAllowed !== false,
                     slug: slugifyText(body.name) || "nedviznina",
@@ -94,10 +97,9 @@ export const createClientPropertyController = async (req, res) => {
     // Decision 118a: same AI translation/cleanup as on the web, after the response.
     clientListingEffects.scheduleAi({
         propertyId: property.id,
-        submittedBody: body,
         baselineUpdatedAt: property.updatedAt,
         userId,
-        listerKind: "private",
+        orderPhotos: true,
     })
     // Owner listing conversion: PropertySubmitted + the owner's empty location, after the response.
     clientListingEffects.afterCreated({ property, userId, clientId: req.client.id, city: body.city, req })
@@ -126,7 +128,7 @@ export const updateClientPropertyController = async (req, res) => {
             const updated = await tx.property.update({
                 where: { id: existing.id },
                 data: {
-                    ...buildClientListingData(body),
+                    ...listingDataFor(body),
                     updatedAt: new Date(),
                     propertyLocation: { connect: { id: locationId } },
                     category: { connect: { id: categoryId } },
@@ -143,10 +145,9 @@ export const updateClientPropertyController = async (req, res) => {
     // Edits rewrite the title and translations too (private listing AI cleanup §3.6).
     clientListingEffects.scheduleAi({
         propertyId: property.id,
-        submittedBody: body,
         baselineUpdatedAt: property.updatedAt,
         userId: req.chatViewer.userId,
-        listerKind: "private",
+        orderPhotos: false,
     })
     return clientJson(res, 200, "clientListingSubmitted", property)
 }

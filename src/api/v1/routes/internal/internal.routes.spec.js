@@ -4,6 +4,7 @@ import {
     createBulkEmailHandler,
     createBulkEmailStatusHandler,
     createFacebookPublicationHandler,
+    createPropertyAiHandler,
     isValidRevalidateSecret,
 } from "./internal.routes.js"
 import { enqueueFacebookPublication } from "#services/properties/facebook_publication_queue.service.js"
@@ -113,6 +114,75 @@ test("facebook publication: enqueue gives up instead of hanging while Redis is u
         }),
         /did not answer/
     )
+})
+
+const aiBody = { propertyId: "property-1", baselineUpdatedAt: 1788948930000, orderPhotos: true }
+
+test("property ai: rejects callers without the internal secret", async () => {
+    let enqueued = false
+    const handler = createPropertyAiHandler({
+        isTrusted: () => false,
+        enqueue: async () => {
+            enqueued = true
+        },
+    })
+    const res = createRes()
+    await handler({ body: aiBody }, res)
+    assert.equal(res.statusCode, 401)
+    assert.equal(enqueued, false)
+})
+
+test("property ai: rejects an invalid body", async () => {
+    let enqueued = false
+    const handler = createPropertyAiHandler({
+        isTrusted: () => true,
+        enqueue: async () => {
+            enqueued = true
+        },
+    })
+    for (const body of [undefined, {}, { ...aiBody, baselineUpdatedAt: 0 }, { ...aiBody, orderPhotos: "yes" }]) {
+        const res = createRes()
+        await handler({ body }, res)
+        assert.equal(res.statusCode, 400)
+    }
+    assert.equal(enqueued, false)
+})
+
+test("property ai: enqueues the parsed request only and returns the job id", async () => {
+    let received
+    const handler = createPropertyAiHandler({
+        isTrusted: () => true,
+        enqueue: async request => {
+            received = request
+            return { id: "property-ai-property-1-1788948930000" }
+        },
+    })
+    const res = createRes()
+    await handler({ body: { ...aiBody, name: "SECRET" } }, res)
+    assert.equal(res.statusCode, 202)
+    assert.deepEqual(received, aiBody)
+    assert.deepEqual(res.body, { jobId: "property-ai-property-1-1788948930000" })
+})
+
+test("property ai: answers 503 without logging the body when the queue is unavailable", async () => {
+    const logged = []
+    const original = console.error
+    console.error = (...args) => logged.push(args.join(" "))
+    try {
+        const handler = createPropertyAiHandler({
+            isTrusted: () => true,
+            enqueue: async () => {
+                throw new Error("Connection is closed.")
+            },
+        })
+        const res = createRes()
+        await handler({ body: { ...aiBody, name: "SECRET" } }, res)
+        assert.equal(res.statusCode, 503)
+    } finally {
+        console.error = original
+    }
+    assert.equal(logged.length > 0, true)
+    assert.equal(logged.join("\n").includes("SECRET"), false)
 })
 
 const CAMPAIGN_ID = "3f1c9a52-7d4e-4b8a-9c21-5e6f7a8b9c0d"

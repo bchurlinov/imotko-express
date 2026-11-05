@@ -11,7 +11,6 @@ import {
     setClientPropertyVisibilityController,
     updateClientPropertyController,
 } from "./client_properties.controller.js"
-import { scheduleAiPostprocess } from "#services/client/client_ai.service.js"
 import { buildPlaceholderTitle } from "#shared/property_rules/placeholder_title.js"
 
 const cases = JSON.parse(readFileSync(new URL("../../../../shared/property_rules/shared_cases.json", import.meta.url), "utf8"))
@@ -137,15 +136,16 @@ test("create schedules conversion tracking and keeps the response shape unchange
     assert.equal("type" in res.body.data, false)
 })
 
-test("create replaces any title with the placeholder, marks aiStatus PENDING and schedules the private AI step", async () => {
+test("create replaces any title with the placeholder, marks aiStatus PENDING and schedules the AI step", async () => {
     const calls = fakeTx()
     await createClientPropertyController(request({ body: body({ name: "Vila Vesna 070 123 456" }) }), fakeRes())
     assert.equal(calls.create.name.mk, buildPlaceholderTitle(cases.baseListing))
     assert.equal(calls.create.aiStatus, "PENDING")
-    assert.equal(scheduled[0].listerKind, "private")
+    assert.equal(scheduled.length, 1)
+    assert.equal(scheduled[0].propertyId, "p1")
 })
 
-test("edit schedules the private AI step with the saved updatedAt", async () => {
+test("edit schedules the AI step with the saved updatedAt", async () => {
     const calls = fakeTx()
     prisma.property.findUnique = async () => ({
         id: "p1",
@@ -159,7 +159,6 @@ test("edit schedules the private AI step with the saved updatedAt", async () => 
     await updateClientPropertyController(request(), fakeRes())
     assert.equal(calls.update.aiStatus, "PENDING")
     assert.equal(scheduled.length, 1)
-    assert.equal(scheduled[0].listerKind, "private")
     assert.deepEqual(scheduled[0].baselineUpdatedAt, new Date(0))
 })
 
@@ -293,12 +292,89 @@ test("delete is soft", async () => {
     assert.deepEqual(data, { status: "DELETED", autoRenewEnabled: false })
 })
 
-test("the AI step runs after the response and never throws into it", async () => {
-    let ran
-    let deferred
-    scheduleAiPostprocess({ propertyId: "p1" }, { run: async args => (ran = args), defer: fn => (deferred = fn) })
-    assert.equal(ran, undefined)
-    deferred()
-    assert.deepEqual(ran, { propertyId: "p1" })
-    scheduleAiPostprocess({}, { run: async () => Promise.reject(new Error("model down")), defer: fn => fn() })
+// The mobile controllers hand the AI step to the worker queue after the response.
+const existingListing = () => ({
+    id: "p1",
+    clientId: "c1",
+    status: "PUBLISHED",
+    listingType: "for_sale",
+    slug: "svetol",
+    photos: [ownedPhoto],
+    propertyPlan: [],
+})
+const storedText = { nameMk: "Стар наслов", descriptionMk: "Стар опис од претходно зачувување" }
+
+test("orderPhotos and the saved updatedAt are scheduled for the worker: create orders photos, edit does not", async () => {
+    fakeTx()
+    await createClientPropertyController(request(), fakeRes())
+    prisma.property.findUnique = async () => existingListing()
+    await updateClientPropertyController(request(), fakeRes())
+
+    assert.deepEqual(
+        scheduled.map(({ propertyId, userId, orderPhotos, baselineUpdatedAt }) => ({
+            propertyId,
+            userId,
+            orderPhotos,
+            baselineUpdatedAt,
+        })),
+        [
+            { propertyId: "p1", userId: "u1", orderPhotos: true, baselineUpdatedAt: new Date(0) },
+            { propertyId: "p1", userId: "u1", orderPhotos: false, baselineUpdatedAt: new Date(0) },
+        ]
+    )
+    scheduled.forEach(args => {
+        assert.equal("submittedBody" in args, false, "listing text is never handed to the scheduler")
+        assert.equal("listerKind" in args, false)
+    })
+})
+
+test("create stores the typed text as name.mk and description.mk", async () => {
+    const calls = fakeTx()
+    await createClientPropertyController(request({ body: body(storedText) }), fakeRes())
+
+    assert.equal(calls.create.name.mk, buildPlaceholderTitle(cases.baseListing))
+    assert.equal(calls.create.description.mk, cases.baseListing.description)
+})
+
+test("edit stores the typed text as name.mk and description.mk", async () => {
+    const calls = fakeTx()
+    prisma.property.findUnique = async () => existingListing()
+    await updateClientPropertyController(request({ body: body(storedText) }), fakeRes())
+
+    assert.equal(calls.update.name.mk, buildPlaceholderTitle(cases.baseListing))
+    assert.equal(calls.update.description.mk, cases.baseListing.description)
+})
+
+test("response body keeps its old shape (old app versions keep working)", async () => {
+    fakeTx({
+        property: {
+            count: async () => 0,
+            create: async () => ({
+                id: "p1",
+                slug: "svetol",
+                status: "PENDING",
+                listingType: "for_sale",
+                type: "flat",
+                updatedAt: new Date(0),
+            }),
+            update: async () => ({
+                id: "p1",
+                slug: "svetol",
+                status: "PENDING",
+                listingType: "for_sale",
+                updatedAt: new Date(0),
+                agencyId: null,
+            }),
+        },
+    })
+    prisma.property.findUnique = async () => existingListing()
+    const created = fakeRes()
+    await createClientPropertyController(request({ body: body(storedText) }), created)
+    const edited = fakeRes()
+    await updateClientPropertyController(request({ body: body(storedText) }), edited)
+
+    assert.equal(created.statusCode, 201)
+    assert.equal(edited.statusCode, 200)
+    assert.equal(created.body.message, "clientListingSubmitted")
+    assert.equal("type" in created.body.data, false)
 })

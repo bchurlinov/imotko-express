@@ -1,5 +1,3 @@
-// COPIED FROM imotko/src/lib/ai/property_enrichment.js by scripts/export_property_rules.mjs — do not edit here.
-// Change the web file, then re-run the script (design D §3).
 import { generateText, Output } from "ai"
 import { openai } from "@ai-sdk/openai"
 import { z } from "zod"
@@ -190,12 +188,13 @@ export const mergeAttributes = (body, enrichedAttributes = {}) => {
 export const toAttributePromptList = keys =>
     keys.map(key => `- ${key}: ${ATTRIBUTE_DESCRIPTIONS[key] || key}`).join("\n")
 
-export const enrichPropertyOnCreate = async (body, aiContext) => {
+// `generate` is injectable so specs run without a model.
+export const enrichPropertyOnCreate = async (body, aiContext, { generate = generateText } = {}) => {
     try {
         const eligibleAttributeKeys = getEligibleAttributeKeys(body.type)
         const existingAttributes = getExistingAttributes(body)
 
-        const { output } = await generateText({
+        const { output } = await generate({
             model: observeLanguageModel(openai("gpt-4o"), {
                 ...aiContext,
                 traceName: "property_enrichment",
@@ -273,6 +272,7 @@ ${toAttributePromptList(eligibleAttributeKeys)}
 - Use null when unknown.
 `,
             temperature: 0,
+            abortSignal: AbortSignal.timeout(120_000),
         })
 
         const mergedAttributes = mergeAttributes(body, output.attributes)
@@ -298,8 +298,12 @@ ${toAttributePromptList(eligibleAttributeKeys)}
             ...mergedAttributes,
         }
     } catch (err) {
-        console.error("[AI_PROPERTY_ENRICHMENT] Failed to enrich property", err)
-        return body
+        // The provider error carries the whole request (listing text): log its name and status only.
+        console.error("[AI_PROPERTY_ENRICHMENT] Failed to enrich property", {
+            name: err?.name,
+            statusCode: err?.statusCode,
+        })
+        throw err
     } finally {
         flushAiObservability()
     }

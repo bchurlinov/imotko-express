@@ -11,7 +11,7 @@ import {
     getImageLargeKey,
     getImageStorageScope,
     getImageStorageScopeKey,
-    getLegacyStorageKeys,
+    getImageFileKeys,
     getPropertyImagePool,
     getStorageKeyFromPublicUrl,
     hasScopedImageOwnership,
@@ -76,13 +76,14 @@ export const uploadImagesController = async (req, res) => {
 
 export const rotateImageController = async (req, res) => {
     let nextImage
+    let storageScope
     try {
         const userId = req.chatViewer.userId
         const { image, direction, propertyId } = req.body || {}
         if (!image?.id || !ROTATION_DIRECTIONS.has(direction)) fail(400, "somethingWentWrong")
 
         const storageContext = await getImageStorageScope(userId)
-        let storageScope = storageContext.scope
+        storageScope = storageContext.scope
         let currentImage = image
         let property = null
         let imagePool = null
@@ -97,7 +98,9 @@ export const rotateImageController = async (req, res) => {
             if (!allowed) fail(403, "unauthorized")
 
             property = currentProperty
-            storageScope = getImageStorageScopeKey({ agencyId: property?.agencyId, userId })
+            // Agency-less listings keep their files in the creator's folder, so an admin rotating one writes there too.
+            // userCanMutateProperty above still decides who may rotate.
+            storageScope = getImageStorageScopeKey({ agencyId: property?.agencyId, userId: property?.createdBy })
             imagePool = getPropertyImagePool(property, image)
             if (!imagePool) fail(404, "noMatchingPropertyFound")
 
@@ -146,15 +149,15 @@ export const rotateImageController = async (req, res) => {
             void notifyTemplates({ agencyId: property.agencyId, propertyId })
         }
 
-        const oldKeysToRemove =
-            Array.isArray(currentImage.s3Urls) && currentImage.s3Urls.length > 0
-                ? [currentImage.originalKey, ...currentImage.s3Urls]
-                : [currentImage.originalKey, ...getLegacyStorageKeys(currentImage)]
-        await removeStorageKeys(supabaseAdmin, oldKeysToRemove)
+        // Only a saved record can supply old root-level keys (SECURITY(N-11)); the no-property path needs owned keys.
+        await removeStorageKeys(supabaseAdmin, getImageFileKeys(currentImage), {
+            scope: storageScope,
+            allowLegacyRoot: Boolean(propertyId),
+        })
 
         return clientJson(res, 200, null, nextImage)
     } catch (error) {
-        if (nextImage?.s3Urls?.length) await removeStorageKeys(supabaseAdmin, nextImage.s3Urls)
+        if (nextImage?.s3Urls?.length) await removeStorageKeys(supabaseAdmin, nextImage.s3Urls, { scope: storageScope })
         throw error
     }
 }
@@ -172,7 +175,8 @@ export const deleteImageController = async (req, res) => {
         const { data: files } = await bucket.list(`${imageFolder}/${version.name}`, { limit: 100 })
         for (const file of files ?? []) keys.push(`${imageFolder}/${version.name}/${file.name}`)
     }
-    const { error } = keys.length > 0 ? await bucket.remove(keys) : { error: listError }
+    // SECURITY(N-11): the guard removes only keys under this caller's scope; a storage error still answers 500.
+    const { error } = keys.length > 0 ? await removeStorageKeys(supabaseAdmin, keys, { scope }) : { error: listError }
     if (error) {
         console.error("[uploads] delete failed", error)
         fail(500, "somethingWentWrong")
