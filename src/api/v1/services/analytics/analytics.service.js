@@ -94,7 +94,8 @@ export const getPriceTrendsService = async (params = {}) => {
         let paramIndex = 3
 
         if (resolvedLocationId) {
-            joinConditions.push(`mt."propertyLocationId" = $${paramIndex}`)
+            // A city (e.g. Skopje) has no listings of its own; they sit on its child areas
+            joinConditions.push(`(mt."propertyLocationId" = $${paramIndex} OR mt."parentLocationId" = $${paramIndex})`)
             queryParams.push(resolvedLocationId)
             paramIndex++
         }

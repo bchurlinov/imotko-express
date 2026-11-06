@@ -56,3 +56,17 @@ test("demand analytics only includes sale and long-term rent by default", async 
 
     assert.match(calls[0].sql, /"listingType"::text IN \('for_sale', 'for_rent'\)/)
 })
+
+test("price trends for a city include listings in its child areas", async () => {
+    const originalFindUnique = prisma.propertyLocation.findUnique
+    prisma.propertyLocation.findUnique = async () => ({ id: "skopje-id" })
+    try {
+        const calls = captureSql()
+        await getPriceTrendsService({ locationId: "skopje", listingType: "for_sale" })
+
+        assert.match(calls[0].sql, /mt\."propertyLocationId" = \$3 OR mt\."parentLocationId" = \$3/)
+        assert.equal(calls[0].params[2], "skopje-id")
+    } finally {
+        prisma.propertyLocation.findUnique = originalFindUnique
+    }
+})
