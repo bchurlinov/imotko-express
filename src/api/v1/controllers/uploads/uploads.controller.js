@@ -24,6 +24,7 @@ import {
 } from "#shared/property_rules/property_image_storage.js"
 import { clientJson } from "#controllers/client/client_listing_response.js"
 import { notifyTemplates } from "#utils/templates_revalidation.js"
+import { notifyWebProperty } from "#utils/web_revalidation.js"
 
 // Same server-side limits as the web's /api/upload (SECURITY N-5).
 const MAX_FILES_PER_REQUEST = 10
@@ -147,6 +148,8 @@ export const rotateImageController = async (req, res) => {
                 data: { [imagePool]: nextImages, updatedAt: new Date() },
             })
             void notifyTemplates({ agencyId: property.agencyId, propertyId })
+            // COST(B-04): the web property page is cached now; refresh it so the rotated photo shows at once.
+            void notifyWebProperty({ propertyId })
         }
 
         // Only a saved record can supply old root-level keys (SECURITY(N-11)); the no-property path needs owned keys.

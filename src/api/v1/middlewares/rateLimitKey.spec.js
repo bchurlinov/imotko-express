@@ -13,8 +13,14 @@ Object.assign(process.env, {
     SUPABASE_JWKS_URL: `${SUPABASE_URL}/auth/v1/.well-known/jwks.json`,
 })
 
-const { INTERNAL_SECRET_HEADER, attachRateLimitKey, isTrustedInternalCaller, normalizeIp, resolveRateLimitKey } =
-    await import("./rateLimitKey.js")
+const {
+    INTERNAL_SECRET_HEADER,
+    attachRateLimitKey,
+    isTrustedInternalCaller,
+    normalizeIp,
+    resolveInternalCallerStatus,
+    resolveRateLimitKey,
+} = await import("./rateLimitKey.js")
 
 const SECRET = "a".repeat(64)
 const ENV = { INTERNAL_API_SECRET: SECRET }
@@ -47,6 +53,29 @@ test("nobody is trusted while INTERNAL_API_SECRET is unset, even with an empty h
     }
 })
 
+test("internal caller status separates a missing header from a wrong one", () => {
+    const status = (value, env = ENV) =>
+        resolveInternalCallerStatus(
+            fakeReq({ headers: value === undefined ? {} : { [INTERNAL_SECRET_HEADER]: value } }),
+            env
+        )
+
+    assert.equal(status(SECRET), "yes")
+    assert.equal(status(undefined), "no")
+    assert.equal(status(""), "no")
+    for (const value of ["wrong", SECRET.slice(1), `${SECRET}x`, [SECRET, SECRET]]) {
+        assert.equal(status(value), "invalid", String(value))
+    }
+})
+
+test("a header sent while INTERNAL_API_SECRET is unset is invalid, not trusted", () => {
+    for (const env of [{}, { INTERNAL_API_SECRET: "" }]) {
+        const req = fakeReq({ headers: { [INTERNAL_SECRET_HEADER]: SECRET } })
+        assert.equal(resolveInternalCallerStatus(req, env), "invalid")
+        assert.equal(resolveInternalCallerStatus(fakeReq(), env), "no")
+    }
+})
+
 test("anonymous requests are keyed by IP, with IPv6 collapsed to its /64", async () => {
     assert.deepEqual(await resolveRateLimitKey(fakeReq()), { key: "ip:203.0.113.7", kind: "ip" })
     assert.deepEqual(await resolveRateLimitKey(fakeReq({ ip: "::ffff:198.51.100.4" })), {
@@ -75,14 +104,20 @@ test("attachRateLimitKey sets the bucket and the internal flag, then calls next"
 
     const internal = fakeReq({ headers: { [INTERNAL_SECRET_HEADER]: SECRET } })
     const visitor = fakeReq({ headers: { [INTERNAL_SECRET_HEADER]: "guess" } })
+    const anonymous = fakeReq()
     let calls = 0
     const next = () => calls++
 
     await attachRateLimitKey(internal, {}, next)
     await attachRateLimitKey(visitor, {}, next)
+    await attachRateLimitKey(anonymous, {}, next)
 
-    assert.equal(calls, 2)
+    assert.equal(calls, 3)
     assert.equal(internal.trustedInternalCaller, true)
+    assert.equal(internal.internalCallerStatus, "yes")
     assert.equal(visitor.trustedInternalCaller, false)
+    assert.equal(visitor.internalCallerStatus, "invalid")
+    assert.equal(anonymous.trustedInternalCaller, false)
+    assert.equal(anonymous.internalCallerStatus, "no")
     assert.deepEqual(visitor.rateLimitKey, { key: "ip:203.0.113.7", kind: "ip" })
 })

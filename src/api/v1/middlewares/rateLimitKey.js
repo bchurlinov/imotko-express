@@ -5,6 +5,35 @@ import { resolveVerifiedUserId } from "#utils/auth/supabaseJwt.js"
 export const INTERNAL_SECRET_HEADER = "x-imotko-internal-secret"
 
 /**
+ * @typedef {"yes" | "no" | "invalid"} InternalCallerStatus
+ * - yes: the header matches INTERNAL_API_SECRET
+ * - no: no header (or an empty one) was sent
+ * - invalid: a header was sent but does not match, including while INTERNAL_API_SECRET is unset on Express
+ */
+
+/**
+ * Classifies the internal secret header for trust and for the request log.
+ *
+ * Splitting "invalid" from "no" tells a misconfigured caller (secret differs between Vercel and Express) apart from
+ * one that sends nothing (env var missing or not redeployed). Only "yes" is trusted.
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {NodeJS.ProcessEnv} [env] - Environment to read from
+ * @returns {InternalCallerStatus} Header status
+ */
+export const resolveInternalCallerStatus = (req, env = process.env) => {
+    const provided = req.headers?.[INTERNAL_SECRET_HEADER]
+    if (provided === undefined || provided === "") return "no"
+
+    const expected = env.INTERNAL_API_SECRET
+    if (!expected || typeof provided !== "string") return "invalid"
+
+    const a = Buffer.from(provided)
+    const b = Buffer.from(expected)
+    return a.length === b.length && timingSafeEqual(a, b) ? "yes" : "invalid"
+}
+
+/**
  * Whether the request comes from one of our own servers (imotko web, imotko-templates).
  *
  * Those call Express from a handful of shared Vercel egress IPs on behalf of every visitor, so they must not be
@@ -14,15 +43,7 @@ export const INTERNAL_SECRET_HEADER = "x-imotko-internal-secret"
  * @param {NodeJS.ProcessEnv} [env] - Environment to read from
  * @returns {boolean} True when the header matches INTERNAL_API_SECRET
  */
-export const isTrustedInternalCaller = (req, env = process.env) => {
-    const expected = env.INTERNAL_API_SECRET
-    const provided = req.headers?.[INTERNAL_SECRET_HEADER]
-    if (!expected || typeof provided !== "string" || !provided) return false
-
-    const a = Buffer.from(provided)
-    const b = Buffer.from(expected)
-    return a.length === b.length && timingSafeEqual(a, b)
-}
+export const isTrustedInternalCaller = (req, env = process.env) => resolveInternalCallerStatus(req, env) === "yes"
 
 /**
  * Collapses an IPv6 address to its /64 prefix.
@@ -90,7 +111,7 @@ export const resolveRateLimitKey = async req => {
  * Attaches `req.rateLimitKey` before the limiter runs, so both `keyGenerator`
  * and `limit` read the same already-resolved value instead of verifying the
  * token twice. Also flags `req.trustedInternalCaller`, which the global
- * limiter skips.
+ * limiter skips, and `req.internalCallerStatus` for the request log.
  *
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -98,7 +119,8 @@ export const resolveRateLimitKey = async req => {
  * @returns {Promise<void>}
  */
 export const attachRateLimitKey = async (req, res, next) => {
-    req.trustedInternalCaller = isTrustedInternalCaller(req)
+    req.internalCallerStatus = resolveInternalCallerStatus(req)
+    req.trustedInternalCaller = req.internalCallerStatus === "yes"
     try {
         req.rateLimitKey = await resolveRateLimitKey(req)
     } catch {

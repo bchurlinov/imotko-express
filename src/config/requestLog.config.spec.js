@@ -3,13 +3,14 @@ import { test } from "node:test"
 import express from "express"
 import { createRequestLogger } from "./requestLog.config.js"
 
-const logRequest = async ({ headers = {}, trusted = false } = {}) => {
+const logRequest = async ({ headers = {}, trusted = false, status } = {}) => {
     const lines = []
     const app = express()
     app.set("trust proxy", 1)
     app.use(createRequestLogger({ stream: { write: line => lines.push(line) } }))
     app.use((req, res, next) => {
         req.trustedInternalCaller = trusted
+        if (status) req.internalCallerStatus = status
         next()
     })
     app.get("/ping", (req, res) => res.json({ ok: true }))
@@ -55,4 +56,15 @@ test("marks verified internal callers and shows a dash for missing headers", asy
     assert.match(line, /client=- /)
     assert.match(line, /internal=yes /)
     assert.match(line, /referrer="-" /)
+})
+
+test("logs internal=invalid when a wrong secret was sent", async () => {
+    const line = await logRequest({ status: "invalid" })
+
+    assert.match(line, /internal=invalid /)
+})
+
+test("the attached status wins over the boolean flag", async () => {
+    assert.match(await logRequest({ trusted: false, status: "no" }), /internal=no /)
+    assert.match(await logRequest({ trusted: true, status: "yes" }), /internal=yes /)
 })

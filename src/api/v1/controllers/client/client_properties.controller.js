@@ -23,6 +23,7 @@ import { scheduleClientListingConversions } from "#services/client/client_listin
 import { clientJson } from "./client_listing_response.js"
 import { accountUnavailableError } from "#middlewares/client_listings_guard.js"
 import { notifyTemplates } from "#utils/templates_revalidation.js"
+import { notifyWebProperty } from "#utils/web_revalidation.js"
 
 export const listClientPropertiesController = async (req, res) => {
     const overview = await getClientListingsOverview(req.chatViewer.userId)
@@ -142,6 +143,8 @@ export const updateClientPropertyController = async (req, res) => {
         { timeout: 10000 }
     )
     void notifyTemplates({ agencyId: property.agencyId, propertyId: property.id })
+    // COST(B-04): the web property page is cached now; refresh it so the old version stops showing (edits go back to review).
+    void notifyWebProperty({ propertyId: property.id })
     // Edits rewrite the title and translations too (private listing AI cleanup §3.6).
     clientListingEffects.scheduleAi({
         propertyId: property.id,
@@ -161,6 +164,8 @@ export const deleteClientPropertyController = async (req, res) => {
     })
     if (!result.count) throw new ClientListingError(CLIENT_LISTING_ERRORS.NOT_FOUND, 404)
     void notifyTemplates({ agencyId: existing.agencyId, propertyId: existing.id })
+    // COST(B-04): the web property page is cached now; refresh it so a deleted listing is not served from cache.
+    void notifyWebProperty({ propertyId: existing.id })
     return clientJson(res, 200, "clientListingDeleted")
 }
 
@@ -177,6 +182,8 @@ export const setClientPropertyVisibilityController = async (req, res) => {
     })
     if (!result.count) throw new ClientListingError(CLIENT_LISTING_ERRORS.INVALID_STATUS, 409)
     void notifyTemplates({ agencyId: existing.agencyId, propertyId: existing.id })
+    // COST(B-04): the web property page is cached now; refresh it so a hidden listing is not served from cache.
+    void notifyWebProperty({ propertyId: existing.id })
     return clientJson(res, 200, req.body.visible ? "clientListingShown" : "clientListingHidden")
 }
 

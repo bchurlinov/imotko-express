@@ -10,7 +10,8 @@ export const REQUEST_LOG_FORMAT =
     ':method :url :status :response-time ms - :res[content-length] ip=:remote-addr client=:imotko-client internal=:imotko-internal referrer=":referrer" ua=":user-agent"'
 
 morgan.token("imotko-client", req => req.headers["x-imotko-client"])
-morgan.token("imotko-internal", req => (req.trustedInternalCaller === true ? "yes" : "no"))
+// yes = secret matched, no = header absent, invalid = header sent but wrong (or Express has no secret set)
+morgan.token("imotko-internal", req => req.internalCallerStatus ?? (req.trustedInternalCaller === true ? "yes" : "no"))
 
 /**
  * Builds the request logger
